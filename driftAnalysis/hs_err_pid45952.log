@@ -1,0 +1,52 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 4096 bytes for object start array expansion
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   In 32 bit mode, the process size limit was hit
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Use 64 bit Java on a 64 bit OS
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#
+#  Out of Memory Error0x000007fef7930000 - 0x000007fef7976000 	C:\Program Files\NVIDIA Corporation\CoProcManager\nvdxgiwrapx.dll
+0x0000000050470000 - 0x0000000050542000 	C:\Program Files\Java\jre7\bin\msvcr100.dll
+0x000000006e670000 - 0x000000006ee39000 	C:\Program Files\Java\jre7\bin\server\jvm.dll
+0x000007fefa2e0000 - 0x000007fefa2e9000 	C:\Windows\system32\WSOCK32.dll
+0x000007fefea20000 - 0x000007fefea6d000 	C:\Windows\system32\WS2_32.dll
+0x000007fefe670000 - 0x000007fefe678000 	C:\Windows\system32\NSI.dll
+0x000007fefb150000 - 0x000007fefb18b000 	C:\Windows\system32\WINMM.dll
+0x0000000077930000 - 0x0000000077937000 	C:\Windows\system32\PSAPI.DLL
+0x0000000062c90000 - 0x0000000062c9f000 	C:\Program Files\Java\jre7\bin\verify.dll
+0x000000005f6f0000 - 0x000000005f718000 	C:\Program Files\Java\jre7\bin\java.dll
+0x0000000060d00000 - 0x0000000060d15000 	C:\Program Files\Java\jre7\bin\zip.dll
+
+VM Arguments:
+jvm_args: -Duser.language=en -Duser.country=US -Xms512m -Xmx4096M -Dfile.encoding=Cp1252 
+java_command: driftAnalysis.Main
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+PATH=C:\Program Files\Perl\site\bin;C:\Program Files\Perl\bin;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\ThinkPad\Bluetooth Software\;C:\Program Files\ThinkPad\Bluetooth Software\syswow64;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Common Files\Lenovo;C:\SWTOOLS\ReadyApps;C:\Program Files (x86)\Symantec\VIP Access Client\;C:\Program Files (x86)\Common Files\Lenovo;C:\Program Files\Microsoft SQL Server\110\Tools\Binn\;c:\Libraries\bin;c:\Libraries\lib;C:\Program Files\MiKTeX 2.9\miktex\bin\x64\;C:\Program Files\Microsoft Windows Performance Toolkit;C:\Program Files\Microsoft\Web Platform Installer\;C:\Program Files (x86)\Microsoft ASP.NET\ASP.NET Web Pages\v1.0\;C:\Program Files (x86)\Windows Kits\8.0\Windows Performance Toolkit\;C:\Program Files\MATLAB\R2013a\runtime\win64;C:\Program Files\MATLAB\R2013a\bin;C:\Program Files\Python;C:\Libraries\qt4.8.5\bin;C:\Program Files\MATLAB\R2013a\bin\win64;C:\Program Files\Internet Explorer;C:\Program Files\Micro-Manager-1.4;C:\Program Files\mingw-builds\x64-4.8.1-posix-seh-rev5\mingw64\bin;
+USERNAME=herrmannsdoerfer
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 58 Stepping 9, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 7 , 64 bit Build 7601 Service Pack 1
+
+CPU:total 8 (4 cores per cpu, 2 threads per core) family 6 model 58 stepping 9, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, avx, aes, erms, ht, tsc, tscinvbit, tscinv
+
+Memory: 4k page, physical 7945004k(16076k free), swap 31778152k(240k free)
+
+vm_info: Java HotSpot(TM) 64-Bit Server VM (24.51-b03) for windows-amd64 JRE (1.7.0_51-b13), built on Dec 18 2013 18:40:56 by "java_re" with unknown MS VC++:1600
+
+time: Wed Nov 12 11:43:22 2014
+elapsed time: 103 seconds
+
