@@ -20,10 +20,11 @@ public class Main {
 	public static void main(String[] args) {
 		//driftCorrectionTest();
 		//sd.createLineSample(500, 300, 100, 20000);
-		String path1 = "Y:\\Results\\STORM\\141107NaChannelA532VgatA647\\";
+		String path1 = "D:\\MessungenTemp\\14112MicrotubuliCF680Cos2D1_500Messung3\\Auswertung\\RapidStorm\\";
 		//twoColorRegistration(path1,"meos-storm.txt", path1, "mover-storm.txt");
-		twoColorRegistration(path1, "VGAT-641-1.txt", path1, "NaV-532-1.txt");
+		//twoColorRegistration(path1, "VGAT-641-1.txt", path1, "NaV-532-1.txt");
 		//singleColor2dImage("C:\\tmp2\\141029Dyomics2tervonLinksObenMessung2\\","RightChannel.txt");
+		dualColor2dImage(path1, "LeftChannel141112MicrotubuliCF680Cos2D1_500Messung3.txt", path1, "RightChannel141112MicrotubuliCF680Cos2D1_500Messung3.txt");
 	}
 	
 	static void twoColorRegistrationMultipleFiles(String path1,String pattern1,String path2,String pattern2){

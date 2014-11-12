@@ -110,7 +110,7 @@ public class FeatureBasedDriftCorrection {
 		System.out.println(counter+" Localizations were skipped.");
 		Double frameMax2 = (double)sd.getDimensions().get(7);
 		int frameMax = frameMax2.intValue()-chunksize;
-		printDriftLogFile(dds,fx,fy,sd.getPath(), sd.getFname(), frameMax);
+		printDriftLogFile(dds,fx,fy,sd.getPath(), sd.getBasename(), frameMax);
 		
 		return sdTrans;
 	}
