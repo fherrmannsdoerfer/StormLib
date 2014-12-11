@@ -76,7 +76,7 @@ public class StormData {
 					}
 					else {System.out.println("File format not understood!");}
 				}
-				catch(java.lang.NumberFormatException ne){System.out.println("Problem in line:"+counter);}
+				catch(java.lang.NumberFormatException ne){System.out.println("Problem in line:"+counter+ne);}
 			}
 			System.out.println("File contains "+getLocs().size()+" localizations.");
 		} 
@@ -663,11 +663,21 @@ public class StormData {
 		}
 	}
 	
-	public void writeArrayListForVisp(String fname) {
+	public void writeArrayListForVisp() {
 		try {
-			FileWriter writer = new FileWriter(fname);
+			FileWriter writer = new FileWriter(path+"forVisp_"+fname);
 			for (int i = 0; i<locs.size(); i++){
 				writer.append(locs.get(i).toPlainVispString()+"\n");
+			}
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {e.printStackTrace();}
+	}
+	public void writeLocs(String tag){
+		try{
+			FileWriter writer = new FileWriter(path+getBasename()+tag+".txt");
+			for (int i = 0; i<locs.size(); i++){
+				writer.append(locs.get(i).toPlainString()+"\n");
 			}
 			writer.flush();
 			writer.close();

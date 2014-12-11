@@ -20,9 +20,9 @@ public class Main {
 	public static void main(String[] args) {
 		//driftCorrectionTest();
 		//sd.createLineSample(500, 300, 100, 20000);
-		String path1 = "Y:\\Results\\STORM\\141107NaChannelA532VgatA647\\";
-		//twoColorRegistration(path1,"meos-storm.txt", path1, "mover-storm.txt");
-		twoColorRegistration(path1, "VGAT-641-1.txt", path1, "NaV-532-1.txt");
+		String path1 = "E:\\Messung1\\";
+		twoColorRegistration(path1,"141204Mover647.txt", path1, "141204VglutAlexa647GP.txt");
+		//twoColorRegistration(path1, "Cell2 - 0 min - 488 -_2_MMImages-undrift.txt", path1, "Cell2 - 0 min - 647 -_1_MMImages-undrift.txt");
 		//singleColor2dImage("C:\\tmp2\\141029Dyomics2tervonLinksObenMessung2\\","RightChannel.txt");
 	}
 	
@@ -67,6 +67,8 @@ public class Main {
 		
 		ArrayList<StormData> channels = BeadRegistration.doRegistration(sd1,sd2);
 		ImagePlus alignedCh1 = channels.get(0).renderImage2D(10,"aligned");
+		channels.get(0).writeLocs("SHIFTED");
+		channels.get(1).writeLocs("SHIFTED");
 		//ij.IJ.save(alignedCh1, path2+sd1.getBasename()+"Image2DAlignedCh1.tiff");
 		
 		ImagePlus alignedCh2 = channels.get(1).renderImage2D(10,"aligned");
