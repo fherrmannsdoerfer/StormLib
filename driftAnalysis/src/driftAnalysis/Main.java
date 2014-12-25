@@ -19,11 +19,11 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\StormData\\";
+		//String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\StormData\\";
 		//twoColorRegistration(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
 		//twoColorRegistration(path1, "Cell2 - 0 min - 488 -_2_MMImages-undrift.txt", path1, "Cell2 - 0 min - 647 -_1_MMImages-undrift.txt");
 
-		singleColor2dImage(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
+		//singleColor2dImage(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
 		//dualColor2dImage(path1, "LeftChannel141112MicrotubuliCF680Cos2D1_500Messung3.txt", path1, "RightChannel141112MicrotubuliCF680Cos2D1_500Messung3.txt");
 	}
 	
