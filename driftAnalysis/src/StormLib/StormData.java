@@ -11,9 +11,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 public class StormData {
@@ -57,6 +60,7 @@ public class StormData {
 			int counter = 0;
 			br = new BufferedReader(new FileReader(fullpath));
 			line = br.readLine(); //skip header
+			ArrayList<Integer> errorLines = new ArrayList<Integer>();
 			while ((line = br.readLine())!= null){
 				String[] tmpStr = line.split(delimiter);
 				
@@ -76,8 +80,9 @@ public class StormData {
 					}
 					else {System.out.println("File format not understood!");}
 				}
-				catch(java.lang.NumberFormatException ne){System.out.println("Problem in line:"+counter+ne);}
+				catch(java.lang.NumberFormatException ne){System.out.println("Problem in line:"+counter+ne); errorLines.add(counter);}
 			}
+			writeLoadingStatistics(errorLines);
 			System.out.println("File contains "+getLocs().size()+" localizations.");
 		} 
 		catch (FileNotFoundException e) {
@@ -91,6 +96,24 @@ public class StormData {
 		Comparator<StormLocalization> compFrame = new StormLocalizationFrameComperator();
 		Collections.sort(getLocs(),compFrame);
 		isSortedByFrame = true;
+	}
+	
+	private void writeLoadingStatistics(ArrayList<Integer> errorlist){
+		try{
+			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\Texts\\"+getBasename()+".txt"));
+			outputStream.println("Filename: "+getBasename());
+			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			Date date = new Date();
+			outputStream.println("Reconstruction date: "+dateFormat.format(date));
+			outputStream.println("Number of localizations: "+getLocs().size());
+			outputStream.println("Number of incorrectly read lines: "+errorlist.size());
+			outputStream.println("Line numbers:");
+			for (int i =0; i<errorlist.size(); i++){
+				outputStream.print(errorlist.get(i)+", ");
+			}
+			outputStream.println();
+			outputStream.close();
+		} catch (IOException e) {e.printStackTrace();}
 	}
 	
 	public ArrayList<StormLocalization> getList(){

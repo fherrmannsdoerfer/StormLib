@@ -18,12 +18,13 @@ import StormLib.Utilities;
 public class Main {
 
 	public static void main(String[] args) {
-		//driftCorrectionTest();
-		//sd.createLineSample(500, 300, 100, 20000);
-		String path1 = "E:\\Messung1\\";
-		twoColorRegistration(path1,"141204Mover647.txt", path1, "141204VglutAlexa647GP.txt");
+
+		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\StormData\\";
+		//twoColorRegistration(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
 		//twoColorRegistration(path1, "Cell2 - 0 min - 488 -_2_MMImages-undrift.txt", path1, "Cell2 - 0 min - 647 -_1_MMImages-undrift.txt");
-		//singleColor2dImage("C:\\tmp2\\141029Dyomics2tervonLinksObenMessung2\\","RightChannel.txt");
+
+		singleColor2dImage(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
+		//dualColor2dImage(path1, "LeftChannel141112MicrotubuliCF680Cos2D1_500Messung3.txt", path1, "RightChannel141112MicrotubuliCF680Cos2D1_500Messung3.txt");
 	}
 	
 	static void twoColorRegistrationMultipleFiles(String path1,String pattern1,String path2,String pattern2){
