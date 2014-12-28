@@ -19,7 +19,7 @@ import StormLib.Utilities;
 public class Main {
 
 	public static void main(String[] args) {
-
+ 
 		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\StormData\\";
 		//twoColorRegistration(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
 		//twoColorRegistration(path1, "Cell2 - 0 min - 488 -_2_MMImages-undrift.txt", path1, "Cell2 - 0 min - 647 -_1_MMImages-undrift.txt");
