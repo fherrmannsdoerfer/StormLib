@@ -69,7 +69,7 @@ public class Demixing {
 		} catch (InterruptedException e) {
 		
 		}
-		writeStatistics(ch1.getPath(), ch1.getBasename(), demixingData.getList1(), demixingData.getList2());
+		OutputClass.writeDemixingStatistics(ch1.getPath(), ch1.getBasename(), demixingData.getList1(), demixingData.getList2(), ch1.getProcessingLog());
 		if (verbose) {
 			System.out.println("unmixing done.");
 			System.out.println("Number of matches: "+ demixingData.getList1().size()+" of "+ coloredSet.getSize()+" points.");
@@ -156,7 +156,7 @@ public class Demixing {
 				}
 			}
 		}
-		writeStatistics(ch1.getPath(), ch1.getBasename(), pairsCh1, pairsCh2);
+		OutputClass.writeDemixingStatistics(ch1.getPath(), ch1.getBasename(), pairsCh1, pairsCh2, ch1.getProcessingLog());
 		if (verbose) {
 			System.out.println("unmixing done.");
 			System.out.println("Number of matches: "+ matchingCounter+" of "+ coloredSet.getSize()+" points.");
@@ -164,28 +164,7 @@ public class Demixing {
 		return coloredSet;
 	}
 	
-	static void writeStatistics(String path, String basename, ArrayList<StormLocalization> ch1, ArrayList<StormLocalization> ch2){
-		String subfolder = "\\AdditionalInformation";
-		new File(path + subfolder).mkdir();
-		String fname = "\\"+basename+"_demixingStatistic.txt";
-		PrintWriter outputStream;
-		try {
-			outputStream = new PrintWriter(new FileWriter(path + subfolder+fname));
-			outputStream.print("Automatically generated log file for the pairwise occuring points.  ");
-			outputStream.println("Structure: data StormLocalization channel 1 , data StormLocalization channel2");
-			for (int j = 0;j<ch1.size();j++){
-					outputStream.print(ch1.get(j).toPlainString()+" ");
-					outputStream.print(ch2.get(j).toPlainString()+" ");
-					outputStream.println();
-			}
-			
-			outputStream.close();
-			System.out.println("Demixing statistics written");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+	
 	
 	static StormData applyTrafo(double[][] trafo, StormData ch2){
 		StormData transformedCh2 = new StormData();

@@ -22,6 +22,8 @@ public class BeadRegistration {
 		StormData transformedSd1 = TransformationControl.applyTrafo(trafo, sd1);
 		writeTransformation(sd1.getPath(), sd1.getBasename(), trafo);
 		ArrayList<StormData> retList = new ArrayList<StormData>();
+		transformedSd1.addToProcessingLog("Aligned");
+		sd2.addToProcessingLog("Aligend");
 		retList.add(transformedSd1);
 		retList.add(sd2);
 		return retList;

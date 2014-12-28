@@ -60,9 +60,8 @@ public class TransformationControl {
 		}
 
 	public static StormData applyTrafo(double[][] trafo, StormData ch2){
-		StormData transformedCh2 = new StormData();
-		transformedCh2.setFname(ch2.getFname());
-		transformedCh2.setPath(ch2.getPath());
+		StormData transformedCh2 = ch2;
+		transformedCh2.setLocs(new ArrayList<StormLocalization>());
 		for (int i = 0; i< ch2.getSize(); i++){
 			StormLocalization sl = ch2.getElement(i);
 			double x = trafo[0][0] * sl.getX() + trafo[0][1] * sl.getY() + trafo[0][2];

@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry excluding="JavaLibs/" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="src/driftAnalysis/StormLib.jar"/>
-	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Fiji/jars/imglib2-2.0.0-beta-25.jar"/>
-	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Fiji/jars/imglib2-algorithms-2.0.0-beta-25.jar"/>
-	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Fiji/jars/imglib2-algorithms-gpl-2.0.0-beta-25.jar"/>
-	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Fiji/jars/imglib2-algorithms-legacy-2.0.0-beta-25.jar"/>
-	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Fiji/jars/imglib2-ij-2.0.0-beta-25.jar"/>
-	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Fiji/jars/imglib2-meta-2.0.0-beta-25.jar"/>
-	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Fiji/jars/imglib2-ops-2.0.0-beta-25.jar"/>
-	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Fiji/jars/imglib2-realtransform-2.0.0-beta-25.jar"/>
-	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Fiji/jars/ij-1.48u.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/Java/Libraries/Jama-1.0.3.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/Java/Libraries/commons-math3-3.3/commons-math3-3.3.jar" sourcepath="C:/Users/herrmannsdoerfer/.m2/repository/org/apache/commons/commons-math3/3.3/commons-math3-3.3-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/Java/Libraries/commons-math3-3.3/commons-math3-3.3-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Documents/Projects/New Microscopy setup/Git/StormLib/driftAnalysis/src/JavaLibs/commons-math3-3.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Documents/Projects/New Microscopy setup/Git/StormLib/driftAnalysis/src/JavaLibs/commons-math3-3.3-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Documents/Projects/New Microscopy setup/Git/StormLib/driftAnalysis/src/JavaLibs/ij-1.48u.jar"/>
+	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Documents/Projects/New Microscopy setup/Git/StormLib/driftAnalysis/src/JavaLibs/imglib2-2.0.0-beta-25.jar"/>
+	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Documents/Projects/New Microscopy setup/Git/StormLib/driftAnalysis/src/JavaLibs/imglib2-algorithms-2.0.0-beta-25.jar"/>
+	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Documents/Projects/New Microscopy setup/Git/StormLib/driftAnalysis/src/JavaLibs/imglib2-algorithms-gpl-2.0.0-beta-25.jar"/>
+	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Documents/Projects/New Microscopy setup/Git/StormLib/driftAnalysis/src/JavaLibs/imglib2-algorithms-legacy-2.0.0-beta-25.jar"/>
+	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Documents/Projects/New Microscopy setup/Git/StormLib/driftAnalysis/src/JavaLibs/imglib2-ij-2.0.0-beta-25.jar"/>
+	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Documents/Projects/New Microscopy setup/Git/StormLib/driftAnalysis/src/JavaLibs/imglib2-meta-2.0.0-beta-25.jar"/>
+	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Documents/Projects/New Microscopy setup/Git/StormLib/driftAnalysis/src/JavaLibs/imglib2-ops-2.0.0-beta-25.jar"/>
+	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Documents/Projects/New Microscopy setup/Git/StormLib/driftAnalysis/src/JavaLibs/imglib2-realtransform-2.0.0-beta-25.jar"/>
+	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Documents/Projects/New Microscopy setup/Git/StormLib/driftAnalysis/src/JavaLibs/Jama-1.0.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Documents/Projects/New Microscopy setup/Git/StormLib/driftAnalysis/src/JavaLibs/jcommon-1.0.22.jar"/>
+	<classpathentry kind="lib" path="C:/Users/herrmannsdoerfer/Documents/Projects/New Microscopy setup/Git/StormLib/driftAnalysis/src/JavaLibs/jfreechart-1.0.18.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

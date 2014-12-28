@@ -5,25 +5,20 @@ import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.regex.Pattern;
+
 
 public class StormData {
 	boolean isSortedByFrame = false;
 	private ArrayList<StormLocalization> locs = new ArrayList<StormLocalization>();
 	private String path;
 	private String fname;
+	private String processingLog = "_";
 	
 	public StormData(String path, String fname){
 		this.path = path;
@@ -35,8 +30,10 @@ public class StormData {
 		this.locs = sl.getLocs();
 		this.fname = sl.getFname();
 		this.path = sl.getPath();
+		this.processingLog = sl.getProcessingLog();
 	}
 	
+
 	public StormData(){
 		this.fname = "fname not set yet";
 		this.path = "path not set yet";
@@ -82,7 +79,7 @@ public class StormData {
 				}
 				catch(java.lang.NumberFormatException ne){System.out.println("Problem in line:"+counter+ne); errorLines.add(counter);}
 			}
-			writeLoadingStatistics(errorLines);
+			OutputClass.writeLoadingStatistics(path, getBasename(), errorLines, locs.size());
 			System.out.println("File contains "+getLocs().size()+" localizations.");
 		} 
 		catch (FileNotFoundException e) {
@@ -96,24 +93,6 @@ public class StormData {
 		Comparator<StormLocalization> compFrame = new StormLocalizationFrameComperator();
 		Collections.sort(getLocs(),compFrame);
 		isSortedByFrame = true;
-	}
-	
-	private void writeLoadingStatistics(ArrayList<Integer> errorlist){
-		try{
-			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\Texts\\"+getBasename()+".txt"));
-			outputStream.println("Filename: "+getBasename());
-			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-			Date date = new Date();
-			outputStream.println("Reconstruction date: "+dateFormat.format(date));
-			outputStream.println("Number of localizations: "+getLocs().size());
-			outputStream.println("Number of incorrectly read lines: "+errorlist.size());
-			outputStream.println("Line numbers:");
-			for (int i =0; i<errorlist.size(); i++){
-				outputStream.print(errorlist.get(i)+", ");
-			}
-			outputStream.println();
-			outputStream.close();
-		} catch (IOException e) {e.printStackTrace();}
 	}
 	
 	public ArrayList<StormLocalization> getList(){
@@ -241,7 +220,7 @@ public class StormData {
 		return ret;
 	}
 	public ImagePlus renderImage2D(double pixelsize){
-		return renderImage2D(pixelsize, true, ""); // function is also used to create images for the fourier transformation for the drift correction
+		return renderImage2D(pixelsize, true, processingLog); // function is also used to create images for the fourier transformation for the drift correction
 	}
 	public ImagePlus renderImage2D(double pixelsize, String tag) {
 		return renderImage2D(pixelsize, true, tag);
@@ -276,14 +255,18 @@ public class StormData {
 		ImagePlus imgP = new ImagePlus("", ip);
 		//System.out.println("Image rendered ("+imgP.getWidth()+"*"+imgP.getHeight()+")");
 		if (saveImage){
-			new File(path + "Pictures").mkdir();
-			ij.IJ.save(imgP, path+"Pictures\\"+getBasename()+"_2Dreconstruction_"+tag+".tif");
+			OutputClass.save2DImage(path, getBasename(), processingLog, imgP, pixelsize);
+			//OutputClass.writeImageSaveStatistics(path, getBasename(), pixelsize, imgP, picname);
 		}
+		
 		return imgP;
 	}
-
+	
+	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, DemixingParameters params){
+		return renderDemixingImage(pixelsize, params, processingLog);
+	}
 		
-	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, double angle1, double angle2, double width1, double widht2){
+	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, DemixingParameters params, String tag){
 		double sigma = 10/pixelsize; //in nm sigma to blur localizations
 		int filterwidth = 3; // must be odd
 		ArrayList<Double> dims = getDimensions();
@@ -297,7 +280,7 @@ public class StormData {
 		coloredImage.add(imageRed);
 		coloredImage.add(imageGreen);
 		coloredImage.add(imageBlue);
-		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, getLocs(),angle1, angle2, width1, widht2);
+		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, getLocs(), params);
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipBlue = new FloatProcessor(pixelX,pixelY);
@@ -312,15 +295,18 @@ public class StormData {
 		colImg.add(imgPRed);
 		colImg.add(imgPGreen);
 		colImg.add(imgPBlue);
+		
+		OutputClass.saveDemixingImage(path, getBasename(), processingLog, colImg, params, pixelsize);
+		
 		return colImg;
 	}
 	
-	ArrayList<float[][]> renderDemixing(ArrayList<float[][]> coloredImage, double sigma, int filterwidth, double pixelsize, ArrayList<StormLocalization> sd, double angle1, double angle2, double width1, double width2){
+	ArrayList<float[][]> renderDemixing(ArrayList<float[][]> coloredImage, double sigma, int filterwidth, double pixelsize, ArrayList<StormLocalization> sd, DemixingParameters params){
 		if (filterwidth %2 == 0) {System.err.println("filterwidth must be odd");}
-		double minAngle1 = angle1 - width1/2;
-		double maxAngle1 = angle1 + width1/2;
-		double minAngle2 = angle2 - width2/2;
-		double maxAngle2 = angle2 + width2/2;
+		double minAngle1 = params.getAngle1() - params.getWidth1()/2;
+		double maxAngle1 = params.getAngle1() + params.getWidth1()/2;
+		double minAngle2 = params.getAngle2() - params.getWidth2()/2;
+		double maxAngle2 = params.getAngle2() + params.getWidth2()/2;
 		double factor = 10000*1/(2*Math.PI*sigma*sigma);
 		double factor2 = -0.5/sigma/sigma;
 		ArrayList<Double> dims = getDimensions();
@@ -359,7 +345,11 @@ public class StormData {
 		return coloredImage;
 	}
 	
-	public ArrayList<ImagePlus> renderImage3D(double pixelsize){ //render localizations from Stormdata to Image Plus Object
+	public ArrayList<ImagePlus> renderImage3D(double pixelsize){
+		return renderImage3D(pixelsize, processingLog);
+	}
+	
+	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag){ //render localizations from Stormdata to Image Plus Object
 		double sigma = 10/pixelsize; //in nm sigma to blur localizations
 		int filterwidth = 3; // must be odd
 		ArrayList<Double> dims = getDimensions();
@@ -388,6 +378,9 @@ public class StormData {
 		colImg.add(imgPRed);
 		colImg.add(imgPGreen);
 		colImg.add(imgPBlue);
+		
+		
+		OutputClass.save3DImage(path, getBasename(), tag, colImg, pixelsize);
 		return colImg;
 	}
 	
@@ -686,31 +679,28 @@ public class StormData {
 		}
 	}
 	
-	public void writeArrayListForVisp() {
-		try {
-			FileWriter writer = new FileWriter(path+"forVisp_"+fname);
-			for (int i = 0; i<locs.size(); i++){
-				writer.append(locs.get(i).toPlainVispString()+"\n");
-			}
-			writer.flush();
-			writer.close();
-		} catch (IOException e) {e.printStackTrace();}
+	public void writeArrayListForVisp(){
+		writeArrayListForVisp(processingLog);
 	}
+	
+	public void writeArrayListForVisp(String tag) {
+		OutputClass.writeArrayListForVisp(path, getBasename(), locs, tag);
+	}
+	
+	public void writeLocs(){
+		writeLocs(processingLog);
+	}
+	
 	public void writeLocs(String tag){
-		try{
-			FileWriter writer = new FileWriter(path+getBasename()+tag+".txt");
-			for (int i = 0; i<locs.size(); i++){
-				writer.append(locs.get(i).toPlainString()+"\n");
-			}
-			writer.flush();
-			writer.close();
-		} catch (IOException e) {e.printStackTrace();}
+		OutputClass.writeLocs(path,  getBasename(), locs, tag);
 	}
 	
 	public ArrayList<StormLocalization> connectPoints(double dx, double dy, double dz, int maxdistBetweenLocalizations) {
 		// TODO Auto-generated method stub
 		ArrayList<ArrayList<StormLocalization>> traces = findTraces(locs, dx, dy, dz, maxdistBetweenLocalizations);
 		ArrayList<StormLocalization> connectedLoc = connectTraces(traces);
+		this.locs = connectedLoc;
+		this.processingLog += "Con"; 
 		return connectedLoc;
 	}
 	private ArrayList<StormLocalization> connectTraces(
@@ -846,51 +836,6 @@ public class StormData {
 			//System.out.println(i +" " +frames.get(i).size());
 		}
 		System.out.println("Number of detected traces: "+traces.size()+" Number of all localizations: "+locs.size());
-		/*
-		for (int i = 0; i< subsets.size(); i++) {
-			Collections.sort(subsets.get(i),compFrame);
-			ArrayList<ArrayList> subsetInFrames = new ArrayList<ArrayList>();// one arraylist for each fram
-			for (int k = 0; k<=framemax+1; k++) {
-				subsetInFrames.add(new ArrayList<StormLocalization>());
-			}
-			ArrayList<StormLocalization> tmpList = (ArrayList<StormLocalization>) subsets.get(i); 
-			for (int j = 0; j< subsets.get(i).size(); j++){
-				subsetInFrames.get(tmpList.get(j).getFrame()).add(tmpList.get(j)); //subsetInFrames contains one list for each frame the data of the current subset is fed into it.
-			}
-			int currFrame = 0;
-			for (int k = framemin; k<=framemax+1; k++) { //bead traces will be found and added to a new list containing all consecutive localizations. Every spot is only used once and therefor deleted after it was assigned to a trace
-				for (int o = 0; o < subsetInFrames.get(k).size(); o++) {
-					ArrayList<StormLocalization> currentTrace = new ArrayList<StormLocalization>();
-					currentTrace.add((StormLocalization) subsetInFrames.get(k).get(o));
-					currFrame = currentTrace.get(currentTrace.size()-1).getFrame();
-					StormLocalization ll = currentTrace.get(currentTrace.size() -1); //last Localization which will be compared with the localizations of the following frames
-					int frameEvaluated = currFrame + 1;
-					while (currFrame + maxdistBetweenLocalizations > frameEvaluated && frameEvaluated<framemax) {
-						//System.out.println(subsetInFrames.get(frameEvaluated).size());
-						for (int p = 0; p<subsetInFrames.get(frameEvaluated).size();p++){
-							StormLocalization tl = (StormLocalization) subsetInFrames.get(frameEvaluated).get(p); // localization to test
-							if (Math.abs(tl.getY()-ll.getY())<dy && Math.abs(tl.getX()-ll.getX())<dx && Math.abs(tl.getZ()-ll.getZ())<dz) {//test for y in the beginning because it is more likely to fail since the subset contains similar x values
-								currentTrace.add(tl);
-								currFrame = tl.getFrame();
-								subsetInFrames.get(frameEvaluated).remove(p); //localization is deleted
-								ll = tl; // last localization is updated
-								break;
-							}
-						}
-						frameEvaluated = frameEvaluated + 1; //if no match was found in this frame or if break exited the for loop the localizations of the next frame will be looked through. If this happens to often in a row the while loop breaks and the trace is broken
-					}
-					traces.add(currentTrace); //traces is updated, next trace will be found
-				}
-			}
-			System.out.println("Number of detected traces: "+traces.size());
-		}
-		*/
-		/*for (int ii = 0; ii< 100; ii++) {
-			System.out.println();
-			System.out.println();
-			System.out.println(traces.get(ii).size());
-			for (int i = 0; i< traces.get(ii).size(); i++){System.out.println(traces.get(ii).get(i).toString());}
-		}*/
 		return traces;
 	}
 	
@@ -933,15 +878,6 @@ public class StormData {
 		Collections.sort(this.locs,compX);
 	}
 	
-	public class render2DThread implements Runnable{
-
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-			
-		}
-		
-	}
 	
 	public ArrayList<ArrayList<Integer>> getLocsPerFrame(){
 		int binWidth = 50;
@@ -960,31 +896,10 @@ public class StormData {
 		ArrayList<ArrayList<Integer>> tmp = new ArrayList<ArrayList<Integer>>();
 		tmp.add(frames);
 		tmp.add(locsPerFrame);
-		printLocPerFrameToFile(tmp,binWidth);
+		OutputClass.saveLocsPerFrame(path, getBasename(), tmp, binWidth, processingLog);
 		return tmp;
 	}
-	private void printLocPerFrameToFile(ArrayList<ArrayList<Integer>> tmp, int binWidth){
-		try {
-			String subfolder = "\\AdditionalInformation";
-			new File(path + subfolder).mkdir();
-			String fnameFile = "\\"+getBasename()+"_blinkingStatistik.txt";
-			PrintWriter outputStream = new PrintWriter(new FileWriter(path+subfolder+fnameFile));
-			outputStream.println("Histogram for number of localizations per frame, first row frame second row count (bin with is: "+binWidth+")");
-			String strFrames= "", strLocsPerFrame= "";
-			for (int k = 0; k<tmp.get(0).size(); k=k+1){
-				strFrames = strFrames +tmp.get(0).get(k)+" ";
-				strLocsPerFrame = strLocsPerFrame +tmp.get(1).get(k)+" ";
-			}
-			outputStream.println(strFrames);
-			outputStream.println(strLocsPerFrame);
-			outputStream.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println("Histogram saved.");
-	}
-
+	
 	public void addStormData(StormData tmp) {
 		int lastFrame = (int) ((double)getDimensions().get(7));
 		for (int i = 0; i< tmp.getSize(); i++){
@@ -997,4 +912,18 @@ public class StormData {
 	public String getBasename(){
 		return fname.substring(0, fname.length()-4);
 	}
+
+	public void correctDrift(int chunksize) {
+		StormData sd = FeatureBasedDriftCorrection.correctDrift(this, chunksize);
+		processingLog = processingLog +"DC";
+		locs = sd.getLocs();
+	}
+	public String getProcessingLog(){
+		return processingLog;
+	}
+	public void addToProcessingLog(String extenstion){
+		this.processingLog = this.processingLog + extenstion;
+	}
 }
+
+
