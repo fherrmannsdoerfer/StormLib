@@ -46,7 +46,7 @@ public class Demixing {
 	
 	static StormData doUnmixingMultiThreaded(StormData ch1, StormData ch2, double[][] trafo){
 		ch1 = applyTrafo(trafo, ch1);
-		double dist = 25; //in nm //this variable determines within which distance for matching points are searched
+		double dist = 75; //in nm //this variable determines within which distance for matching points are searched
 		double minInt = 1500; // minimal intensity of at least one channel
 		if (verbose) {
 			System.out.println("start unmixing...");
@@ -70,7 +70,7 @@ public class Demixing {
 		} catch (InterruptedException e) {
 		
 		}
-		OutputClass.writeDemixingStatistics(ch1.getPath(), ch1.getBasename(), demixingData.getList1(), demixingData.getList2(), ch1.getProcessingLog());
+		OutputClass.writeDemixingOutput(ch1.getPath(), ch1.getBasename(), demixingData.getList1(), demixingData.getList2(), ch1.getProcessingLog());
 		if (verbose) {
 			System.out.println("unmixing done.");
 			System.out.println("Number of matches: "+ demixingData.getList1().size()+" of "+ coloredSet.getSize()+" points.");
@@ -157,7 +157,7 @@ public class Demixing {
 				}
 			}
 		}
-		OutputClass.writeDemixingStatistics(ch1.getPath(), ch1.getBasename(), pairsCh1, pairsCh2, ch1.getProcessingLog());
+		OutputClass.writeDemixingOutput(ch1.getPath(), ch1.getBasename(), pairsCh1, pairsCh2, ch1.getProcessingLog());
 		if (verbose) {
 			System.out.println("unmixing done.");
 			System.out.println("Number of matches: "+ matchingCounter+" of "+ coloredSet.getSize()+" points.");

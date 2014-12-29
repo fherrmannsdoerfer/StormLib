@@ -5,7 +5,7 @@ public class Progressbar {
 	private double maxVal;
 	private double currVal;
 	private int numberMarkersPrinted = 0; //number of currently printed markers
-	private int parts = 80;
+	private int parts = 120;
 	private boolean endReached = false;
 	private int internalCounter = 0;
 	Progressbar(double minVal, double maxVal, double startVal, String title){
@@ -55,7 +55,7 @@ public class Progressbar {
 		int targetNumber = (int) Math.ceil(currVal/(maxVal-minVal)*parts);
 		int toPrintYet = targetNumber - numberMarkersPrinted;
 		for (int i = 0;i<toPrintYet;i++){
-			System.out.print("*");
+			System.out.print("=");
 		}
 		numberMarkersPrinted = targetNumber;
 		if (numberMarkersPrinted == parts){

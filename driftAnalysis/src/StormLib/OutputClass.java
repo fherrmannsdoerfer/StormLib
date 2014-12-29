@@ -35,7 +35,7 @@ public class OutputClass {
 			outputStream.close();
 		} catch (IOException e) {e.printStackTrace();}
 	}
-	
+
 	private static void writeImageSaveStatistics(String path, String basename, double pixelsize, ImagePlus imgP, String picname){
 		try{
 			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\Texts\\"+basename+".txt"));
@@ -170,7 +170,7 @@ public class OutputClass {
 		System.out.println("Drift log saved.");
 	}
 	
-	static void writeDemixingStatistics(String path, String basename, ArrayList<StormLocalization> ch1, ArrayList<StormLocalization> ch2, String tag){
+	public static void writeDemixingOutput(String path, String basename, ArrayList<StormLocalization> ch1, ArrayList<StormLocalization> ch2, String tag){
 		try {
 			PrintWriter outputStream = new PrintWriter(new FileWriter(
 					path+"Statistics\\Texts\\"+basename+"DemixingStatistic"+tag+".txt"));
@@ -202,5 +202,4 @@ public class OutputClass {
 			e.printStackTrace();
 		}
 	}
-	
 }

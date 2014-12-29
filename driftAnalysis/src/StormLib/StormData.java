@@ -280,6 +280,11 @@ public class StormData {
 		coloredImage.add(imageRed);
 		coloredImage.add(imageGreen);
 		coloredImage.add(imageBlue);
+		ArrayList<Double> vals = new ArrayList<Double>();
+		for (int i = 0; i<locs.size(); i++){
+			vals.add(locs.get(i).getAngle()*180/Math.PI);
+		}
+		Utilities.getHistogram(vals, 1);
 		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, getLocs(), params);
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);

@@ -108,7 +108,7 @@ public class Main {
 		sd2.connectPoints(100., 100., 150, 3);
 		sd2.renderImage2D(10);
 		StormData unmixedSd = Demixing.spectralUnmixing(sd1, sd2,true);
-		DemixingParameters demixingParams= new DemixingParameters((70.7)/180. * Math.PI, (52.9)/180.*Math.PI, 15/180.*Math.PI, 15/180.*Math.PI);
+		DemixingParameters demixingParams= new DemixingParameters((90-22)/180. * Math.PI, (90-48)/180.*Math.PI, 10/180.*Math.PI, 15/180.*Math.PI);
 		ArrayList<ImagePlus> colImg = unmixedSd.renderDemixingImage(10, demixingParams);
 	}
 }
