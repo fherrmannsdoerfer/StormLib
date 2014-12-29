@@ -58,9 +58,10 @@ public class Demixing {
 		coloredSet.setPath(ch1.getPath());
 		DemixingData demixingData = new DemixingData();
 		int maxFrame = (int) Math.max((double)ch1.getDimensions().get(7),(double)ch2.getDimensions().get(7));
-		
+		Progressbar pb = new Progressbar(0, maxFrame,0, "Start demixing ...");
 		for (int currFrame = 0; currFrame < maxFrame; currFrame++){
-			Runnable t = new Thread(new UnmixFrame(demixingData, coloredSet, ch1, ch2, currFrame, dist, minInt));
+			Runnable t = new Thread(new UnmixFrame(demixingData, coloredSet, ch1, ch2, 
+					currFrame, dist, minInt,pb));
 			executor2.execute(t);
 		}
 		executor2.shutdown();
@@ -186,7 +187,7 @@ public class Demixing {
 		//for (int i = 0; i<1000;i++){
 		//	frames.add(i);
 		//}
-		
+		Progressbar pb = new Progressbar(0,nbrIter * frames.size(),0,"Finding transformation.");
 		if (verbose) {
 			System.out.println("finding transformation...");
 			System.out.println(nbrIter + " iterations per frame.");
@@ -198,7 +199,7 @@ public class Demixing {
 		}
 		
 		for (int frame : frames) {
-			Runnable t = new Thread(new findTransformation(collectionOfGoodPoints, frame, ch1, ch2, verbose, nbrIter));
+			Runnable t = new Thread(new findTransformation(collectionOfGoodPoints, frame, ch1, ch2, verbose, nbrIter, pb));
 			executor.execute(t);
 		}
 		executor.shutdown();
@@ -457,19 +458,19 @@ class findTransformation implements Runnable{
 	private StormData ch2;
 	private boolean verbose;
 	private int nbrIter;
+	private Progressbar pb;
 	
-	public findTransformation(ArrayList<ArrayList<ArrayList<StormLocalization>>> collectionOfGoodPoints, int frame,StormData ch1, StormData ch2, boolean verbose, int nbrIter){
+	public findTransformation(ArrayList<ArrayList<ArrayList<StormLocalization>>> collectionOfGoodPoints,
+			int frame,StormData ch1, StormData ch2, boolean verbose, int nbrIter, Progressbar pb){
 		this.collectionOfGoodPoints = collectionOfGoodPoints;
 		this.frame = frame;
 		this.ch1 = ch1;
 		this.ch2 = ch2;
 		this.verbose = verbose;
 		this.nbrIter = nbrIter;
+		this.pb = pb;
 	}
 	public void run(){
-		if (verbose) {
-			System.out.println("working on frame: "+frame);
-		}
 		int bestMatches = 0;
 		ArrayList<ArrayList<StormLocalization>> bestSubsets = new ArrayList<ArrayList<StormLocalization>>();
 		StormData subset1 = ch1.findSubset(frame, frame+1);
@@ -488,6 +489,7 @@ class findTransformation implements Runnable{
 					bestSubsets = subsets;
 				}
 			}
+			pb.updateProgress();
 		}
 		synchronized(collectionOfGoodPoints){
 			collectionOfGoodPoints.add(bestSubsets);
@@ -503,8 +505,10 @@ class UnmixFrame implements Runnable{
 	int currFrame;
 	double dist;
 	double minInt;
+	Progressbar pb;
 	
-	public UnmixFrame(DemixingData demixingData ,StormData coloredSet,StormData ch1, StormData ch2, int currFrame, double dist, double minInt){
+	public UnmixFrame(DemixingData demixingData ,StormData coloredSet,StormData ch1, 
+			StormData ch2, int currFrame, double dist, double minInt, Progressbar pb){
 		this.demixingData = demixingData;
 		this.coloredSet = coloredSet;
 		this.ch1 = ch1;
@@ -512,6 +516,7 @@ class UnmixFrame implements Runnable{
 		this.currFrame = currFrame;
 		this.dist = dist;
 		this.minInt = minInt;
+		this.pb = pb;
 	}
 	
 	public void run(){
@@ -553,6 +558,7 @@ class UnmixFrame implements Runnable{
 				}
 			}
 		}
+		pb.updateProgress();
 	}
 }
 

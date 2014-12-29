@@ -316,6 +316,7 @@ public class StormData {
 		float[][] redChannel = coloredImage.get(0);
 		float[][] greenChannel = coloredImage.get(1);
 		float[][] blueChannel = coloredImage.get(2);
+		Progressbar pb = new Progressbar(0, getSize(), 0, "Rendering demixing Image ...");
 		for (int i = 1; i<getSize(); i++){
 			StormLocalization sl = sd.get(i);
 			double posX = sl.getX()/pixelsize; //position of current localization
@@ -335,6 +336,7 @@ public class StormData {
 					} catch(IndexOutOfBoundsException e){e.toString();}
 				}
 			}
+			pb.updateProgress();
 		}
 		
 		ArrayList<float[][]> normalizedChannels = normalizeChannels(redChannel, greenChannel, blueChannel);
@@ -709,9 +711,12 @@ public class StormData {
 		//intensities added and the first frame is chosen for the connected localization
 		ArrayList<StormLocalization> connectedLoc = new ArrayList<StormLocalization>();
 		int counter = 0;
+		Progressbar pb = new Progressbar(0,traces.size(), 0,"Connecting traces ...");
 		for (int i = 0; i< traces.size(); i++) {
-			if (traces.get(i).size() < 10){
-				counter = counter + 1;
+			if (traces.get(i).size() < 10){ //beads are not connected
+				if (traces.get(i).size()>1){
+					counter = counter + 1;
+				}
 				double x = 0, y = 0, z = 0, intensity =0;
 				int frame = traces.get(i).get(0).getFrame();
 				for (int j = 0; j<traces.get(i).size(); j++) {
@@ -725,7 +730,9 @@ public class StormData {
 				z = z / traces.get(i).size();
 				connectedLoc.add(new StormLocalization(x,y,z,frame,intensity));
 			}
+			pb.updateProgress(i);
 		}
+		OutputClass.saveConnectionResult(path,getBasename(),counter, traces.size(),processingLog + "Con");
 		System.out.println(counter + " tracks were averaged.");
 		return connectedLoc;
 	}
@@ -809,6 +816,7 @@ public class StormData {
 		for (int j = 0; j< locs.size(); j++){
 			frames.get(locs.get(j).getFrame()).add(locs.get(j)); //frames contains one list for each frame the data of the current subset is fed into it.
 		}
+		Progressbar pb = new Progressbar(0, framemax+1,0,"Finding traces ...");
 		for (int i = 0; i<framemax+1; i++){
 			for (int j = 0; j<frames.get(i).size(); j++){
 				StormLocalization currLoc = frames.get(i).get(j);
@@ -832,6 +840,7 @@ public class StormData {
 					evaluatedFrame += 1;
 				}
 				traces.add(currTrace);
+				pb.updateProgress(i);
 			}
 			//System.out.println(i +" " +frames.get(i).size());
 		}

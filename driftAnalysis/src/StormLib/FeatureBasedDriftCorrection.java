@@ -156,6 +156,7 @@ public class FeatureBasedDriftCorrection {
 		double [][] ddy = new double[numFrames][numFrames];
 		//for (int k = 0; k< numFrames - 1; k++){
 		//for (int k = 0; k< 1; k++){ only upper row
+		Progressbar pb = new Progressbar(0, (numFrames*numFrames-numFrames)/2,0,"Finding displacements ...");
 		for (int k = 0; k< numFrames - 1; k++){
 			for (int l = k+1; l< numFrames; l++){
 			//for (int l = k+1; l< k+2; l++){
@@ -176,6 +177,7 @@ public class FeatureBasedDriftCorrection {
 				ddy[k][l] = dyh;
 				ddx[l][k] = -dxh;
 				ddy[l][k] = -dyh;
+				pb.updateProgress();
 			}
 		}
 		ArrayList<double[][]> ret = new ArrayList<double[][]>();

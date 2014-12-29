@@ -189,5 +189,18 @@ public class OutputClass {
 			e.printStackTrace();
 		}
 	}
+
+	public static void saveConnectionResult(String path, String basename,
+			int counter, int size, String tag) {
+		try {
+			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\Texts\\"+basename+"ConnectionStatistic"+tag+".txt"));
+			outputStream.println("Number of connected traces: "+counter);
+			outputStream.println("Total number of traces: "+size);
+			outputStream.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 }

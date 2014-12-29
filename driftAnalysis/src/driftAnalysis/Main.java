@@ -100,11 +100,11 @@ public class Main {
 	
 	static void dualColor2dImage(String path1, String fname1, String path2, String fname2){
 		StormData sd1 = new StormData(path1,fname1);
-		sd1.correctDrift(2000);
+		//sd1.correctDrift(5000);
 		sd1.connectPoints(100., 100., 150, 3);
 		sd1.renderImage2D(10);
 		StormData sd2 = new StormData(path2,fname2);
-		sd2.correctDrift(2000);
+		//sd2.correctDrift(5000);
 		sd2.connectPoints(100., 100., 150, 3);
 		sd2.renderImage2D(10);
 		StormData unmixedSd = Demixing.spectralUnmixing(sd1, sd2,true);
