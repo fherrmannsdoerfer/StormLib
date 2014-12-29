@@ -20,15 +20,22 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 
 public class Demixing {
-	static boolean verbose = false;
+	static boolean verbose = true;
 	static ExecutorService executor;
 	static ExecutorService executor2;
 	public static StormData spectralUnmixing(StormData ch1, StormData ch2){
-		executor = Executors.newFixedThreadPool(8);
-		executor2 = Executors.newFixedThreadPool(8);
-		double[][] trafo = findGlobalTransformation(ch1, ch2);
+		executor = Executors.newFixedThreadPool(6);
+		executor2 = Executors.newFixedThreadPool(6);
+		//double[][] trafo = {{0.998561200198248, -1.509609703810505E-4, 194.78864334493343},{
+		//						-6.360840148427894E-4, 0.9965825669229761, -213.40264394927419}};
+		
+		//StormData ch2trans = TransformationControl.applyTrafo(trafoIn,ch2);
+		
+		double[][] trafo = findGlobalTransformationMultithreaded(ch1, ch2);
+		
 		StormData combinedSet = doUnmixingMultiThreaded(ch1,ch2,trafo);
-		//StormData combinedSet = doUnmixing(ch1, ch2, trafo);
+		
+		//StormData combinedSet = doUnmixing(ch1, ch2, trafo, true);
 		return combinedSet;
 	}
 	
@@ -46,8 +53,10 @@ public class Demixing {
 	
 	static StormData doUnmixingMultiThreaded(StormData ch1, StormData ch2, double[][] trafo){
 		ch1 = applyTrafo(trafo, ch1);
-		double dist = 25; //in nm //this variable determines within which distance for matching points are searched
-		double minInt = 1500; // minimal intensity of at least one channel
+		ch1.saveLocs();
+		ch2.saveLocs();
+		double dist = 100; //in nm //this variable determines within which distance for matching points are searched
+		double minInt = 500; // minimal intensity of at least one channel
 		if (verbose) {
 			System.out.println("start unmixing...");
 			System.out.println("maximal tolerance for matching points: "+dist);
@@ -58,7 +67,7 @@ public class Demixing {
 		coloredSet.setPath(ch1.getPath());
 		DemixingData demixingData = new DemixingData();
 		int maxFrame = (int) Math.max((double)ch1.getDimensions().get(7),(double)ch2.getDimensions().get(7));
-		
+
 		for (int currFrame = 0; currFrame < maxFrame; currFrame++){
 			Runnable t = new Thread(new UnmixFrame(demixingData, coloredSet, ch1, ch2, currFrame, dist, minInt));
 			executor2.execute(t);
@@ -79,8 +88,8 @@ public class Demixing {
 	
 	static StormData doUnmixing(StormData ch1, StormData ch2, double[][] trafo, boolean useAll){
 		ch1 = applyTrafo(trafo, ch1);
-		double dist = 25; //in nm //this variable determines within which distance for matching points are searched
-		double minInt = 1500; // minimal intensity of at least one channel
+		double dist = 100; //in nm //this variable determines within which distance for matching points are searched
+		double minInt = 5000; // minimal intensity of at least one channel
 		if (verbose) {
 			System.out.println("start unmixing...");
 			System.out.println("maximal tolerance for matching points: "+dist);
@@ -201,12 +210,12 @@ public class Demixing {
 	}
 	
 	static double[][] findGlobalTransformationMultithreaded(StormData ch1, StormData ch2){
-		int nbrIter = 1500;
+		int nbrIter = 500;
 		ArrayList<ArrayList<ArrayList<StormLocalization>>> collectionOfGoodPoints = new ArrayList<ArrayList<ArrayList<StormLocalization>>>();
-		ArrayList<Integer> frames = new ArrayList<Integer>(Arrays.asList(1,10,15,20,25,30,35,50));//,75,100,200,300,1000,10000,15000,20000,25000));//,3,4,5,6,7,8,9,10,20,90,1000,4000));
-		//for (int i = 0; i<1000;i++){
-		//	frames.add(i);
-		//}
+		ArrayList<Integer> frames = new ArrayList<Integer>();//(Arrays.asList(1,10,15,20,25,30,35,50,91,200,111,500,600,700,800,900));//,75,100,200,300,1000,10000,15000,20000,25000));//,3,4,5,6,7,8,9,10,20,90,1000,4000));
+		for (int i = 10; i<180;i++){
+			frames.add(i*10);
+		}
 		
 		if (verbose) {
 			System.out.println("finding transformation...");
@@ -268,8 +277,8 @@ public class Demixing {
 			}
 			int bestMatches = 0;
 			ArrayList<ArrayList<StormLocalization>> bestSubsets = new ArrayList<ArrayList<StormLocalization>>();
-			StormData subset1 = ch1.findSubset(frame, frame+1);
-			StormData subset2 = ch2.findSubset(frame, frame+1);
+			StormData subset1 = ch1.findSubset(frame, frame+10);
+			StormData subset2 = ch2.findSubset(frame, frame+10);
 			double[][] distMat = createDistanceMatrix(subset1, subset2);
 			for (int i = 0; i<nbrIter; i++){
 				double[][] currTrafo = new double[2][3];
@@ -487,10 +496,12 @@ class findTransformation implements Runnable{
 		this.verbose = verbose;
 		this.nbrIter = nbrIter;
 	}
+	
 	public void run(){
 		if (verbose) {
 			System.out.println("working on frame: "+frame);
 		}
+		double bestError = 1e10;
 		int bestMatches = 0;
 		ArrayList<ArrayList<StormLocalization>> bestSubsets = new ArrayList<ArrayList<StormLocalization>>();
 		StormData subset1 = ch1.findSubset(frame, frame+1);
@@ -499,19 +510,25 @@ class findTransformation implements Runnable{
 		for (int i = 0; i<nbrIter; i++){
 			double[][] currTrafo = new double[2][3];
 			ArrayList<ArrayList<StormLocalization>> subsets = Demixing.findCandidatesForTransformation(distMat, subset1, subset2);
-			currTrafo = Demixing.findTransformation(subsets);
-			boolean usable = Demixing.isThisTrafoUsable(currTrafo);
+			currTrafo = TransformationControl.findTransformation(subsets);
+			boolean usable = TransformationControl.isThisTrafoUsable(currTrafo);
 			if (usable){
-				int matches = Demixing.findMatches(currTrafo, subset1, subset2);
+				int matches = TransformationControl.findMatches(currTrafo, subset1, subset2);
+				double error = TransformationControl.findError(currTrafo, subset1, subset2);
 				//System.out.println(matches);
-				if (matches>bestMatches){
+				if (matches>bestMatches || (matches == bestMatches && error< bestError)){
 					bestMatches = matches;
 					bestSubsets = subsets;
+					bestError = error;
+					//System.out.println("matches: "+matches+ " Error: "+error);
 				}
 			}
 		}
 		synchronized(collectionOfGoodPoints){
-			collectionOfGoodPoints.add(bestSubsets);
+			if (bestMatches > 3 && bestError < 70){
+				collectionOfGoodPoints.add(bestSubsets);
+				System.out.println("matches: "+bestMatches+ " Error: "+bestError);
+			}
 		}
 	}
 }
@@ -571,6 +588,29 @@ class UnmixFrame implements Runnable{
 			if (!matching){
 				if (currLoc.getIntensity()>minInt && useAll){
 					coloredSet.addElement(new StormLocalization(currLoc,0));
+				}
+			}
+		}
+		for (int i = 0; i<currFrameCh2.getSize(); i++){ //second run to find all points which are unique in channel 2
+			StormLocalization currLoc = currFrameCh2.getElement(i);
+			boolean matching = false;
+			int startvalue = 0;
+			for (int j = startvalue; j<currFrameCh1.getSize(); j++){
+				StormLocalization thisLoc = currFrameCh1.getElement(j);
+				if (thisLoc.getX()>currLoc.getX()+dist){ //sorted for X, if thislocs x value is larger all following will be larger
+					break;
+				}
+				if (Math.abs(thisLoc.getX() - currLoc.getX())<dist && Math.abs(thisLoc.getY() - currLoc.getY())<dist){
+					//double atan = Math.atan(thisLoc.getIntensity() / currLoc.getIntensity());
+					//coloredSet.addElement(new StormLocalization((thisLoc.getX()+currLoc.getX())/2,(thisLoc.getY()+currLoc.getY())/2,(thisLoc.getZ()+currLoc.getZ())/2, currFrame,(thisLoc.getIntensity()+currLoc.getIntensity())/2, atan));
+					matching = true;
+					startvalue = i;
+					break;
+				}
+			}
+			if (!matching){
+				if (currLoc.getIntensity()>minInt && useAll){
+					coloredSet.addElement(new StormLocalization(currLoc,Math.PI/2));
 				}
 			}
 		}

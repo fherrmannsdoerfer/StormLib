@@ -30,6 +30,7 @@ public class BeadRegistration {
 	private static double[][] findTransformation(
 			ArrayList<ArrayList<StormLocalization>> beads) {
 		int bestMatches = 0;
+		double bestError = 1e8;
 		double[][] bestTrafo = {{1,0,0},{0,1,0}};
 		ArrayList<ArrayList<StormLocalization>> bestSubsets = new ArrayList<ArrayList<StormLocalization>>();
 		StormData set1 = new StormData();
@@ -37,22 +38,25 @@ public class BeadRegistration {
 		StormData set2 = new StormData();
 		set2.setLocs(beads.get(1));
 		double[][] distmat = TransformationControl.createDistanceMatrix(set1,set2);
-		int nbrIter = 1500;
+		int nbrIter = 300000;
 		for (int i = 0; i<nbrIter; i++){
 			double[][] currTrafo = new double[2][3];
-			ArrayList<ArrayList<StormLocalization>> subsets = TransformationControl.findCandidatesForTransformation(distmat, set1, set2);
+			ArrayList<ArrayList<StormLocalization>> subsets = TransformationControl.findCandidatesForTransformation(distmat, set1, set2,5);
 			currTrafo = TransformationControl.findTransformation(subsets);
 			boolean usable = TransformationControl.isThisTrafoUsable(currTrafo);
 			if (usable){
 				int matches = TransformationControl.findMatches(currTrafo, set1, set2);
-				//System.out.println(matches);
-				if (matches>bestMatches){
+				double error = TransformationControl.findError(currTrafo, set1, set2);
+				if (matches>bestMatches || (matches == bestMatches && error< bestError)){
 					bestMatches = matches;
 					bestTrafo = currTrafo;
 					bestSubsets = subsets;
+					bestError = error;
+					System.out.println("matches: "+matches+ " Error: "+error);
 				}
 			}
 		}
+		System.out.println("maximal number of matches: "+bestMatches+" with error: "+ bestError);
 		return bestTrafo;
 	}
 

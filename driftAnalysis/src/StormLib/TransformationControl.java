@@ -11,10 +11,14 @@ import org.apache.commons.math3.linear.RealMatrix;
 
 
 public class TransformationControl {
-
+	
 	public static ArrayList<ArrayList<StormLocalization>> findCandidatesForTransformation(
-			double[][] distMat, StormData subset1, StormData subset2) {
-			int minPointsReq = 3; 
+			double[][] distMat, StormData subset1, StormData subset2){
+		return findCandidatesForTransformation(distMat, subset1, subset2, 3);
+	}
+	public static ArrayList<ArrayList<StormLocalization>> findCandidatesForTransformation(
+			double[][] distMat, StormData subset1, StormData subset2, int minPointsReq) {
+			//int minPointsReq = 3; 
 			Random rand = new Random();
 			ArrayList<Integer> randomIndicesCh1 = new ArrayList<Integer>();
 			ArrayList<Integer> assignedIndicesCh2 = new ArrayList<Integer>();
@@ -152,6 +156,29 @@ public class TransformationControl {
 		}
 		return matches;
 	}
+	
+	static double findError(double[][] currTrafo, StormData subset1, StormData subset2){
+		double error = 0;
+		int counter = 0;
+		double toleranceForMatching = 100; //in nm
+		StormData transformedSubset1 = TransformationControl.applyTrafo(currTrafo, subset1);
+		double[][] distMat = TransformationControl.createDistanceMatrix(transformedSubset1,subset2);
+		for (int i = 0; i<subset1.getSize(); i++){
+			for(int j = 0; j<subset2.getSize(); j++){
+				if (distMat[i][j]<toleranceForMatching){
+					error = error + distMat[i][j];
+					counter = counter + 1;
+				}
+			}
+		}
+		if (counter > 0) {
+			return error/counter;
+		}
+		else {
+			return 0;
+		}
+	}
+	
 	static class Pair<T extends Comparable<T>> implements Comparable<Pair<T>>{
 		final T value;
 		final int index;

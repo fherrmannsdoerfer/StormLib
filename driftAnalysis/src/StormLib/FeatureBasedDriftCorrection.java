@@ -105,7 +105,7 @@ public class FeatureBasedDriftCorrection {
 			}*/
 			double x = sd.getElement(j).getX()+fx.value(frame)*pixelsize;
 			double y = sd.getElement(j).getY()+fy.value(frame)*pixelsize;
-			sdTrans.addElement(new StormLocalization(x, y, sd.getElement(j).getZ(), frame, sd.getElement(j).getIntensity()));
+			sdTrans.addElement(new StormLocalization(x, y, sd.getElement(j).getZ(), frame, sd.getElement(j).getIntensity(), sd.getElement(j).getAngle()));
 		}
 		System.out.println(counter+" Localizations were skipped.");
 		Double frameMax2 = (double)sd.getDimensions().get(7);

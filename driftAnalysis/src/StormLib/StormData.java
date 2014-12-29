@@ -63,6 +63,7 @@ public class StormData {
 				counter  = counter + 1;
 				try{
 					if (tmpStr.length == 4) { //2D data
+						//StormLocalization sl = new StormLocalization(Double.parseDouble(tmpStr[0]), Double.parseDouble(tmpStr[1]), (int)(Double.parseDouble(tmpStr[2])), Double.parseDouble(tmpStr[3]));
 						StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Integer.valueOf(tmpStr[2]), Double.valueOf(tmpStr[3]));
 						getLocs().add(sl);
 					}
@@ -76,7 +77,7 @@ public class StormData {
 					}
 					else {System.out.println("File format not understood!");}
 				}
-				catch(java.lang.NumberFormatException ne){System.out.println("Problem in line:"+counter);}
+				catch(java.lang.NumberFormatException ne){System.out.println("Problem in line:"+counter+ne);}
 			}
 			System.out.println("File contains "+getLocs().size()+" localizations.");
 		} 
@@ -107,7 +108,7 @@ public class StormData {
 		}
 	}
 	
-	public void addElement(StormLocalization sl){
+	public synchronized void addElement(StormLocalization sl){
 		getLocs().add(sl);
 	}
 	
@@ -163,7 +164,7 @@ public class StormData {
 		return getLocs().size();
 	}
 	
-	public ArrayList getDimensions(){ //returns minimal and maximal positions in an ArrayList in the following order (xmin, xmax, ymin, ymax, zmin, zmax, minFrame, maxFrame)
+	public synchronized ArrayList getDimensions(){ //returns minimal and maximal positions in an ArrayList in the following order (xmin, xmax, ymin, ymax, zmin, zmax, minFrame, maxFrame)
 		double minX = Double.MAX_VALUE;
 		double minY = Double.MAX_VALUE;
 		double minZ = Double.MAX_VALUE;
@@ -173,6 +174,7 @@ public class StormData {
 		double minFrame = Double.MAX_VALUE;
 		double maxFrame = 0;
 		for (int i = 0; i<getLocs().size(); i++){
+			
 			StormLocalization sl = getLocs().get(i);
 			double currX = sl.getX();
 			double currY = sl.getY();
@@ -260,7 +262,7 @@ public class StormData {
 	}
 
 		
-	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, double angle1, double angle2, double width1, double widht2){
+	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, double angle1, double angle2, double width1, double width2){
 		double sigma = 10/pixelsize; //in nm sigma to blur localizations
 		int filterwidth = 3; // must be odd
 		ArrayList<Double> dims = getDimensions();
@@ -274,7 +276,7 @@ public class StormData {
 		coloredImage.add(imageRed);
 		coloredImage.add(imageGreen);
 		coloredImage.add(imageBlue);
-		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, getLocs(),angle1, angle2, width1, widht2);
+		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, getLocs(),angle1, angle2, width1, width2);
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipBlue = new FloatProcessor(pixelX,pixelY);
@@ -964,4 +966,44 @@ public class StormData {
 	public String getBasename(){
 		return fname.substring(0, fname.length()-4);
 	}
+	
+	public void saveLocs(){
+		try {
+			String subfolder = "\\AdditionalInformation";
+			FileWriter writer = new FileWriter(path+subfolder+"\\"+getBasename()+"_savedLocs.txt");
+			for (int i = 0; i<locs.size(); i++){
+				writer.append(locs.get(i).toPlainString()+"\n");
+			}
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {e.printStackTrace();}
+		System.out.println("Locs for "+getBasename()+" saved.");
+	}
+	
+	public ArrayList<StormData> separateChannels(double angle1, double angle2, double width1, double width2) {
+		double minAngle1 = angle1 - width1/2;
+		double maxAngle1 = angle1 + width1/2;
+		double minAngle2 = angle2 - width2/2;
+		double maxAngle2 = angle2 + width2/2;
+		ArrayList<StormData> channels = new ArrayList<StormData>(); 
+		StormData redChannel = new StormData();
+		redChannel.setPath(path);
+		redChannel.setFname(getBasename()+"_redChannel.txt");
+		StormData greenChannel = new StormData();
+		greenChannel.setPath(path);
+		greenChannel.setFname(getBasename()+"_greenChannel.txt");
+		for (int i = 0; i<locs.size(); i++){
+			StormLocalization sl = locs.get(i);
+			if (((sl.getAngle()> minAngle1 && sl.getAngle()< maxAngle1))|| sl.getAngle() == 0){
+				redChannel.addElement(sl);
+			}
+			else if ((sl.getAngle()> minAngle2 && sl.getAngle()< maxAngle2) || sl.getAngle() == Math.PI/2){
+				greenChannel.addElement(sl);
+			}
+		}
+		channels.add(redChannel);
+		channels.add(greenChannel);
+		return channels;
+	}
 }
+
