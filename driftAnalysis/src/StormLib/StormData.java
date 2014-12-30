@@ -64,6 +64,7 @@ public class StormData {
 				counter  = counter + 1;
 				try{
 					if (tmpStr.length == 4) { //2D data
+						//StormLocalization sl = new StormLocalization(Double.parseDouble(tmpStr[0]), Double.parseDouble(tmpStr[1]), (int)(Double.parseDouble(tmpStr[2])), Double.parseDouble(tmpStr[3]));
 						StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Integer.valueOf(tmpStr[2]), Double.valueOf(tmpStr[3]));
 						getLocs().add(sl);
 					}
@@ -78,6 +79,7 @@ public class StormData {
 					else {System.out.println("File format not understood!");}
 				}
 				catch(java.lang.NumberFormatException ne){System.out.println("Problem in line:"+counter+ne); errorLines.add(counter);}
+
 			}
 			OutputClass.writeLoadingStatistics(path, getBasename(), errorLines, locs.size());
 			System.out.println("File contains "+getLocs().size()+" localizations.");
@@ -109,7 +111,7 @@ public class StormData {
 		}
 	}
 	
-	public void addElement(StormLocalization sl){
+	public synchronized void addElement(StormLocalization sl){
 		getLocs().add(sl);
 	}
 	
@@ -165,7 +167,7 @@ public class StormData {
 		return getLocs().size();
 	}
 	
-	public ArrayList getDimensions(){ //returns minimal and maximal positions in an ArrayList in the following order (xmin, xmax, ymin, ymax, zmin, zmax, minFrame, maxFrame)
+	public synchronized ArrayList getDimensions(){ //returns minimal and maximal positions in an ArrayList in the following order (xmin, xmax, ymin, ymax, zmin, zmax, minFrame, maxFrame)
 		double minX = Double.MAX_VALUE;
 		double minY = Double.MAX_VALUE;
 		double minZ = Double.MAX_VALUE;
@@ -175,6 +177,7 @@ public class StormData {
 		double minFrame = Double.MAX_VALUE;
 		double maxFrame = 0;
 		for (int i = 0; i<getLocs().size(); i++){
+			
 			StormLocalization sl = getLocs().get(i);
 			double currX = sl.getX();
 			double currY = sl.getY();
@@ -267,6 +270,7 @@ public class StormData {
 	}
 		
 	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, DemixingParameters params, String tag){
+
 		double sigma = 10/pixelsize; //in nm sigma to blur localizations
 		int filterwidth = 3; // must be odd
 		ArrayList<Double> dims = getDimensions();
@@ -286,6 +290,7 @@ public class StormData {
 		}
 		Utilities.getHistogram(vals, 1);
 		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, getLocs(), params);
+
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipBlue = new FloatProcessor(pixelX,pixelY);
@@ -939,5 +944,4 @@ public class StormData {
 		this.processingLog = this.processingLog + extenstion;
 	}
 }
-
 

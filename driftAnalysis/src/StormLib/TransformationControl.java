@@ -11,7 +11,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 
 
 public class TransformationControl {
-
+	
 	public static ArrayList<ArrayList<StormLocalization>> findCandidatesForTransformation(
 			double[][] distMat, StormData subset1, StormData subset2){
 		return findCandidatesForTransformation(distMat, subset1, subset2, 3);
@@ -159,7 +159,7 @@ public class TransformationControl {
 	static double findError(double[][] currTrafo, StormData subset1, StormData subset2){
 		double error = 0;
 		int counter = 0;
-		double toleranceForMatching = 200; //in nm
+		double toleranceForMatching = 100; //in nm
 		StormData transformedSubset1 = TransformationControl.applyTrafo(currTrafo, subset1);
 		double[][] distMat = TransformationControl.createDistanceMatrix(transformedSubset1,subset2);
 		for (int i = 0; i<subset1.getSize(); i++){

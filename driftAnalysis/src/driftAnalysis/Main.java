@@ -19,6 +19,7 @@ import StormLib.Utilities;
 public class Main {
 
 	public static void main(String[] args) {
+
  
 		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\StormData\\";
 		//twoColorRegistration(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
@@ -26,6 +27,7 @@ public class Main {
 
 		//singleColor3dImage(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
 		dualColor2dImage(path1, "LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
+
 	}
 	
 	static void twoColorRegistrationMultipleFiles(String path1,String pattern1,String path2,String pattern2){
@@ -82,20 +84,26 @@ public class Main {
 		StormData sd = new StormData(path, fname);
 		sd.renderImage3D(10);
 		sd.connectPoints(100, 100, 150, 3);
+
 		sd.renderImage3D(10);
 		sd.correctDrift(4000);
 		sd.renderImage3D(10);
+
 	}
 	
 	static void singleColor2dImage(String path, String fname){
 		StormData sd = new StormData(path, fname);
+
 		sd.renderImage2D(10);
+
 		sd.connectPoints(100, 100, 150, 3);
 		sd.renderImage2D(10);
 		sd.getLocsPerFrame();
+
 		sd.correctDrift(5000);
 		sd.renderImage2D(10);
 		sd.getLocsPerFrame();	
+
 	}
 	
 	static void dualColor2dImage(String path1, String fname1, String path2, String fname2){
@@ -103,12 +111,15 @@ public class Main {
 		//sd1.correctDrift(5000);
 		sd1.connectPoints(100., 100., 150, 3);
 		sd1.renderImage2D(10);
+
 		StormData sd2 = new StormData(path2,fname2);
+
 		//sd2.correctDrift(5000);
 		sd2.connectPoints(100., 100., 150, 3);
 		sd2.renderImage2D(10);
 		StormData unmixedSd = Demixing.spectralUnmixing(sd1, sd2,true);
 		DemixingParameters demixingParams= new DemixingParameters((90-22)/180. * Math.PI, (90-48)/180.*Math.PI, 10/180.*Math.PI, 15/180.*Math.PI);
 		ArrayList<ImagePlus> colImg = unmixedSd.renderDemixingImage(10, demixingParams);
+
 	}
 }
