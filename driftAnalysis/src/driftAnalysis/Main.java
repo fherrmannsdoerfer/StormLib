@@ -18,6 +18,7 @@ import StormLib.Utilities;
 public class Main {
 
 	public static void main(String[] args) {
+		
 		String tag = "141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4";
 		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
 		//twoColorRegistration(path1,"meos-storm.txt", path1, "mover-storm.txt");
