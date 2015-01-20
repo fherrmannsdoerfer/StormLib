@@ -11,7 +11,6 @@ import StormLib.Demixing;
 import StormLib.DemixingParameters;
 import StormLib.FeatureBasedDriftCorrection;
 import StormLib.StormData;
-import StormLib.StormDataProc;
 import StormLib.StormLocalization;
 import StormLib.Utilities;
 
@@ -101,14 +100,15 @@ public class Main {
 	static void dualColor2dImage(String path1, String fname1, String path2, String fname2){
 		StormData sd1 = new StormData(path1,fname1);
 		//sd1.correctDrift(5000);
-		sd1.connectPoints(100., 100., 150, 3);
+		//sd1.connectPoints(100., 100., 150, 3);
 		sd1.renderImage2D(10);
 		StormData sd2 = new StormData(path2,fname2);
 		//sd2.correctDrift(5000);
-		sd2.connectPoints(100., 100., 150, 3);
+		//sd2.connectPoints(100., 100., 150, 3);
 		sd2.renderImage2D(10);
-		StormData unmixedSd = Demixing.spectralUnmixing(sd1, sd2,true);
-		DemixingParameters demixingParams= new DemixingParameters((90-22)/180. * Math.PI, (90-48)/180.*Math.PI, 10/180.*Math.PI, 15/180.*Math.PI);
+		StormData unmixedSd = Demixing.spectralUnmixing(sd1, sd2);
+		unmixedSd.correctDrift(5000);
+		DemixingParameters demixingParams= new DemixingParameters((44)/180. * Math.PI, (67)/180.*Math.PI, 20/180.*Math.PI, 15/180.*Math.PI);
 		ArrayList<ImagePlus> colImg = unmixedSd.renderDemixingImage(10, demixingParams);
 	}
 }

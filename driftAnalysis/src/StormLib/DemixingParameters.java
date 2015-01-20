@@ -5,7 +5,7 @@ public class DemixingParameters {
 	private double angle2;
 	private double width1;
 	private double width2;
-	public DemixingParameters(double angle1, double angle2, double width, double width2){
+	public DemixingParameters(double angle1, double angle2, double width1, double width2){
 		this.angle1 = angle1;
 		this.angle2 = angle2;
 		this.width1 = width1;

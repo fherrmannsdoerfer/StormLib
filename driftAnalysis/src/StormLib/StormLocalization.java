@@ -52,6 +52,7 @@ public class StormLocalization {
 	double getX(){return this.x;}
 	double getY(){return this.y;}
 	double getZ(){return this.z;}
+	void setZ(double z){this.z = z;};
 	int getFrame(){return this.frame;}
 	void setFrame(int frame){this.frame = frame;}
 	double getAngle(){return this.angle;}

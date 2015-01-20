@@ -1,3 +1,4 @@
+
 package StormLib;
 
 import ij.ImagePlus;
@@ -137,12 +138,20 @@ public class StormData {
 		this.fname = fname;
 	}
 	
+	public void setProcessingLog(String proclog){
+		this.processingLog = proclog;
+	}
+	
 	public String getPath(){
 		return path;
 	}
 	
 	public String getFname(){
 		return fname;
+	}
+	
+	public String getProcessingLog(){
+		return processingLog;
 	}
 	
 	public int findLastIndexForFrame(int frame){ //finds the last index for which the frame is equal or lower the given frame 
@@ -284,8 +293,10 @@ public class StormData {
 		for (int i = 0; i<locs.size(); i++){
 			vals.add(locs.get(i).getAngle()*180/Math.PI);
 		}
-		Utilities.getHistogram(vals, 1);
-		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, getLocs(), params);
+		double binWidth = 1.;
+		ArrayList<ArrayList<Double>> histData = Utilities.getHistogram(vals, binWidth);
+		OutputClass.writeDemixingHistogram(path, getBasename(), histData, binWidth, tag);
+		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, params);
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipBlue = new FloatProcessor(pixelX,pixelY);
@@ -306,7 +317,7 @@ public class StormData {
 		return colImg;
 	}
 	
-	ArrayList<float[][]> renderDemixing(ArrayList<float[][]> coloredImage, double sigma, int filterwidth, double pixelsize, ArrayList<StormLocalization> sd, DemixingParameters params){
+	ArrayList<float[][]> renderDemixing(ArrayList<float[][]> coloredImage, double sigma, int filterwidth, double pixelsize, DemixingParameters params){
 		if (filterwidth %2 == 0) {System.err.println("filterwidth must be odd");}
 		double minAngle1 = params.getAngle1() - params.getWidth1()/2;
 		double maxAngle1 = params.getAngle1() + params.getWidth1()/2;
@@ -323,7 +334,7 @@ public class StormData {
 		float[][] blueChannel = coloredImage.get(2);
 		Progressbar pb = new Progressbar(0, getSize(), 0, "Rendering demixing Image ...");
 		for (int i = 1; i<getSize(); i++){
-			StormLocalization sl = sd.get(i);
+			StormLocalization sl = locs.get(i);
 			double posX = sl.getX()/pixelsize; //position of current localization
 			double posY = sl.getY()/pixelsize;
 			//double posZ = sl.getZ();
@@ -702,157 +713,23 @@ public class StormData {
 		OutputClass.writeLocs(path,  getBasename(), locs, tag);
 	}
 	
+	
 	public ArrayList<StormLocalization> connectPoints(double dx, double dy, double dz, int maxdistBetweenLocalizations) {
 		// TODO Auto-generated method stub
-		ArrayList<ArrayList<StormLocalization>> traces = findTraces(locs, dx, dy, dz, maxdistBetweenLocalizations);
-		ArrayList<StormLocalization> connectedLoc = connectTraces(traces);
+		ArrayList<ArrayList<StormLocalization>> traces = Utilities.findTraces(locs, dx, dy, dz, maxdistBetweenLocalizations);
+		ArrayList<StormLocalization> connectedLoc = Utilities.connectTraces(traces);
+		OutputClass.writeConnectionResult(path,getBasename(),connectedLoc.size(), locs.size(),processingLog + "Con");
 		this.locs = connectedLoc;
 		this.processingLog += "Con"; 
 		return connectedLoc;
 	}
-	private ArrayList<StormLocalization> connectTraces(
-			ArrayList<ArrayList<StormLocalization>> traces) {
-		// consecutive detections will be merged spatial coordinates are averaged
-		//intensities added and the first frame is chosen for the connected localization
-		ArrayList<StormLocalization> connectedLoc = new ArrayList<StormLocalization>();
-		int counter = 0;
-		Progressbar pb = new Progressbar(0,traces.size(), 0,"Connecting traces ...");
-		for (int i = 0; i< traces.size(); i++) {
-			if (traces.get(i).size() < 10){ //beads are not connected
-				if (traces.get(i).size()>1){
-					counter = counter + 1;
-				}
-				double x = 0, y = 0, z = 0, intensity =0;
-				int frame = traces.get(i).get(0).getFrame();
-				for (int j = 0; j<traces.get(i).size(); j++) {
-					x = x + traces.get(i).get(j).getX();
-					y = y + traces.get(i).get(j).getY();
-					z = z + traces.get(i).get(j).getZ();
-					intensity = intensity + traces.get(i).get(j).getIntensity();
-				}
-				x = x / traces.get(i).size();
-				y = y / traces.get(i).size();
-				z = z / traces.get(i).size();
-				connectedLoc.add(new StormLocalization(x,y,z,frame,intensity));
-			}
-			pb.updateProgress(i);
-		}
-		OutputClass.saveConnectionResult(path,getBasename(),counter, traces.size(),processingLog + "Con");
-		System.out.println(counter + " tracks were averaged.");
-		return connectedLoc;
-	}
 	
-	/*ArrayList<ArrayList<StormLocalization>> findTraces(ArrayList<StormLocalization> locs, double dx, double dy, double dz,double maxDriftX, int maxdistBetweenLocalizations) {
-		Comparator<StormLocalization> compFrame = new StormLocalizationFrameComperator();
-		Collections.sort(locs,compFrame);
-		int framemax = locs.get(locs.size()-1).getFrame();
-		int framemin = locs.get(0).getFrame();
-		//System.out.println(framemax+" "+framemin);
-		Comparator<StormLocalization> comp = new StormLocalizationXComperator();
-		Collections.sort(locs,comp);
-		double xmax = locs.get(locs.size()-1).getX();
-		double xmin = locs.get(0).getX();
-		int nbrIntervals =(int) (Math.ceil((xmax - xmin) / (2* maxDriftX))); //smaller subset of all points are created to find beads within every set.
-		ArrayList<ArrayList> subsets; 
-		subsets = partitionData(nbrIntervals, maxDriftX, locs);
-		ArrayList<ArrayList> connectedPoints = new ArrayList<ArrayList>();
-		ArrayList<ArrayList<StormLocalization>> traces = new ArrayList<ArrayList<StormLocalization>>();
-		for (int i = 0; i< subsets.size(); i++) {
-			Collections.sort(subsets.get(i),compFrame);
-			ArrayList<ArrayList> subsetInFrames = new ArrayList<ArrayList>();// one arraylist for each fram
-			for (int k = 0; k<=framemax+1; k++) {
-				subsetInFrames.add(new ArrayList<StormLocalization>());
-			}
-			ArrayList<StormLocalization> tmpList = (ArrayList<StormLocalization>) subsets.get(i); 
-			for (int j = 0; j< subsets.get(i).size(); j++){
-				subsetInFrames.get(tmpList.get(j).getFrame()).add(tmpList.get(j)); //subsetInFrames contains one list for each frame the data of the current subset is fed into it.
-			}
-			int currFrame = 0;
-			for (int k = framemin; k<=framemax+1; k++) { //bead traces will be found and added to a new list containing all consecutive localizations. Every spot is only used once and therefor deleted after it was assigned to a trace
-				for (int o = 0; o < subsetInFrames.get(k).size(); o++) {
-					ArrayList<StormLocalization> currentTrace = new ArrayList<StormLocalization>();
-					currentTrace.add((StormLocalization) subsetInFrames.get(k).get(o));
-					currFrame = currentTrace.get(currentTrace.size()-1).getFrame();
-					StormLocalization ll = currentTrace.get(currentTrace.size() -1); //last Localization which will be compared with the localizations of the following frames
-					int frameEvaluated = currFrame + 1;
-					while (currFrame + maxdistBetweenLocalizations > frameEvaluated && frameEvaluated<framemax) {
-						//System.out.println(subsetInFrames.get(frameEvaluated).size());
-						for (int p = 0; p<subsetInFrames.get(frameEvaluated).size();p++){
-							StormLocalization tl = (StormLocalization) subsetInFrames.get(frameEvaluated).get(p); // localization to test
-							if (Math.abs(tl.getY()-ll.getY())<dy && Math.abs(tl.getX()-ll.getX())<dx && Math.abs(tl.getZ()-ll.getZ())<dz) {//test for y in the beginning because it is more likely to fail since the subset contains similar x values
-								currentTrace.add(tl);
-								currFrame = tl.getFrame();
-								subsetInFrames.get(frameEvaluated).remove(p); //localization is deleted
-								ll = tl; // last localization is updated
-								break;
-							}
-						}
-						frameEvaluated = frameEvaluated + 1; //if no match was found in this frame or if break exited the for loop the localizations of the next frame will be looked through. If this happens to often in a row the while loop breaks and the trace is broken
-					}
-					traces.add(currentTrace); //traces is updated, next trace will be found
-				}
-			}
-			System.out.println("Number of detected traces: "+traces.size());
-		}
+	public void estimateLocalizationPrecision(double dxy, double dz){
+		ArrayList<ArrayList<StormLocalization>> traces = Utilities.findTraces(locs, dxy, dxy, dz, 1);
+		ArrayList<ArrayList<Double>> distances = Utilities.getDistancesWithinTraces(traces);
 		
-		/*for (int ii = 0; ii< 100; ii++) {
-			System.out.println();
-			System.out.println();
-			System.out.println(traces.get(ii).size());
-			for (int i = 0; i< traces.get(ii).size(); i++){System.out.println(traces.get(ii).get(i).toString());}
-		}*/
-	//	return traces;
-	//}*/
-	
-	ArrayList<ArrayList<StormLocalization>> findTraces(ArrayList<StormLocalization> locs, double dx, double dy, double dz, int maxdistBetweenLocalizations) {
-		Comparator<StormLocalization> compFrame = new StormLocalizationFrameComperator();
-		Collections.sort(locs,compFrame);
-		int framemax = locs.get(locs.size()-1).getFrame();
-		int framemin = locs.get(0).getFrame();
-		//System.out.println(framemax+" "+framemin);
-
-		ArrayList<ArrayList> connectedPoints = new ArrayList<ArrayList>();
-		ArrayList<ArrayList<StormLocalization>> traces = new ArrayList<ArrayList<StormLocalization>>();
-		ArrayList<ArrayList<StormLocalization>> frames = new ArrayList<ArrayList<StormLocalization>>();
-		
-		for (int k = 0; k<=framemax+1; k++) {
-			frames.add(new ArrayList<StormLocalization>());
-		}
-		for (int j = 0; j< locs.size(); j++){
-			frames.get(locs.get(j).getFrame()).add(locs.get(j)); //frames contains one list for each frame the data of the current subset is fed into it.
-		}
-		Progressbar pb = new Progressbar(0, framemax+1,0,"Finding traces ...");
-		for (int i = 0; i<framemax+1; i++){
-			for (int j = 0; j<frames.get(i).size(); j++){
-				StormLocalization currLoc = frames.get(i).get(j);
-				ArrayList<StormLocalization> currTrace = new ArrayList<StormLocalization>();
-				currTrace.add(currLoc);
-				int currFrame = currLoc.getFrame();
-				int evaluatedFrame = currFrame + 1;
-				//System.out.println(i+" "+j);
-				while (currFrame + maxdistBetweenLocalizations > evaluatedFrame && evaluatedFrame < framemax){//runs as long as there are consecutive localizations within a maximum distance of maxdistBetweenLoc...
-					for (int k = 0; k<frames.get(evaluatedFrame).size(); k++){//runs through all locs of the currently evaluated frame
-						StormLocalization compLoc = frames.get(evaluatedFrame).get(k);
-						if (Math.abs(currLoc.getY()-compLoc.getY())<dy && Math.abs(currLoc.getX()-compLoc.getX())<dx && Math.abs(currLoc.getZ()-compLoc.getZ())<dz) {
-							frames.get(evaluatedFrame).remove(k); // remove found localization to avoid duplication
-							currFrame = evaluatedFrame; //currFrame describes the frame of the current localization so it is changed to the frame of the matching loc which becomes the new current loc
-							evaluatedFrame = currFrame +1;
-							currTrace.add(compLoc);
-							currLoc = compLoc;
-							break;
-						}
-					}
-					evaluatedFrame += 1;
-				}
-				traces.add(currTrace);
-				pb.updateProgress(i);
-			}
-			//System.out.println(i +" " +frames.get(i).size());
-		}
-		System.out.println("Number of detected traces: "+traces.size()+" Number of all localizations: "+locs.size());
-		return traces;
 	}
-	
+		
 	ArrayList partitionData(int nbrIntervals, double maxDriftX, ArrayList<StormLocalization> locs) {
 		ArrayList<ArrayList> subsets= new ArrayList<ArrayList>(nbrIntervals);
 		ArrayList<StormLocalization> partition = new ArrayList<StormLocalization>();
@@ -873,7 +750,7 @@ public class StormData {
 		return subsets;
 	}
 	
-	StormData findSubset(int minFrame, int maxFrame){ //only returns StormLocalizations which come from frames between minFrame and maxFrame
+	StormData findSubset(int minFrame, int maxFrame, boolean setZCoordToZero){
 		int currframe = minFrame;
 		StormData subset = new StormData();
 		subset.setFname(fname);
@@ -881,9 +758,20 @@ public class StormData {
 		int start = findFirstIndexForFrame(minFrame);
 		int ende = findLastIndexForFrame(maxFrame);
 		for (int i = start; i<ende; i++){
-			subset.addElement(getElement(i));
+			if (setZCoordToZero){
+				StormLocalization sl = getElement(i);
+				sl.setZ(0);
+				subset.addElement(sl);
+			}
+			else{
+				subset.addElement(getElement(i));
+			}
 		}
 		return subset;
+	}
+	
+	StormData findSubset(int minFrame, int maxFrame){ //only returns StormLocalizations which come from frames between minFrame and maxFrame
+		return findSubset(minFrame, maxFrame, false); 
 	}
 	
 	void sortX(){
@@ -910,7 +798,7 @@ public class StormData {
 		ArrayList<ArrayList<Integer>> tmp = new ArrayList<ArrayList<Integer>>();
 		tmp.add(frames);
 		tmp.add(locsPerFrame);
-		OutputClass.saveLocsPerFrame(path, getBasename(), tmp, binWidth, processingLog);
+		OutputClass.writeLocsPerFrame(path, getBasename(), tmp, binWidth, processingLog);
 		return tmp;
 	}
 	
@@ -932,12 +820,8 @@ public class StormData {
 		processingLog = processingLog +"DC";
 		locs = sd.getLocs();
 	}
-	public String getProcessingLog(){
-		return processingLog;
-	}
+
 	public void addToProcessingLog(String extenstion){
 		this.processingLog = this.processingLog + extenstion;
 	}
 }
-
-

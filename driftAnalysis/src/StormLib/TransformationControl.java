@@ -11,19 +11,25 @@ import org.apache.commons.math3.linear.RealMatrix;
 
 
 public class TransformationControl {
-
+	
 	public static ArrayList<ArrayList<StormLocalization>> findCandidatesForTransformation(
 			double[][] distMat, StormData subset1, StormData subset2){
 		return findCandidatesForTransformation(distMat, subset1, subset2, 3);
 	}
 	public static ArrayList<ArrayList<StormLocalization>> findCandidatesForTransformation(
 			double[][] distMat, StormData subset1, StormData subset2, int minPointsReq) {
-			//int minPointsReq = 3; 
 			Random rand = new Random();
 			ArrayList<Integer> randomIndicesCh1 = new ArrayList<Integer>();
 			ArrayList<Integer> assignedIndicesCh2 = new ArrayList<Integer>();
 			for (int i = 0; i<minPointsReq; i++){	//duplicates are allowed but will do no harm due to high number of tries
-				randomIndicesCh1.add(rand.nextInt(subset1.getSize()));
+				int randI = rand.nextInt(subset1.getSize());
+				for(int j = 0; j<randomIndicesCh1.size(); j++){
+					if(randomIndicesCh1.get(j) == randI){
+						i = i-1;
+						break;
+					}
+				}
+				randomIndicesCh1.add(randI);
 			}
 			// pick partner based on probabilistic approach
 			//nearer points of the other channel have higher probability
@@ -60,8 +66,9 @@ public class TransformationControl {
 		}
 
 	public static StormData applyTrafo(double[][] trafo, StormData ch2){
-		StormData transformedCh2 = ch2;
-		transformedCh2.setLocs(new ArrayList<StormLocalization>());
+		StormData transformedCh2 = new StormData();
+		transformedCh2.setFname(ch2.getFname());
+		transformedCh2.setPath(ch2.getPath());
 		for (int i = 0; i< ch2.getSize(); i++){
 			StormLocalization sl = ch2.getElement(i);
 			double x = trafo[0][0] * sl.getX() + trafo[0][1] * sl.getY() + trafo[0][2];
@@ -131,6 +138,24 @@ public class TransformationControl {
 		
 	}
 	
+	static double[][] findFinalTrafo(ArrayList<ArrayList<ArrayList<StormLocalization>>> collectionOfGoodPoints){
+		ArrayList<StormLocalization> ch1 = new ArrayList<StormLocalization>();
+		ArrayList<StormLocalization> ch2 = new ArrayList<StormLocalization>();
+		for (int i = 0; i<collectionOfGoodPoints.size(); i++){
+			for (int j = 0; j< collectionOfGoodPoints.get(i).get(0).size(); j++){
+				ch1.add(collectionOfGoodPoints.get(i).get(0).get(j)); //Add all points used for valid transformations to one
+				ch2.add(collectionOfGoodPoints.get(i).get(1).get(j)); //dataset
+			}
+		}
+		ArrayList<ArrayList<StormLocalization>> finalSet = new ArrayList<ArrayList<StormLocalization>>();
+		finalSet.add(ch1);
+		finalSet.add(ch2);
+
+		double[][] finalTrafo = TransformationControl.findTransformation(finalSet);
+		//double[][] finalTrafo = {{0.9912178988219845, -0.008543115225657089, 380.4777162113191}, {0.006083027898422995, 0.990757188540027, 101.88096725214348}};
+		return finalTrafo;
+	}
+	
 	static boolean isThisTrafoUsable(double[][] currTrafo){
 		boolean usable = false;
 		if (Math.abs((Math.pow(currTrafo[0][0],2)+Math.pow(currTrafo[0][1],2))-1)<0.2 &&Math.abs((Math.pow(currTrafo[1][0],2)+Math.pow(currTrafo[1][1],2))-1)<0.2){
@@ -141,9 +166,8 @@ public class TransformationControl {
 		}
 		return usable;
 	}
-	static int findMatches(double[][] currTrafo, StormData subset1, StormData subset2){
+	static int findMatches(double[][] currTrafo, StormData subset1, StormData subset2, double toleranceForMatching){
 		int matches = 0;
-		double toleranceForMatching = 200; //in nm
 		StormData transformedSubset1 = TransformationControl.applyTrafo(currTrafo, subset1);
 		double[][] distMat = TransformationControl.createDistanceMatrix(transformedSubset1,subset2);
 		for (int i = 0; i<subset1.getSize(); i++){
@@ -156,10 +180,9 @@ public class TransformationControl {
 		return matches;
 	}
 	
-	static double findError(double[][] currTrafo, StormData subset1, StormData subset2){
+	static double findError(double[][] currTrafo, StormData subset1, StormData subset2, double toleranceForMatching){
 		double error = 0;
 		int counter = 0;
-		double toleranceForMatching = 200; //in nm
 		StormData transformedSubset1 = TransformationControl.applyTrafo(currTrafo, subset1);
 		double[][] distMat = TransformationControl.createDistanceMatrix(transformedSubset1,subset2);
 		for (int i = 0; i<subset1.getSize(); i++){

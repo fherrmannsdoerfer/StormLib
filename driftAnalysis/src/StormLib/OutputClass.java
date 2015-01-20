@@ -104,7 +104,7 @@ public class OutputClass {
 		} catch (IOException e) {e.printStackTrace();}
 	}
 
-	public static void saveLocsPerFrame(String path, String basename,
+	public static void writeLocsPerFrame(String path, String basename,
 			ArrayList<ArrayList<Integer>> tmp, int binWidth, String tag) {
 		try {
 			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\Texts\\"+basename+"LocsPerFrame"+tag+".txt"));
@@ -121,10 +121,61 @@ public class OutputClass {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Histogram saved.");
+		System.out.println("Histogram of localizations per frame saved.");
 	}
 	
-	public static void saveDriftLog(ArrayList<double[][]> dds, UnivariateFunction fx, 
+	public static void writeDemixingParameters(String path, String basename, String tag,
+			int nbrIter, double toleratedError, ArrayList<Integer> frames, ArrayList<Integer> listOfMatchingPoints, 
+			ArrayList<Double> listOfErrors){
+		try {
+			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\Texts\\"+
+				basename+"DemixingTransformationParameters"+tag+".txt"));
+			outputStream.println("Parameters for the transformation used to align both channels");
+			outputStream.println("Number of iterations per frame: " + nbrIter);
+			outputStream.println("Tolerated error (each set of points used for registration must have a smaller RMS error): "+toleratedError);
+			outputStream.print("Used frames: ");
+			for(int i = 0; i<frames.size(); i++){
+				outputStream.print(frames.get(i)+ ", ");
+			}
+			outputStream.println(" ");
+			outputStream.print("Number of matching points per subset: ");
+			for(int i = 0; i<listOfMatchingPoints.size(); i++){
+				outputStream.print(listOfMatchingPoints.get(i)+ ", ");
+			}
+			outputStream.println(" ");
+			outputStream.print("Number of RMSE per subset: ");
+			for(int i = 0; i<listOfErrors.size(); i++){
+				outputStream.print(listOfErrors.get(i)+ ", ");
+			}
+			outputStream.println(" ");
+			outputStream.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static void writeDemixingHistogram(String path, String basename,
+			ArrayList<ArrayList<Double>> tmp, double binWidth, String tag) {
+		try {
+			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\Texts\\"+basename+"DemixingHistogram"+tag+".txt"));
+			outputStream.println("Histogram of distribution of angles of the intensity ratios, first row angle second row count (bin with is: "+binWidth+")");
+			String strFrames= "", strLocsPerFrame= "";
+			for (int k = 0; k<tmp.get(0).size(); k=k+1){
+				strFrames = strFrames +tmp.get(0).get(k)+" ";
+				strLocsPerFrame = strLocsPerFrame +tmp.get(1).get(k)+" ";
+			}
+			outputStream.println(strFrames);
+			outputStream.println(strLocsPerFrame);
+			outputStream.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Histogram of localizations per frame saved.");
+	}
+	
+	public static void writeDriftLog(ArrayList<double[][]> dds, UnivariateFunction fx, 
 			UnivariateFunction fy, String path, String basename, int frameMax, String tag, double pixelSize){
 		try {
 			int nbrChunks = dds.get(0)[0].length-1;
@@ -190,16 +241,18 @@ public class OutputClass {
 		}
 	}
 
-	public static void saveConnectionResult(String path, String basename,
+	public static void writeConnectionResult(String path, String basename,
 			int counter, int size, String tag) {
 		try {
 			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\Texts\\"+basename+"ConnectionStatistic"+tag+".txt"));
-			outputStream.println("Number of connected traces: "+counter);
-			outputStream.println("Total number of traces: "+size);
+			outputStream.println("Number of localizations after connecting: "+counter);
+			outputStream.println("Number of localizations before connecting: "+size);
 			outputStream.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+	
+	
 }

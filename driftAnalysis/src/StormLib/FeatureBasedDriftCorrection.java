@@ -105,15 +105,60 @@ public class FeatureBasedDriftCorrection {
 			}*/
 			double x = sd.getElement(j).getX()+fx.value(frame)*pixelsize;
 			double y = sd.getElement(j).getY()+fy.value(frame)*pixelsize;
-			sdTrans.addElement(new StormLocalization(x, y, sd.getElement(j).getZ(), frame, sd.getElement(j).getIntensity()));
+			sdTrans.addElement(new StormLocalization(x, y, sd.getElement(j).getZ(), frame, sd.getElement(j).getIntensity(), sd.getElement(j).getAngle()));
 		}
 		System.out.println(counter+" Localizations were skipped.");
 		Double frameMax2 = (double)sd.getDimensions().get(7);
 		int frameMax = frameMax2.intValue()-chunksize;
-		OutputClass.saveDriftLog(dds, fx, fy, sd.getPath(), sd.getBasename(), frameMax, sd.getProcessingLog(), pixelsize);
+		printDriftLogFile(dds,fx,fy,sd.getPath(), sd.getBasename(), frameMax);
+		
 		return sdTrans;
 	}
-	
+	static void printDriftLogFile(ArrayList<double[][]> dds, UnivariateFunction fx, UnivariateFunction fy, String path, String basename, int frameMax){
+		try {
+			int nbrChunks = dds.get(0)[0].length-1;
+			String subfolder = "\\AdditionalInformation";
+			new File(path + subfolder).mkdir();
+			String fname = "\\"+basename+"driftLog.txt";
+			PrintWriter outputStream = new PrintWriter(new FileWriter(path+subfolder+fname));
+			outputStream.println("Automatically generated log file for drift correction");
+			outputStream.println("Matrix of chunkwise drift X");
+			for (int j = 0;j<nbrChunks;j++){
+				for (int jj = 0;jj<nbrChunks;jj++){
+					outputStream.print(dds.get(0)[j][jj]+" ");
+				}
+				outputStream.println();
+			}
+			outputStream.println("Matrix of chunkwise drift Y");
+			for (int j = 0;j<nbrChunks;j++){
+				for (int jj = 0;jj<nbrChunks;jj++){
+					outputStream.print(dds.get(1)[j][jj]+" ");
+				}
+				outputStream.println();
+			}
+			String strFrames= "", strDriftX= "", strDriftY = "";
+			double maxDriftX = 0;
+			double maxDriftY = 0;
+			for (int k = 0; k<frameMax; k=k+100){
+				strFrames = strFrames +k+" ";
+				strDriftX = strDriftX +fx.value(k)+" ";
+				strDriftY = strDriftY +fy.value(k)+" ";
+				maxDriftX = Math.max(maxDriftX, fx.value(k));
+				maxDriftY = Math.max(maxDriftY, fy.value(k));
+			}
+			outputStream.println(strFrames);
+			outputStream.println(strDriftX);
+			outputStream.println(strDriftY);
+			outputStream.close();
+			if (maxDriftX>40 || maxDriftY > 40){
+				System.out.println("High drift probably incorrect driftcorrection!!!");
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Drift log saved.");
+	}
 	static ArrayList<Double> findmaximumgauss(ImagePlus img, int window){
 		int centerImg =(int) img.getWidth()/2; //assuming that img is rectangular 
 		ImageProcessor ip = img.getProcessor();
@@ -156,7 +201,6 @@ public class FeatureBasedDriftCorrection {
 		double [][] ddy = new double[numFrames][numFrames];
 		//for (int k = 0; k< numFrames - 1; k++){
 		//for (int k = 0; k< 1; k++){ only upper row
-		Progressbar pb = new Progressbar(0, (numFrames*numFrames-numFrames)/2,0,"Finding displacements ...");
 		for (int k = 0; k< numFrames - 1; k++){
 			for (int l = k+1; l< numFrames; l++){
 			//for (int l = k+1; l< k+2; l++){
@@ -177,7 +221,6 @@ public class FeatureBasedDriftCorrection {
 				ddy[k][l] = dyh;
 				ddx[l][k] = -dxh;
 				ddy[l][k] = -dyh;
-				pb.updateProgress();
 			}
 		}
 		ArrayList<double[][]> ret = new ArrayList<double[][]>();

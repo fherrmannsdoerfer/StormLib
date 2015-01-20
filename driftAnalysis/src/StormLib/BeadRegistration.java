@@ -22,8 +22,6 @@ public class BeadRegistration {
 		StormData transformedSd1 = TransformationControl.applyTrafo(trafo, sd1);
 		writeTransformation(sd1.getPath(), sd1.getBasename(), trafo);
 		ArrayList<StormData> retList = new ArrayList<StormData>();
-		transformedSd1.addToProcessingLog("Aligned");
-		sd2.addToProcessingLog("Aligend");
 		retList.add(transformedSd1);
 		retList.add(sd2);
 		return retList;
@@ -33,6 +31,7 @@ public class BeadRegistration {
 			ArrayList<ArrayList<StormLocalization>> beads) {
 		int bestMatches = 0;
 		double bestError = 1e8;
+		double toleranceForMatching = 100;
 		double[][] bestTrafo = {{1,0,0},{0,1,0}};
 		ArrayList<ArrayList<StormLocalization>> bestSubsets = new ArrayList<ArrayList<StormLocalization>>();
 		StormData set1 = new StormData();
@@ -47,8 +46,8 @@ public class BeadRegistration {
 			currTrafo = TransformationControl.findTransformation(subsets);
 			boolean usable = TransformationControl.isThisTrafoUsable(currTrafo);
 			if (usable){
-				int matches = TransformationControl.findMatches(currTrafo, set1, set2);
-				double error = TransformationControl.findError(currTrafo, set1, set2);
+				int matches = TransformationControl.findMatches(currTrafo, set1, set2,toleranceForMatching);
+				double error = TransformationControl.findError(currTrafo, set1, set2,toleranceForMatching);
 				if (matches>bestMatches || (matches == bestMatches && error< bestError)){
 					bestMatches = matches;
 					bestTrafo = currTrafo;
@@ -68,28 +67,8 @@ public class BeadRegistration {
 		ImagePlus img1 = sd1.renderImage2D(pixelsize,false);
 		ImagePlus img2 = sd2.renderImage2D(pixelsize,false);
 		MaximumFinder mf = new MaximumFinder();
-		Polygon maxima1 = mf.getMaxima(img1.getProcessor(), img1.getStatistics().max*0.05,true);
-		Polygon maxima2 = mf.getMaxima(img2.getProcessor(), img2.getStatistics().max*0.05,true);
-/*		String mx1 = "";
-		String mx2 = "";
-		String my1 = "";
-		String my2 = "";
-		for(int i = 0;i<maxima1.npoints; i++){
-			mx1 = mx1 + maxima1.xpoints[i]+" ";
-			my1 = my1 + maxima1.ypoints[i]+" ";
-		}
-		for(int i = 0;i<maxima2.npoints; i++){
-			mx2 = mx2 + maxima2.xpoints[i]+" ";
-			my2 = my2 + maxima2.ypoints[i]+" ";
-		}
-		System.out.println("maximax1: ");
-		System.out.println(mx1);
-		System.out.println("maximay1: ");
-		System.out.println(my1);
-		System.out.println("maximax2: ");
-		System.out.println(mx2);
-		System.out.println("maximay2: ");
-		System.out.println(my2);*/
+		Polygon maxima1 = mf.getMaxima(img1.getProcessor(), img1.getStatistics().max*0.1,true);
+		Polygon maxima2 = mf.getMaxima(img2.getProcessor(), img2.getStatistics().max*0.1,true);
 
 		ArrayList<ArrayList<StormLocalization>> listOfBeadsCh1 = new ArrayList<ArrayList<StormLocalization>>(); //an Arraylist for each potential bead
 		ArrayList<ArrayList<StormLocalization>> listOfBeadsCh2 = new ArrayList<ArrayList<StormLocalization>>(); //to collect all localizations to be averaged later
