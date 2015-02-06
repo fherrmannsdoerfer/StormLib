@@ -7,6 +7,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import StormLib.HelperClasses.DemixingResultLog;
+import StormLib.HelperClasses.DemixingTransformationLog;
+
 
 public class Demixing {
 	static boolean verbose = false;
@@ -31,9 +34,15 @@ public class Demixing {
 			System.out.println("minimal intensity for matching points: "+minInt);
 		}
 		StormData coloredSet = new StormData();
-		coloredSet.setFname(ch1.getFname());
+		coloredSet.setFname(ch1.getMeassurement());
 		coloredSet.setPath(ch1.getPath());
-		coloredSet.setProcessingLog(ch1.getProcessingLog());
+		coloredSet.setProcessingLog(ch1.getProcessingLog()+"demixed");
+		for (int i = 0; i<ch1.getLog().size();i++){
+			coloredSet.addToLog(ch1.getLog().get(i));
+		}
+		for (int i = 0; i<ch2.getLog().size();i++){
+			coloredSet.addToLog(ch2.getLog().get(i));
+		}
 		DemixingData demixingData = new DemixingData();
 		int maxFrame = (int) Math.max((double)ch1.getDimensions().get(7),(double)ch2.getDimensions().get(7));
 		Progressbar pb = new Progressbar(0, maxFrame,0, "Start demixing ...");
@@ -49,6 +58,8 @@ public class Demixing {
 		
 		}
 		OutputClass.writeDemixingOutput(ch1.getPath(), ch1.getBasename(), demixingData.getList1(), demixingData.getList2(), ch1.getProcessingLog());
+		DemixingResultLog rl = new DemixingResultLog(demixingData.getList1().size(), demixingData.getList2().size());
+		ch1.addToLog(rl);
 		if (true) {
 			System.out.println("unmixing done.");
 			System.out.println("Number of matches: "+ demixingData.getList1().size()+" of "+ coloredSet.getSize()+" points.");
@@ -93,6 +104,8 @@ public class Demixing {
 		}
 		OutputClass.writeDemixingParameters(ch1.getPath(), ch1.getBasename(), ch1.getProcessingLog(), nbrIter, toleratedError, frames, listOfMatchingPoints, listOfErrors);
 		double[][] finalTrafo = TransformationControl.findFinalTrafo(collectionOfGoodPoints);
+		DemixingTransformationLog tl = new DemixingTransformationLog(nbrIter, toleratedError, frames,listOfMatchingPoints, listOfErrors, finalTrafo);
+		ch1.addToLog(tl);
 		if (true) {
 			System.out.println("final transformation found:");
 			System.out.println(finalTrafo[0][0]+ " "+finalTrafo[0][1]+" "+finalTrafo[0][2]);

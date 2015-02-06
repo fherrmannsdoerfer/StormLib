@@ -42,6 +42,7 @@ import net.imglib2.converter.ComplexPhaseFloatConverter;
 import net.imglib2.converter.ComplexRealFloatConverter;
 import net.imglib2.exception.IncompatibleTypeException;
 import Jama.*;
+import StormLib.HelperClasses.DriftCorrectionLog;
 
 public class FeatureBasedDriftCorrection {
 	public static StormData correctDrift(StormData sd ,int chunksize)
@@ -92,6 +93,7 @@ public class FeatureBasedDriftCorrection {
 		StormData sdTrans = new StormData();
 		sdTrans.setPath(sd.getPath());
 		sdTrans.setFname(sd.getFname());
+		sdTrans.setProcessingLog(sd.getProcessingLog()+"DC");
 		int counter = 0;
 		for (int j = 0; j<sd.getSize();j++){
 			int frame = sd.getElement(j).getFrame();
@@ -110,55 +112,13 @@ public class FeatureBasedDriftCorrection {
 		System.out.println(counter+" Localizations were skipped.");
 		Double frameMax2 = (double)sd.getDimensions().get(7);
 		int frameMax = frameMax2.intValue()-chunksize;
-		printDriftLogFile(dds,fx,fy,sd.getPath(), sd.getBasename(), frameMax);
+		OutputClass.writeDriftLogFile(dds,fx,fy,sd.getPath(), sd.getBasename(), frameMax,sd.getProcessingLog());
+		DriftCorrectionLog cl = new DriftCorrectionLog(dds,fx,fy,sd.getPath(), sd.getBasename(), frameMax, chunksize, nbrChunks, sd.getProcessingLog());
+		sd.addToLog(cl);
 		
 		return sdTrans;
 	}
-	static void printDriftLogFile(ArrayList<double[][]> dds, UnivariateFunction fx, UnivariateFunction fy, String path, String basename, int frameMax){
-		try {
-			int nbrChunks = dds.get(0)[0].length-1;
-			String subfolder = "\\AdditionalInformation";
-			new File(path + subfolder).mkdir();
-			String fname = "\\"+basename+"driftLog.txt";
-			PrintWriter outputStream = new PrintWriter(new FileWriter(path+subfolder+fname));
-			outputStream.println("Automatically generated log file for drift correction");
-			outputStream.println("Matrix of chunkwise drift X");
-			for (int j = 0;j<nbrChunks;j++){
-				for (int jj = 0;jj<nbrChunks;jj++){
-					outputStream.print(dds.get(0)[j][jj]+" ");
-				}
-				outputStream.println();
-			}
-			outputStream.println("Matrix of chunkwise drift Y");
-			for (int j = 0;j<nbrChunks;j++){
-				for (int jj = 0;jj<nbrChunks;jj++){
-					outputStream.print(dds.get(1)[j][jj]+" ");
-				}
-				outputStream.println();
-			}
-			String strFrames= "", strDriftX= "", strDriftY = "";
-			double maxDriftX = 0;
-			double maxDriftY = 0;
-			for (int k = 0; k<frameMax; k=k+100){
-				strFrames = strFrames +k+" ";
-				strDriftX = strDriftX +fx.value(k)+" ";
-				strDriftY = strDriftY +fy.value(k)+" ";
-				maxDriftX = Math.max(maxDriftX, fx.value(k));
-				maxDriftY = Math.max(maxDriftY, fy.value(k));
-			}
-			outputStream.println(strFrames);
-			outputStream.println(strDriftX);
-			outputStream.println(strDriftY);
-			outputStream.close();
-			if (maxDriftX>40 || maxDriftY > 40){
-				System.out.println("High drift probably incorrect driftcorrection!!!");
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println("Drift log saved.");
-	}
+	
 	static ArrayList<Double> findmaximumgauss(ImagePlus img, int window){
 		int centerImg =(int) img.getWidth()/2; //assuming that img is rectangular 
 		ImageProcessor ip = img.getProcessor();
@@ -301,6 +261,8 @@ public class FeatureBasedDriftCorrection {
 		}
 		return image;
 	}
+	
+	
 	
 	//Levenberg Marquard 2D Gaussian fit, return center in pixel
 	static ArrayList<Double> fitGaussian2D(ImagePlus img, double sigma, double scale, double offset, double x0, double y0) throws EOFException{

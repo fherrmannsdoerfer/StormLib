@@ -6,6 +6,7 @@ import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,13 +14,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import StormLib.HelperClasses.BasicProcessingInformation;
+import StormLib.HelperClasses.ConnectionResultLog;
+import StormLib.HelperClasses.DemixingHistogramLog;
+import StormLib.HelperClasses.FileImportLog;
+import StormLib.HelperClasses.LocalizationPrecissionEstimationHistogramLog;
+import StormLib.HelperClasses.LocalizationsPerFrameLog;
+import StormLib.HelperClasses.LocsSaveLog;
+import StormLib.HelperClasses.Save2DImage;
+import StormLib.HelperClasses.Save3DImage;
+import StormLib.HelperClasses.SaveDemixingImageLog;
+
 
 public class StormData {
 	boolean isSortedByFrame = false;
 	private ArrayList<StormLocalization> locs = new ArrayList<StormLocalization>();
 	private String path;
 	private String fname;
-	private String processingLog = "_";
+	private String processingLog = "-";
+	private ArrayList<Object> logs = new ArrayList<Object>();
 	
 	public StormData(String path, String fname){
 		this.path = path;
@@ -32,6 +45,7 @@ public class StormData {
 		this.fname = sl.getFname();
 		this.path = sl.getPath();
 		this.processingLog = sl.getProcessingLog();
+		this.logs = sl.logs;
 	}
 	
 
@@ -80,6 +94,8 @@ public class StormData {
 				}
 				catch(java.lang.NumberFormatException ne){System.out.println("Problem in line:"+counter+ne); errorLines.add(counter);}
 			}
+			FileImportLog fl = new FileImportLog(errorLines,locs.size(),getBasename());
+			logs.add(fl);
 			OutputClass.writeLoadingStatistics(path, getBasename(), errorLines, locs.size());
 			System.out.println("File contains "+getLocs().size()+" localizations.");
 		} 
@@ -264,6 +280,8 @@ public class StormData {
 		ImagePlus imgP = new ImagePlus("", ip);
 		//System.out.println("Image rendered ("+imgP.getWidth()+"*"+imgP.getHeight()+")");
 		if (saveImage){
+			Save2DImage si = new Save2DImage(path, getBasename(), processingLog,imgP, pixelsize);
+			logs.add(si);
 			OutputClass.save2DImage(path, getBasename(), processingLog, imgP, pixelsize);
 			//OutputClass.writeImageSaveStatistics(path, getBasename(), pixelsize, imgP, picname);
 		}
@@ -295,6 +313,8 @@ public class StormData {
 		}
 		double binWidth = 1.;
 		ArrayList<ArrayList<Double>> histData = Utilities.getHistogram(vals, binWidth);
+		DemixingHistogramLog dl = new DemixingHistogramLog(path, getBasename(), histData, binWidth, tag);
+		logs.add(dl);
 		OutputClass.writeDemixingHistogram(path, getBasename(), histData, binWidth, tag);
 		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, params);
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
@@ -311,8 +331,9 @@ public class StormData {
 		colImg.add(imgPRed);
 		colImg.add(imgPGreen);
 		colImg.add(imgPBlue);
-		
-		OutputClass.saveDemixingImage(path, getBasename(), processingLog, colImg, params, pixelsize);
+		SaveDemixingImageLog sl = new SaveDemixingImageLog(path, getBasename(), processingLog, colImg, params, pixelsize);
+		logs.add(sl);
+		OutputClass.saveDemixingImage(path, getBasename(), processingLog, colImg);
 		
 		return colImg;
 	}
@@ -396,9 +417,8 @@ public class StormData {
 		colImg.add(imgPRed);
 		colImg.add(imgPGreen);
 		colImg.add(imgPBlue);
-		
-		
-		OutputClass.save3DImage(path, getBasename(), tag, colImg, pixelsize);
+		Save3DImage si = new Save3DImage(path, getBasename(), tag, colImg, pixelsize);
+		OutputClass.save3DImage(path, getBasename(), tag, colImg);
 		return colImg;
 	}
 	
@@ -432,6 +452,7 @@ public class StormData {
 		ArrayList<Double> dims = getDimensions();
 		double zMin = dims.get(4);
 		double zMax = dims.get(5);
+		zMax = zMax - zMin;//all z should lie between 0 and a certain maximum for the rendering
 		System.out.println("zMax: "+zMax);
 		float[][] redChannel = coloredImage.get(0);
 		float[][] greenChannel = coloredImage.get(1);
@@ -440,11 +461,12 @@ public class StormData {
 			StormLocalization sl = sd.get(i);
 			double posX = sl.getX()/pixelsize; //position of current localization
 			double posY = sl.getY()/pixelsize;
-			double posZ = sl.getZ();
+			double posZ = sl.getZ() - zMin;
 			int pixelXStart = (int)Math.floor(posX) - (filterwidth-1)/2;
 			int pixelYStart = (int)Math.floor(posY) - (filterwidth-1)/2;
 			for (int k = pixelXStart; k<pixelXStart+ filterwidth;k++){
 				for(int l= pixelYStart; l<pixelYStart+ filterwidth;l++){
+					double kk = 1;
 					try{
 						if (false){
 							if (posZ < 0.25* zMax){
@@ -501,7 +523,9 @@ public class StormData {
 								greenChannel[k][l] = greenChannel[k][l] + (float)((parts*(posZ/zMax-invparts*5))*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
 								blueChannel[k][l] = blueChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
 							}
-							
+							if (redChannel[k][l]<0||greenChannel[k][l]<0||blueChannel[k][l]<0){
+								System.out.print(redChannel[k][l] +" "+greenChannel[k][l] +" "+blueChannel[k][l] );
+							}
 						}
 						/*else{
 							if (posZ < 0.2 * zMax){
@@ -530,7 +554,18 @@ public class StormData {
 				}
 			}
 		}
-		
+		double max= 0;
+		double min = 1e19;
+		for (int i = 0; i<redChannel.length;i++){
+			for(int j = 0; j<redChannel[0].length; j++){
+				max = Math.max(redChannel[i][j],max);
+				max = Math.max(greenChannel[i][j],max);
+				max = Math.max(blueChannel[i][j],max);
+				min = Math.min(redChannel[i][j],min);
+				min = Math.min(greenChannel[i][j],min);
+				min = Math.min(blueChannel[i][j],min);
+			}
+		}
 		ArrayList<float[][]> normalizedChannels = normalizeChannels(redChannel, greenChannel, blueChannel);
 		coloredImage.clear();
 		coloredImage.add(normalizedChannels.get(0));
@@ -569,7 +604,7 @@ public class StormData {
 				//System.out.println(hist[0]+ " "+ (int)redChannel[i][j]+ "nbrEntries "+ nbrEntries);
 			}
 		}
-		double percentile = 0.98;
+		double percentile = 0.99;
 		int sum = 0;
 		double counts = nbrEntries - hist[0];//counts is the number of intensities above 0
 		double newMaximum = 0;
@@ -587,6 +622,17 @@ public class StormData {
 				redChannel[i][j] = (float)Math.min((redChannel[i][j] )/(newMaximum)*65535,65535);
 				greenChannel[i][j] = (float)Math.min((greenChannel[i][j] )/(newMaximum)*65535,65535);
 				blueChannel[i][j] = (float)Math.min((blueChannel[i][j] )/(newMaximum)*65535,65535);
+			}
+		}
+		max = 0;
+		for (int i = 0; i<redChannel.length;i++){
+			for(int j = 0; j<redChannel[0].length; j++){
+				max = Math.max(redChannel[i][j],max);
+				max = Math.max(greenChannel[i][j],max);
+				max = Math.max(blueChannel[i][j],max);
+				min = Math.min(redChannel[i][j],min);
+				min = Math.min(greenChannel[i][j],min);
+				min = Math.min(blueChannel[i][j],min);
 			}
 		}
 		ArrayList<float[][]> ret = new ArrayList<float[][]>();
@@ -711,6 +757,8 @@ public class StormData {
 	
 	public void writeLocs(String tag){
 		OutputClass.writeLocs(path,  getBasename(), locs, tag);
+		LocsSaveLog sl = new LocsSaveLog(path, getBasename(), locs, tag);
+		logs.add(sl);
 	}
 	
 	
@@ -718,15 +766,52 @@ public class StormData {
 		// TODO Auto-generated method stub
 		ArrayList<ArrayList<StormLocalization>> traces = Utilities.findTraces(locs, dx, dy, dz, maxdistBetweenLocalizations);
 		ArrayList<StormLocalization> connectedLoc = Utilities.connectTraces(traces);
-		OutputClass.writeConnectionResult(path,getBasename(),connectedLoc.size(), locs.size(),processingLog + "Con");
-		this.locs = connectedLoc;
 		this.processingLog += "Con"; 
+		OutputClass.writeConnectionResult(path,getBasename(),connectedLoc.size(), locs.size(),processingLog);
+		ConnectionResultLog rl = new ConnectionResultLog(path, getBasename(), connectedLoc.size(), locs.size(), processingLog);
+		logs.add(rl);
+		this.locs = connectedLoc;
+		
 		return connectedLoc;
 	}
 	
 	public void estimateLocalizationPrecision(double dxy, double dz){
-		ArrayList<ArrayList<StormLocalization>> traces = Utilities.findTraces(locs, dxy, dxy, dz, 1);
+		ArrayList<ArrayList<StormLocalization>> traces = Utilities.findTraces(locs, dxy, dxy, dz, 2);
 		ArrayList<ArrayList<Double>> distances = Utilities.getDistancesWithinTraces(traces);
+		double binwidth = 1;
+		ArrayList<ArrayList<Double>> histZ = Utilities.getHistogram(distances.get(1),binwidth);
+		ArrayList<ArrayList<Double>> histXY = Utilities.getHistogram(distances.get(0), binwidth);
+		ArrayList<ArrayList<Double>> h = new ArrayList<ArrayList<Double>>();
+		ArrayList<Double> y = Utilities.createDist(histXY.get(0), 22);
+		h.add(histXY.get(0));
+		h.add(y);
+		OutputClass.writeLocalizationEstimationHistogram(path, getBasename(),
+				histXY, histZ, binwidth, processingLog);
+		double sigmaXY, sigmaZ;
+		try {
+			//ArrayList<Double> params = Utilities.fitLocalizationPrecissionDistribution(h.get(0), h.get(1), 5,10,1,1,1);
+			sigmaXY = Utilities.fitLocalizationPrecissionDistribution(histXY.get(0), histXY.get(1), 11);
+		} catch (Exception e) {
+			sigmaXY =0 ;
+			System.out.println("no fit found.");
+			e.printStackTrace();
+		}
+		try {
+			//ArrayList<Double> params = Utilities.fitLocalizationPrecissionDistribution(h.get(0), h.get(1), 5,10,1,1,1);
+			sigmaZ = Utilities.fitGaussian1D(histZ.get(0), histZ.get(1), 11,1,1);
+		} catch (Exception e) {
+			sigmaZ =0 ;
+			System.out.println("no fit found.");
+			e.printStackTrace();
+		}
+		//ArrayList<Double> params = Utilities.fitLocalizationPrecissionDistribution(histXY.get(0), histXY.get(1), 10,5,1,10,1);
+		//ArrayList<Double> params = Utilities.fitLocalizationPrecissionDistribution2(histXY.get(0), histXY.get(1), 10,1);
+		System.out.println("sigmaXY: "+sigmaXY);
+		LocalizationPrecissionEstimationHistogramLog pehl = new LocalizationPrecissionEstimationHistogramLog(path, getBasename(),
+				histXY, histZ, binwidth, sigmaXY, sigmaZ, processingLog);
+		logs.add(pehl);
+		//System.out.println("sigmaXY: "+params.get(0)+" scale: "+params.get(1));
+		//System.out.println("sigmaXY: "+params.get(0)+ " omega: "+params.get(1)+ " dc: "+params.get(2)+" A1: "+params.get(3)+ " A2: "+params.get(4));
 		
 	}
 		
@@ -799,6 +884,8 @@ public class StormData {
 		tmp.add(frames);
 		tmp.add(locsPerFrame);
 		OutputClass.writeLocsPerFrame(path, getBasename(), tmp, binWidth, processingLog);
+		LocalizationsPerFrameLog pfl = new LocalizationsPerFrameLog(path, getBasename(), tmp, binWidth, processingLog);
+		logs.add(pfl);
 		return tmp;
 	}
 	
@@ -814,7 +901,12 @@ public class StormData {
 	public String getBasename(){
 		return fname.substring(0, fname.length()-4);
 	}
-
+	
+	public String getMeassurement(){
+		String[] parts = path.split("\\\\");
+		return parts[parts.length-1];
+	}
+	
 	public void correctDrift(int chunksize) {
 		StormData sd = FeatureBasedDriftCorrection.correctDrift(this, chunksize);
 		processingLog = processingLog +"DC";
@@ -823,5 +915,26 @@ public class StormData {
 
 	public void addToProcessingLog(String extenstion){
 		this.processingLog = this.processingLog + extenstion;
+	}
+	public void addToLog(Object obj){
+		logs.add(obj);
+	}
+	public ArrayList<Object> getLog(){
+		return logs;
+	}
+
+	public void createPdf() {
+		// TODO Auto-generated method stub
+		OutputClass.createPDF(logs, path, getBasename(), processingLog);
+	}
+
+	public void setLog(ArrayList<Object> logs){
+		this.logs = logs;
+	}
+	public void copyAttributes(StormData sd){
+		this.fname = sd.getFname();
+		this.path = sd.getPath();
+		this.logs = sd.getLog();
+		this.processingLog = sd.getProcessingLog();
 	}
 }

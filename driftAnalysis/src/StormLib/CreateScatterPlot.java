@@ -27,8 +27,8 @@ import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-public class createScatterPlot{
-	static void createScatterPlot(ArrayList<Double> x, ArrayList<Double> y,String datalabel,String xlabel, String ylabel, String title, String fname){
+public class CreateScatterPlot{
+	static void createScatterPlotSingle(ArrayList<Double> x, ArrayList<Double> y,String datalabel,String xlabel, String ylabel, String title, String fname){
 		if (x.size() != y.size()){
 			System.out.println("x and y list must be of same size!");
 			return;
@@ -40,7 +40,19 @@ public class createScatterPlot{
 		}
 		dataset.addSeries(series);
 		JFreeChart chart = ChartFactory.createScatterPlot(title, xlabel, ylabel, dataset);
+		Font font = new Font("Dialog", Font.PLAIN, 30);
+		Font font2 = new Font("Dialog", Font.PLAIN, 15);
+		XYPlot plot = chart.getXYPlot();
+		plot.getDomainAxis().setLabelFont(font);
+		plot.getRangeAxis().setLabelFont(font);
+		plot.getDomainAxis().setTickLabelFont(font);
+		plot.getRangeAxis().setTickLabelFont(font);
+		plot.getRenderer().setBaseItemLabelFont(font);
+		LegendTitle legend = new LegendTitle(plot.getRenderer());
+		legend.setItemFont(font);
 		ChartRenderingInfo info = new ChartRenderingInfo();
+		chart.addLegend(legend);
+		//ChartRenderingInfo info = new ChartRenderingInfo();
 		BufferedImage img = chart.createBufferedImage(1000, 1000, info);
 		try {
 			ImageIO.write(img, "png", new File(fname));
@@ -84,18 +96,17 @@ public class createScatterPlot{
 			
 			
 		}
-		ValueAxis axisX = plot.getDomainAxis();
-		ValueAxis axisY = plot.getRangeAxis();
-		Font font = new Font("Dialog", Font.PLAIN, 30);
+		Font font = new Font("Dialog", Font.PLAIN, 300);
 		Font font2 = new Font("Dialog", Font.PLAIN, 150);
-		axisX.setLabelFont(font);
-		axisY.setLabelFont(font);
-		axisX.setTickLabelFont(font);
-		axisY.setTickLabelFont(font);
+		plot.getDomainAxis().setLabelFont(font);
+		plot.getRangeAxis().setLabelFont(font);
+		plot.getDomainAxis().setTickLabelFont(font);
+		plot.getRangeAxis().setTickLabelFont(font);
 		plot.getRenderer().setBaseItemLabelFont(font);
 		LegendTitle legend = new LegendTitle(plot.getRenderer());
 		legend.setItemFont(font);
 		ChartRenderingInfo info = new ChartRenderingInfo();
+		chart2.addLegend(legend);
 		BufferedImage img = chart2.createBufferedImage(1000, 1000, info);
 		try {
 			ImageIO.write(img, "png", new File(fname));
