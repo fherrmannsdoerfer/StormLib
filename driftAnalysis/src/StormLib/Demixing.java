@@ -13,8 +13,8 @@ public class Demixing {
 	static ExecutorService executor;
 	static ExecutorService executor2;
 	public static StormData spectralUnmixing(StormData ch1, StormData ch2){
-		executor = Executors.newFixedThreadPool(8);
-		executor2 = Executors.newFixedThreadPool(8);
+		executor = Executors.newFixedThreadPool(7);
+		executor2 = Executors.newFixedThreadPool(7);
 		double[][] trafo = findGlobalTransformationMultithreaded(ch1, ch2);
 		StormData combinedSet = doUnmixingMultiThreaded(ch1,ch2,trafo);
 		//StormData combinedSet = doUnmixing(ch1, ch2, trafo);

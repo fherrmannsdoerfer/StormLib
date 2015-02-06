@@ -19,12 +19,13 @@ public class Main {
 
 	public static void main(String[] args) {
  
-		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\StormData\\";
-		//twoColorRegistration(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
-		//twoColorRegistration(path1, "Cell2 - 0 min - 488 -_2_MMImages-undrift.txt", path1, "Cell2 - 0 min - 647 -_1_MMImages-undrift.txt");
-
-		//singleColor3dImage(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
-		dualColor2dImage(path1, "LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
+		String tag = "150120MitochondriaCF680Cos3DMessung4";
+		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
+		//twoColorRegistration(path1,"meos-storm.txt", path1, "mover-storm.txt");
+		//twoColorRegistration(path1, "VGAT-641-1.txt", path1, "NaV-532-1.txt");
+		//singleColor3dImage(path1,"RightChannel"+tag+".txt");
+		//singleColor3dImage("D:\\MessungenTemp\\141203-ActinPhalloidin\\Auwertung\\RapidStorm\\","LeftChannel141126ActinPhalloidinAlexa647CalyxSlices3DMessung1-cropwith230intensity.txt");
+		dualColor2dImage(path1, "LeftChannel"+tag+".txt", path1, "RightChannel"+tag+".txt");
 	}
 	
 	static void twoColorRegistrationMultipleFiles(String path1,String pattern1,String path2,String pattern2){
@@ -84,6 +85,7 @@ public class Main {
 		sd.renderImage3D(10);
 		sd.correctDrift(4000);
 		sd.renderImage3D(10);
+		sd.writeArrayListForVisp();
 	}
 	
 	static void singleColor2dImage(String path, String fname){
@@ -108,6 +110,7 @@ public class Main {
 		sd2.renderImage2D(10);
 		StormData unmixedSd = Demixing.spectralUnmixing(sd1, sd2);
 		unmixedSd.correctDrift(5000);
+		unmixedSd.writeArrayListForVisp();
 		DemixingParameters demixingParams= new DemixingParameters((44)/180. * Math.PI, (67)/180.*Math.PI, 20/180.*Math.PI, 15/180.*Math.PI);
 		ArrayList<ImagePlus> colImg = unmixedSd.renderDemixingImage(10, demixingParams);
 	}
