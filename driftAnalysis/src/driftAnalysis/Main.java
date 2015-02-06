@@ -13,18 +13,22 @@ import StormLib.FeatureBasedDriftCorrection;
 import StormLib.StormData;
 import StormLib.StormLocalization;
 import StormLib.Utilities;
+import StormLib.HelperClasses.BasicProcessingInformation;
+
 
 
 public class Main {
 
 	public static void main(String[] args) {
+
  
-		String tag = "150120MitochondriaCF680Cos3DMessung4";
+		String tag = "150206MitochondriaAlexa647TubuliCF680Hek3DMessung1";
 		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
 		//twoColorRegistration(path1,"meos-storm.txt", path1, "mover-storm.txt");
 		//twoColorRegistration(path1, "VGAT-641-1.txt", path1, "NaV-532-1.txt");
 		//singleColor3dImage(path1,"RightChannel"+tag+".txt");
 		//singleColor3dImage("D:\\MessungenTemp\\141203-ActinPhalloidin\\Auwertung\\RapidStorm\\","LeftChannel141126ActinPhalloidinAlexa647CalyxSlices3DMessung1-cropwith230intensity.txt");
+
 		dualColor2dImage(path1, "LeftChannel"+tag+".txt", path1, "RightChannel"+tag+".txt");
 	}
 	
@@ -80,38 +84,55 @@ public class Main {
 	}
 	static void singleColor3dImage(String path, String fname){
 		StormData sd = new StormData(path, fname);
+		sd.connectPoints(100, 100, 150, 3);
+		sd.estimateLocalizationPrecision(100, 100);
+		sd.createPdf();
 		sd.renderImage3D(10);
 		sd.connectPoints(100, 100, 150, 3);
 		sd.renderImage3D(10);
 		sd.correctDrift(4000);
 		sd.renderImage3D(10);
 		sd.writeArrayListForVisp();
+
 	}
 	
 	static void singleColor2dImage(String path, String fname){
 		StormData sd = new StormData(path, fname);
 		sd.renderImage2D(10);
+		sd.estimateLocalizationPrecision(100, 200);
+		sd.createPdf();
 		sd.connectPoints(100, 100, 150, 3);
 		sd.renderImage2D(10);
 		sd.getLocsPerFrame();
 		sd.correctDrift(5000);
 		sd.renderImage2D(10);
-		sd.getLocsPerFrame();	
+		sd.getLocsPerFrame();
 	}
 	
 	static void dualColor2dImage(String path1, String fname1, String path2, String fname2){
 		StormData sd1 = new StormData(path1,fname1);
+		sd1.getLocsPerFrame();
 		//sd1.correctDrift(5000);
 		//sd1.connectPoints(100., 100., 150, 3);
 		sd1.renderImage2D(10);
+		sd1.estimateLocalizationPrecision(50, 900);
+		sd1.createPdf();
 		StormData sd2 = new StormData(path2,fname2);
+		sd2.estimateLocalizationPrecision(50, 900);
 		//sd2.correctDrift(5000);
 		//sd2.connectPoints(100., 100., 150, 3);
 		sd2.renderImage2D(10);
+
+		sd2.createPdf();
 		StormData unmixedSd = Demixing.spectralUnmixing(sd1, sd2);
+		unmixedSd.estimateLocalizationPrecision(50, 900);
 		unmixedSd.correctDrift(5000);
-		unmixedSd.writeArrayListForVisp();
-		DemixingParameters demixingParams= new DemixingParameters((44)/180. * Math.PI, (67)/180.*Math.PI, 20/180.*Math.PI, 15/180.*Math.PI);
+
+		unmixedSd.connectPoints(60, 60, 120, 2);
+		unmixedSd.estimateLocalizationPrecision(50, 300);
+		DemixingParameters demixingParams= new DemixingParameters((44)/180. * Math.PI,
+				(67)/180.*Math.PI, 20/180.*Math.PI, 15/180.*Math.PI);
 		ArrayList<ImagePlus> colImg = unmixedSd.renderDemixingImage(10, demixingParams);
+		unmixedSd.createPdf();
 	}
 }
