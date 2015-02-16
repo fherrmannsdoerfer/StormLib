@@ -28,6 +28,7 @@ public class Main {
 		//twoColorRegistration(path1, "Cell2 - 0 min - 488 -_2_MMImages-undrift.txt", path1, "Cell2 - 0 min - 647 -_1_MMImages-undrift.txt");
 		singleColor2dImage("C:\\Users\\herrmannsdoerfer\\Desktop\\StormData\\","DataFrankfurt2dMicrotubules"+".txt");
 		//singleColor3dImage(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
+
 		//dualColor2dImage(path1, "LeftChannel"+tag+".txt", path1, "RightChannel"+tag+".txt");
 		//twoColorRegistrationMultipleFiles(path1, "141204Mover-Int10000", path1, "141204vglut1-Int10000");
 		//twoColorRegistration(path1, "141204Mover-Int10000.txt", path1, "141204vglut1-Int10000.txt");
