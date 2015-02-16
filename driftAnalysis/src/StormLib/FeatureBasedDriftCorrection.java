@@ -56,14 +56,14 @@ public class FeatureBasedDriftCorrection {
 	
 	static StormData correctLocalizations(StormData sd, ArrayList<double[][]> dds, int chunksize, int pixelsize){//corrects the data for drift an returns an StormData set
 	
-		int nbrChunks = dds.get(0)[0].length-1; //the idea is that also the information about the shift
+		int nbrChunks = dds.get(0)[0].length; //the idea is that also the information about the shift
 												//for example from the first to the third and fourth chunk is considered and not only the shift of consecutive chunks
-		double frames[] = new double[nbrChunks+3];
+		double frames[] = new double[nbrChunks+2];
 		frames[0] = 0;
 		frames[1] = chunksize / 2;
-		double dx[] = new double[nbrChunks+3];
-		double dy[] = new double[nbrChunks+3];
-		for (int i = 1;i<=nbrChunks;i++){
+		double dx[] = new double[nbrChunks+2];
+		double dy[] = new double[nbrChunks+2];
+		for (int i = 1;i<nbrChunks;i++){
 			double tmpx = 0;
 			double tmpy = 0;
 			for (int j = 0;j<i;j++){
@@ -79,10 +79,10 @@ public class FeatureBasedDriftCorrection {
 		dy[0] = 0;
 		dx[1] = (dx[2])/2; //the middle of the first block gets an back interpolated value
 		dy[1] = (dy[2])/2; //based on the difference between the middle of the first chunk and the middle of the second chunk
-		dx[nbrChunks+2] = (dx[nbrChunks+1]) ;// the end of the last chunk has to be interpolated also
-		dy[nbrChunks+2] = (dy[nbrChunks+1]) ;// 
-		frames[nbrChunks+2] = frames[nbrChunks+1]+chunksize;//this is the last frame of the last chunk
-		for (int i = 0;i<nbrChunks+1;i++){
+		dx[nbrChunks+1] = (dx[nbrChunks]) ;// the end of the last chunk has to be interpolated also
+		dy[nbrChunks+1] = (dy[nbrChunks]) ;// 
+		frames[nbrChunks+1] = frames[nbrChunks]+chunksize;//this is the last frame of the last chunk
+		for (int i = 0;i<nbrChunks;i++){
 			dx[i+1] = dx[i] + dx[i+1]; //sum the shift up so that dx now holds the displacement relative to the first frame
 			dy[i+1] = dy[i] + dy[i+1];
 		}

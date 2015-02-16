@@ -16,8 +16,12 @@ public class TransformationControl {
 			double[][] distMat, StormData subset1, StormData subset2){
 		return findCandidatesForTransformation(distMat, subset1, subset2, 3);
 	}
-	public static ArrayList<ArrayList<StormLocalization>> findCandidatesForTransformation(
+	public synchronized static ArrayList<ArrayList<StormLocalization>> findCandidatesForTransformation(
 			double[][] distMat, StormData subset1, StormData subset2, int minPointsReq) {
+			if (subset1.getSize()<minPointsReq || subset2.getSize()<minPointsReq){
+				//System.out.println("not enough points in either dataset1 or dataset2");
+				return new ArrayList<ArrayList<StormLocalization>>();
+			}
 			Random rand = new Random();
 			ArrayList<Integer> randomIndicesCh1 = new ArrayList<Integer>();
 			ArrayList<Integer> assignedIndicesCh2 = new ArrayList<Integer>();
@@ -57,8 +61,11 @@ public class TransformationControl {
 			ArrayList<StormLocalization> slCh1 = new ArrayList<StormLocalization>();
 			ArrayList<StormLocalization> slCh2 = new ArrayList<StormLocalization>();
 			for (int i= 0;i<minPointsReq; i++){
-				slCh1.add(subset1.getElement(randomIndicesCh1.get(i)));
-				slCh2.add(subset2.getElement(assignedIndicesCh2.get(i)));
+				try{
+					slCh1.add(subset1.getElement(randomIndicesCh1.get(i)));
+					slCh2.add(subset2.getElement(assignedIndicesCh2.get(i)));
+				} catch(Error e)
+				{System.out.println(e);};
 			}
 			candidates.add(slCh1);
 			candidates.add(slCh2);

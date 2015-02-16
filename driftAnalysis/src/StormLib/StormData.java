@@ -90,11 +90,15 @@ public class StormData {
 						StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Integer.valueOf(tmpStr[2]), Double.valueOf(tmpStr[3]));
 						getLocs().add(sl);
 					}
+					else if(tmpStr.length == 7) { //no Malk output
+						StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Double.valueOf(tmpStr[2]), Integer.valueOf(tmpStr[3]), Double.valueOf(tmpStr[4]));
+						getLocs().add(sl);
+					}
 					else {System.out.println("File format not understood!");}
 				}
 				catch(java.lang.NumberFormatException ne){System.out.println("Problem in line:"+counter+ne); errorLines.add(counter);}
 			}
-			FileImportLog fl = new FileImportLog(errorLines,locs.size(),getBasename());
+			FileImportLog fl = new FileImportLog(errorLines,locs.size(),path,getBasename());
 			logs.add(fl);
 			OutputClass.writeLoadingStatistics(path, getBasename(), errorLines, locs.size());
 			System.out.println("File contains "+getLocs().size()+" localizations.");
@@ -280,9 +284,9 @@ public class StormData {
 		ImagePlus imgP = new ImagePlus("", ip);
 		//System.out.println("Image rendered ("+imgP.getWidth()+"*"+imgP.getHeight()+")");
 		if (saveImage){
-			Save2DImage si = new Save2DImage(path, getBasename(), processingLog,imgP, pixelsize);
+			Save2DImage si = new Save2DImage(path, getBasename(), tag,imgP, pixelsize);
 			logs.add(si);
-			OutputClass.save2DImage(path, getBasename(), processingLog, imgP, pixelsize);
+			OutputClass.save2DImage(path, getBasename(), tag																									, imgP, pixelsize);
 			//OutputClass.writeImageSaveStatistics(path, getBasename(), pixelsize, imgP, picname);
 		}
 		
@@ -424,7 +428,7 @@ public class StormData {
 	
 	float[][] addFilteredPoints(float[][] image, double sigma, int filterwidth, double pixelsize, ArrayList<StormLocalization> sd){
 		if (filterwidth %2 == 0) {System.err.println("filterwidth must be odd");}
-		double factor = 10000*1/(2*Math.PI*sigma*sigma);
+		double factor = 100*1/(2*Math.PI*sigma*sigma);
 		double factor2 = -0.5/sigma/sigma;
 		//System.out.println(sd.getSize());
 		for (int i = 1; i<getSize(); i++){
@@ -904,7 +908,7 @@ public class StormData {
 	
 	public String getMeassurement(){
 		String[] parts = path.split("\\\\");
-		return parts[parts.length-1];
+		return parts[parts.length-3];
 	}
 	
 	public void correctDrift(int chunksize) {

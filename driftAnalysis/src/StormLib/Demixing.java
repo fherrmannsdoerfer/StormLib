@@ -74,8 +74,8 @@ public class Demixing {
 		ArrayList<Integer> listOfMatchingPoints = new ArrayList<Integer>();
 		ArrayList<Double> listOfErrors = new ArrayList<Double>();
 		ArrayList<Integer> frames = new ArrayList<Integer>();//(Arrays.asList(1,10,15,20,25,30,35,50));//,75,100,200,300,1000,10000,15000,20000,25000));//,3,4,5,6,7,8,9,10,20,90,1000,4000));
-		for (int i = 0; i<20;i++){
-			frames.add(i*10);
+		for (int i = 0; i<7;i++){
+			frames.add(i*1000);
 		}
 		Progressbar pb = new Progressbar(0,nbrIter * frames.size(),0,"Finding transformation.");
 		if (verbose) {
@@ -230,20 +230,25 @@ class findTransformation implements Runnable{
 		for (int i = 0; i<nbrIter; i++){
 			double[][] currTrafo = new double[2][3];
 			ArrayList<ArrayList<StormLocalization>> subsets = TransformationControl.findCandidatesForTransformation(distMat, subset1, subset2);
-			currTrafo = TransformationControl.findTransformation(subsets);
-			boolean usable = TransformationControl.isThisTrafoUsable(currTrafo);
-			if (usable){
-				int matches = TransformationControl.findMatches(currTrafo, subset1, subset2, toleratedError);
-				double rsme = TransformationControl.findError(currTrafo, subset1, subset2,toleratedError);
-				//System.out.println(matches);
-				if (matches >=3 && matches>bestMatches || (matches == bestMatches && rsme<bestError)){
-					bestMatches = matches;
-					bestSubsets = subsets;
-					bestError = rsme;
-					//System.out.println("matches: "+matches+" error: "+rsme+" frame: " +frame);
-				}
+			if (subsets.size()<2){
+				
 			}
-			pb.updateProgress();
+			else{
+				currTrafo = TransformationControl.findTransformation(subsets);
+				boolean usable = TransformationControl.isThisTrafoUsable(currTrafo);
+				if (usable){
+					int matches = TransformationControl.findMatches(currTrafo, subset1, subset2, toleratedError);
+					double rsme = TransformationControl.findError(currTrafo, subset1, subset2,toleratedError);
+					//System.out.println(matches);
+					if (matches >=3 && matches>bestMatches || (matches == bestMatches && rsme<bestError)){
+						bestMatches = matches;
+						bestSubsets = subsets;
+						bestError = rsme;
+						//System.out.println("matches: "+matches+" error: "+rsme+" frame: " +frame);
+					}
+				}
+				pb.updateProgress();
+			}
 		}
 		synchronized(this){
 			if (bestMatches > 3 && bestError<toleratedError){

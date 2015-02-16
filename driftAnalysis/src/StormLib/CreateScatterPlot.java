@@ -85,23 +85,22 @@ public class CreateScatterPlot{
 			XYSeries series = new XYSeries(datalabels.get(i));
 			for (int j = 0;j<data.get(i).get(1).size();j++){
 				series.add(data.get(i).get(0).get(j),data.get(i).get(1).get(j));
-			}
-			
+			}			
 			dataset.addSeries(series);
 			plot.setDataset(i, dataset);
 			renderer.add(new XYLineAndShapeRenderer());
 			plot.setRenderer(i,renderer.get(i));
 			plot.getRendererForDataset(plot.getDataset(i)).setSeriesPaint(i,  colors.get(i));
-			//plot.getRenderer().setSeriesPaint(0, colors.get(i));
-			
-			
+			//plot.getRenderer().setSeriesPaint(0, colors.get(i));	
 		}
-		Font font = new Font("Dialog", Font.PLAIN, 300);
+		ValueAxis axisX = plot.getDomainAxis();
+		ValueAxis axisY = plot.getRangeAxis();
+		Font font = new Font("Dialog", Font.PLAIN, 30);
 		Font font2 = new Font("Dialog", Font.PLAIN, 150);
-		plot.getDomainAxis().setLabelFont(font);
-		plot.getRangeAxis().setLabelFont(font);
-		plot.getDomainAxis().setTickLabelFont(font);
-		plot.getRangeAxis().setTickLabelFont(font);
+		axisX.setLabelFont(font);
+		axisY.setLabelFont(font);
+		axisX.setTickLabelFont(font);
+		axisY.setTickLabelFont(font);
 		plot.getRenderer().setBaseItemLabelFont(font);
 		LegendTitle legend = new LegendTitle(plot.getRenderer());
 		legend.setItemFont(font);

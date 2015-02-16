@@ -22,11 +22,11 @@ public class DriftCorrectionLog extends BasicProcessingInformation {
 		matrixX = matrixX+"Matrix of chunkwise drift X\\newline\n";
 		matrixX = matrixX+"\\begin{equation}\n";
 		matrixX = matrixX +"\\begin{pmatrix}\n";
-		for (int j = 0;j<nbrChunks;j++){
-			for (int jj = 0;jj<nbrChunks-1;jj++){
+		for (int j = 0;j<dds.get(0).length;j++){
+			for (int jj = 0;jj<dds.get(0)[j].length-1;jj++){
 				matrixX = matrixX+String.format( "%.2f", dds.get(0)[j][jj] )+" &";
 			}
-			matrixX = matrixX+String.format( "%.2f", dds.get(0)[j][nbrChunks-2]);
+			matrixX = matrixX+String.format( "%.2f", dds.get(0)[j][dds.get(0)[j].length-1]);
 			matrixX = matrixX+"\\\\\n";
 		}
 		matrixX = matrixX+"\\end{pmatrix}\n";
@@ -34,11 +34,11 @@ public class DriftCorrectionLog extends BasicProcessingInformation {
 		matrixY="Matrix of chunkwise drift Y";
 		matrixY = matrixY+"\\begin{equation}\n";
 		matrixY = matrixY +"\\begin{pmatrix}\n";
-		for (int j = 0;j<nbrChunks;j++){
-			for (int jj = 0;jj<nbrChunks-1;jj++){
+		for (int j = 0;j<dds.get(1).length;j++){
+			for (int jj = 0;jj<dds.get(1)[j].length-1;jj++){
 				matrixY = matrixY+String.format( "%.2f", dds.get(1)[j][jj])+" &";
 			}
-			matrixY = matrixY+String.format( "%.2f", dds.get(1)[j][nbrChunks-2]);
+			matrixY = matrixY+String.format( "%.2f", dds.get(1)[j][dds.get(1)[j].length-1]);
 			matrixY = matrixY+"\\\\\n";
 		}
 		matrixY = matrixY+"\\end{pmatrix}\n";
