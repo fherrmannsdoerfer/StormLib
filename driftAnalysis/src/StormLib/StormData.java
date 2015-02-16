@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import StormLib.HelperClasses.BasicProcessingInformation;
 import StormLib.HelperClasses.ConnectionResultLog;
@@ -190,7 +193,7 @@ public class StormData {
 		return getLocs().size();
 	}
 	
-	public ArrayList getDimensions(){ //returns minimal and maximal positions in an ArrayList in the following order (xmin, xmax, ymin, ymax, zmin, zmax, minFrame, maxFrame)
+	public ArrayList<Double> getDimensions(){ //returns minimal and maximal positions in an ArrayList in the following order (xmin, xmax, ymin, ymax, zmin, zmax, minFrame, maxFrame)
 		double minX = Double.MAX_VALUE;
 		double minY = Double.MAX_VALUE;
 		double minZ = Double.MAX_VALUE;
@@ -232,7 +235,7 @@ public class StormData {
 			}
 		}
 		
-		ArrayList ret = new ArrayList();
+		ArrayList<Double> ret = new ArrayList<Double>();
 		ret.add(minX);
 		ret.add(maxX);
 		ret.add(minY);
@@ -254,7 +257,7 @@ public class StormData {
 		return renderImage2D(pixelsize, saveImage, "");
 	}
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag){ //render localizations from Stormdata to Image Plus Object
-		double sigma = 20/pixelsize; //in nm sigma to blur localizations
+		double sigma = 5/pixelsize; //in nm sigma to blur localizations
 		int filterwidth = 3; // must be odd
 		ArrayList<Double> dims = getDimensions();
 		int pixelX, pixelY;
@@ -775,6 +778,75 @@ public class StormData {
 		return connectedLoc;
 	}
 	
+	public void estimateLocalLocalizationPrecision2(double dxy, double dz, int widthWindow, int heightWindow, int shiftX, int shiftY){
+		double ulcX = 0; //upper left corner in nm
+		double ulcY = 0;
+		double widthImg = this.getDimensions().get(1)-this.getDimensions().get(0);
+		double ymin = this.getDimensions().get(2);
+		double ymax = this.getDimensions().get(3);
+		double heightImg = ymax-ymin;
+		int nbrWindowsX =((Double) Math.floor((widthImg-widthWindow)/shiftX)).intValue();
+		int nbrWindowsY =((Double) Math.floor((heightImg-heightWindow)/shiftY)).intValue();
+		double[][] localSigma = new double[nbrWindowsX][nbrWindowsY];
+		ExecutorService executor2 = Executors.newFixedThreadPool(8);
+		for (int i = 0; i<nbrWindowsX; i++){
+			System.out.println(i+" "+nbrWindowsX);
+			ulcX = i * shiftX;
+			ArrayList<StormLocalization> sl = this.cropCoords(ulcX, ulcX+widthWindow,ymin, ymax);
+			System.out.println("sl.size() "+sl.size());
+			Runnable t = new Thread(new processColumn(sl, localSigma, ymin, heightWindow, shiftY, i,dxy, dz));
+			executor2.execute(t);
+		}
+		executor2.shutdown();
+		try {
+			executor2.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+		} catch (InterruptedException e) {
+		
+		}
+		OutputClass.saveLocalLocalizationPrecision(localSigma, path, getBasename(), processingLog);
+	}
+	
+	public void estimateLocalLocalizationPrecision(double dxy, double dz, int widthWindow, int heightWindow, int shiftX, int shiftY){
+		double ulcX = 0; //upper left corner in nm
+		double ulcY = 0;
+		double widthImg = this.getDimensions().get(1)-this.getDimensions().get(0);
+		double heightImg = this.getDimensions().get(3)-this.getDimensions().get(2);
+		int nbrWindowsX =((Double) Math.floor((widthImg-widthWindow)/shiftX)).intValue();
+		int nbrWindowsY =((Double) Math.floor((heightImg-heightWindow)/shiftY)).intValue();
+		double[][] localSigma = new double[nbrWindowsX][nbrWindowsY];
+		for (int i = 0; i<nbrWindowsX; i++){
+			
+			for (int j = 0; j<nbrWindowsY; j++){
+				System.out.println(i+"/"+nbrWindowsX+" "+j+"/"+nbrWindowsY);
+				ulcX = i * shiftX;
+				ulcY = j * shiftY;
+				StormData tsd = new StormData(this.cropCoords(ulcX, ulcX+widthWindow, 
+						ulcY, ulcY+heightWindow)," ");
+				localSigma[i][j] = estimateLocalizationPrecisionXY(dxy, dz, tsd);
+			}
+		}
+		OutputClass.saveLocalLocalizationPrecision(localSigma, path, getBasename(), processingLog);
+	}
+	
+	public Double estimateLocalizationPrecisionXY(double dxy, double dz, StormData tsd){
+		double sigmaXY = 0;
+		try {
+			ArrayList<ArrayList<StormLocalization>> traces = Utilities.findTraces(tsd.getLocs(), dxy, dxy, dz, 2, false);
+			if (traces.size() == tsd.getLocs().size()){
+				return 0.0;
+			}
+			ArrayList<ArrayList<Double>> distances = Utilities.getDistancesWithinTraces(traces);
+			double binwidth = 1;
+			ArrayList<ArrayList<Double>> histXY = Utilities.getHistogram(distances.get(0), binwidth);
+			sigmaXY = Utilities.fitLocalizationPrecissionDistribution(histXY.get(0), histXY.get(1), 11);
+		} catch (Exception e) {
+			sigmaXY =0 ;
+			//System.out.println("no fit found.");
+			//e.printStackTrace();
+		}
+		return sigmaXY;
+	}
+	
 	public void estimateLocalizationPrecision(double dxy, double dz){
 		ArrayList<ArrayList<StormLocalization>> traces = Utilities.findTraces(locs, dxy, dxy, dz, 2);
 		ArrayList<ArrayList<Double>> distances = Utilities.getDistancesWithinTraces(traces);
@@ -936,5 +1008,153 @@ public class StormData {
 		this.path = sd.getPath();
 		this.logs = sd.getLog();
 		this.processingLog = sd.getProcessingLog();
+	}
+	
+	public ArrayList<StormLocalization> cropCoords(double xmin, double xmax, double ymin, double ymax){
+		return cropCoords(xmin, xmax, ymin, ymax, this.getDimensions().get(4), this.getDimensions().get(5), this.getDimensions().get(6).intValue(), this.getDimensions().get(7).intValue());
+	}
+	
+	public ArrayList<StormLocalization> cropCoords(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax){
+		return cropCoords(xmin, xmax, ymin, ymax, zmin, zmax, this.getDimensions().get(6).intValue(), this.getDimensions().get(7).intValue());
+	}
+	
+	public ArrayList<StormLocalization> adjustCrop(ArrayList<StormLocalization> sl, double ymin, double ymax, double xmin, double xmax){
+		Comparator<StormLocalization> compY = new StormLocalizationYComperator();
+		Collections.sort(sl,compY);
+		Collections.sort(this.locs, compY);
+		double oldYmax = ymin; 
+		if(sl.get(sl.size()-1).getY()<ymin){//if there is no overlap
+			sl.clear();
+		}
+		else{
+			while (sl.get(0).getY()<ymin){
+				sl.remove(0);
+			}
+			oldYmax = sl.get(sl.size()-1).getY();
+		}
+		for (int i = 0; i<this.getLocs().size(); i++){
+			StormLocalization csl = this.getLocs().get(i);
+			if (csl.getY()>oldYmax && csl.getY()<ymax&csl.getX()>xmin&&csl.getX()<xmax){
+				sl.add(this.getLocs().get(i));
+			}
+			if (csl.getY()>ymax){
+				break;
+			}
+		}
+		return sl;
+	}
+	
+	public synchronized ArrayList<StormLocalization> cropCoords(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, int framemin, int framemax){
+		Comparator<StormLocalization> compX = new StormLocalizationXComperator();
+		Collections.sort(this.locs,compX);
+		ArrayList<StormLocalization> croppedList = new ArrayList<StormLocalization>();
+		for (int i = 0; i<this.locs.size(); i++){
+			if (this.locs.get(i).getX()<xmin){
+				continue;
+			}
+			if (this.locs.get(i).getX()>xmax){
+				break;
+			}
+			croppedList.add(this.locs.get(i));
+		}
+		Comparator<StormLocalization> compY = new StormLocalizationYComperator();
+		Collections.sort(croppedList,compY);
+		ArrayList<StormLocalization> croppedList2 = new ArrayList<StormLocalization>();
+		for (int i = 0; i<croppedList.size(); i++){
+			if (croppedList.get(i).getY()<ymin){
+				continue;
+			}
+			if (croppedList.get(i).getY()>ymax){
+				break;
+			}
+			croppedList2.add(croppedList.get(i));
+		}
+		croppedList.clear();
+		Comparator<StormLocalization> compZ = new StormLocalizationZComperator();
+		Collections.sort(croppedList2,compZ);
+		for (int i = 0; i<croppedList2.size(); i++){
+			if (croppedList2.get(i).getZ()<zmin){
+				continue;
+			}
+			if (croppedList2.get(i).getZ()>zmax){
+				break;
+			}
+			croppedList.add(croppedList2.get(i));
+		}
+		croppedList2.clear();
+		Comparator<StormLocalization> compFrame = new StormLocalizationFrameComperator();
+		Collections.sort(croppedList,compFrame);
+		for (int i = 0; i<croppedList.size(); i++){
+			if (croppedList.get(i).getFrame()<framemin){
+				continue;
+			}
+			if (croppedList.get(i).getFrame()>framemax){
+				break;
+			}
+			croppedList2.add(croppedList.get(i));
+		}
+		
+		return croppedList2;
+	}
+}
+	
+class processColumn implements Runnable{
+	ArrayList<StormLocalization> sl;
+	double[][] localSigma;
+	double shiftY;
+	int currentRow;
+	double dxy;
+	double dz;
+	double minY; 
+	double heightWindow;
+	
+	public processColumn(ArrayList<StormLocalization> sl, double[][] localSigma, double minY, 
+			double heightWindow, double shiftY, int currentRow,double dxy, double dz){
+		//heigthWindow must be n * shiftY with n element Natrual numbers!!!
+		this.sl = sl;
+		this.localSigma = localSigma;
+		this.shiftY = shiftY;
+		this.currentRow = currentRow;
+		this.dxy = dxy;
+		this.dz = dz;
+		this.minY = minY;
+		this.heightWindow = heightWindow;
+	}
+	
+	public void run(){
+		int n = (int) (heightWindow/ shiftY);
+		ArrayList<Double> distances = new ArrayList<Double>();
+		ArrayList<Integer> startingIdx = new ArrayList<Integer>();
+		ArrayList<ArrayList<StormLocalization>> traces = 
+			Utilities.findTraces(sl, dxy, dxy, dz, 2, false);
+		Comparator<ArrayList<StormLocalization>> compY = new TraceYComperator();
+		Collections.sort(traces,compY);
+		Utilities.getDistances(traces, distances, startingIdx, heightWindow ,shiftY, minY);
+		for(int i = 0; i<localSigma[0].length;i++){
+			try {
+				ArrayList<Double> tmp = new ArrayList(distances.subList(startingIdx.get(i), startingIdx.get(i+n)));
+				ArrayList<ArrayList<Double>> histXY = Utilities.getHistogram(tmp, 1);
+				double sigmaXY;
+				if (histXY.get(0).size()<100){
+					sigmaXY = -1;
+				}
+				else {
+					sigmaXY = Utilities.fitLocalizationPrecissionDistribution(histXY.get(0), histXY.get(1), 11);
+				}
+				synchronized(this){
+					System.out.println(currentRow+" "+i+" "+sigmaXY);
+					localSigma[currentRow][i] = sigmaXY;
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				synchronized(this){
+					localSigma[currentRow][i] = -1;
+					System.out.println(currentRow+" "+i+" "+"-1");
+				}
+				e.printStackTrace();
+			}
+			
+		}
+		System.out.println(" a ");
 	}
 }

@@ -67,7 +67,6 @@ public class CreateScatterPlot{
 			System.out.println("number of datasets and datalabels has to match!");
 			return;
 		}
-		
 		XYSeriesCollection dataset1 = new XYSeriesCollection();
 		JFreeChart chart2 = ChartFactory.createScatterPlot(title, xlabel, ylabel, dataset1);
 		XYPlot plot = chart2.getXYPlot();
@@ -92,9 +91,7 @@ public class CreateScatterPlot{
 			renderer.add(new XYLineAndShapeRenderer());
 			plot.setRenderer(i,renderer.get(i));
 			plot.getRendererForDataset(plot.getDataset(i)).setSeriesPaint(i,  colors.get(i));
-			//plot.getRenderer().setSeriesPaint(0, colors.get(i));
-			
-			
+			//plot.getRenderer().setSeriesPaint(0, colors.get(i));			
 		}
 		Font font = new Font("Dialog", Font.PLAIN, 300);
 		Font font2 = new Font("Dialog", Font.PLAIN, 150);

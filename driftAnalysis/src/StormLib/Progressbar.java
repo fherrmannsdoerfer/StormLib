@@ -8,6 +8,7 @@ public class Progressbar {
 	private int parts = 120;
 	private boolean endReached = false;
 	private int internalCounter = 0;
+	
 	Progressbar(double minVal, double maxVal, double startVal, String title){
 		this.minVal = minVal;
 		this.maxVal = maxVal;
