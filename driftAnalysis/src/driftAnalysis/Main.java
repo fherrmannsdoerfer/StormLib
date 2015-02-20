@@ -21,12 +21,12 @@ public class Main {
 
 	public static void main(String[] args) {
 		
-		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\moverVglut-10000\\Auswahl\\";
+		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\StormData\\141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4\\";
 		String tag = "141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4";
 		//String path1 = "Z:\\MessungenNeuesSetup\\"+tag+"\\Auswertung\\RapidStorm\\";
 		//twoColorRegistration(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
-		//twoColorRegistration(path1, "Cell2 - 0 min - 488 -_2_MMImages-undrift.txt", path1, "Cell2 - 0 min - 647 -_1_MMImages-undrift.txt");
-		singleColor2dImage("C:\\Users\\herrmannsdoerfer\\Desktop\\StormData\\","DataFrankfurt2dMicrotubules"+".txt");
+		//twoColorRegistration(path1, "141204Mover-Bead1.txt", path1, "141204Vglut-Bead1.txt");
+		singleColor2dImage(path1,"RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4"+".txt");
 		//singleColor3dImage(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
 
 		//dualColor2dImage(path1, "LeftChannel"+tag+".txt", path1, "RightChannel"+tag+".txt");
@@ -99,7 +99,7 @@ public class Main {
 	
 	static void singleColor2dImage(String path, String fname){
 		StormData sd = new StormData(path, fname);
-		sd.estimateLocalLocalizationPrecision2(100, 100, 4000, 4000, 100, 100);
+		//sd.estimateLocalLocalizationPrecision2(100, 100, 2000, 2000, 100, 100);
 		sd.renderImage2D(10);
 		sd.estimateLocalizationPrecision(100, 200);
 		sd.createPdf();

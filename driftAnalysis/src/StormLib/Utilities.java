@@ -322,7 +322,7 @@ public class Utilities {
 					r = y.get(i) - e;
 				}
 
-				j[0][0] = +fac*d/Math.pow(sigma,2)*Math.exp(-Math.pow(d,2)/(4*Math.pow(sigma, 2)))*(-1+Math.pow(d, 2)/(2*Math.pow(sigma, 2)));
+				j[0][0] = +fac*d/Math.pow(sigma,2)*Math.exp(-Math.pow(d,2)/(4*Math.pow(sigma, 2)))*(Math.pow(d, 2)/(2*Math.pow(sigma, 2)));
 						
 						//-x.get(i)/Math.pow(sigma, 3)*Math.exp(-Math.pow(x.get(i),2)/(4*Math.pow(sigma, 2))) +
 						//x.get(i)/(2*Math.pow(sigma,2))*Math.exp(-Math.pow(x.get(i),2)/(4*Math.pow(sigma, 2)))*Math.pow(x.get(i),2)/2/Math.pow(sigma, 3);
@@ -370,7 +370,7 @@ public class Utilities {
 			double tr2 = 0;
 			for (int i = 0; i< y.size();++i){
 				double r1 =0,r2=0;
-				if(x.get(i)<20){
+				if(x.get(i)<50){//use small values to consider only small distances
 					r1 = y.get(i)-Math.exp(0.5)/Math.sqrt(2)* x.get(i)/si1*Math.exp(-Math.pow(x.get(i),2)/(4*Math.pow(si1, 2)));
 					r2 = y.get(i)-Math.exp(0.5)/Math.sqrt(2)* x.get(i)/si2*Math.exp(-Math.pow(x.get(i),2)/(4*Math.pow(si2, 2)));
 				}

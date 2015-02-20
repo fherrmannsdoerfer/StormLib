@@ -283,9 +283,9 @@ public class StormData {
 		ImagePlus imgP = new ImagePlus("", ip);
 		//System.out.println("Image rendered ("+imgP.getWidth()+"*"+imgP.getHeight()+")");
 		if (saveImage){
-			Save2DImage si = new Save2DImage(path, getBasename(), processingLog,imgP, pixelsize);
+			Save2DImage si = new Save2DImage(path, getBasename(), tag,imgP, pixelsize);
 			logs.add(si);
-			OutputClass.save2DImage(path, getBasename(), processingLog, imgP, pixelsize);
+			OutputClass.save2DImage(path, getBasename(), tag, imgP, pixelsize);
 			//OutputClass.writeImageSaveStatistics(path, getBasename(), pixelsize, imgP, picname);
 		}
 		

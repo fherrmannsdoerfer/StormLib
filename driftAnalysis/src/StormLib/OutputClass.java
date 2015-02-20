@@ -331,7 +331,7 @@ public class OutputClass {
 	static void writeDriftLogFile(ArrayList<double[][]> dds, UnivariateFunction fx, UnivariateFunction fy, String path, String basename, int frameMax, String tag){
 		try {
 			int nbrChunks = dds.get(0)[0].length-1;
-			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\Texts\\"+basename+"ConnectionStatistic"+tag+".txt"));
+			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\Texts\\"+basename+"DriftLog"+tag+".txt"));
 			outputStream.println("Automatically generated log file for drift correction");
 			outputStream.println("Matrix of chunkwise drift X");
 			for (int j = 0;j<nbrChunks;j++){
@@ -399,7 +399,13 @@ public class OutputClass {
 		
 		return fullFilename;
 		// TODO Auto-generated method stub
-		
+	}
+	
+	public static String saveMulticolorPlot(String path, String basename, String tag, String nameOfPicture,String xtitle, String ytitle, String title, ArrayList<ArrayList<ArrayList<Double>>> data, ArrayList<String> datalabels){
+		String picname = basename+nameOfPicture+tag+".png";
+		String fullFilename = path+"Statistics\\Pictures\\"+picname;
+		CreateScatterPlot.createScatterPlot2(data, datalabels, xtitle, ytitle, title, fullFilename);
+		return fullFilename;
 	}
 	
 	public static String savePlot(String path, String basename, String tag, ArrayList<ArrayList<Double>> data, String datalabel, 
