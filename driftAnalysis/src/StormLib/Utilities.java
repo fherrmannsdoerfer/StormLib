@@ -91,6 +91,10 @@ public class Utilities {
 	}
 	
 	public static ArrayList<ArrayList<StormLocalization>> findTraces(ArrayList<StormLocalization> locs, double dx, double dy, double dz, int maxdistBetweenLocalizations) {
+		return findTraces( locs, dx, dy, dz, maxdistBetweenLocalizations, true);
+	}
+	
+	public static ArrayList<ArrayList<StormLocalization>> findTraces(ArrayList<StormLocalization> locs, double dx, double dy, double dz, int maxdistBetweenLocalizations, boolean showProgress) {
 		Comparator<StormLocalization> compFrame = new StormLocalizationFrameComperator();
 		Collections.sort(locs,compFrame);
 		int framemax = locs.get(locs.size()-1).getFrame();
@@ -107,7 +111,9 @@ public class Utilities {
 		for (int j = 0; j< locs.size(); j++){
 			frames.get(locs.get(j).getFrame()).add(locs.get(j)); //frames contains one list for each frame the data of the current subset is fed into it.
 		}
+		
 		Progressbar pb = new Progressbar(0, framemax+1,0,"Finding traces ...");
+				
 		for (int i = 0; i<framemax+1; i++){
 			for (int j = 0; j<frames.get(i).size(); j++){
 				StormLocalization currLoc = frames.get(i).get(j);
@@ -131,7 +137,9 @@ public class Utilities {
 					evaluatedFrame += 1;
 				}
 				traces.add(currTrace);
-				pb.updateProgress(i);
+				if (showProgress){
+					pb.updateProgress(i);
+				}
 			}
 			//System.out.println(i +" " +frames.get(i).size());
 		}
@@ -221,6 +229,28 @@ public class Utilities {
 		retList.add(distancesXY);
 		retList.add(distancesZ);
 		return retList;
+	}
+	
+	public static void getDistances(
+			ArrayList<ArrayList<StormLocalization>> traces, ArrayList<Double> distancesXY,
+			ArrayList<Integer> startingIdx, double heightWindow ,double shiftY, double minY) {
+		int windowCounter = 0;
+		int windowCounterOld = 0;
+		for (int i = 0; i< traces.size(); i++) {
+			if (traces.get(i).size() < 10 && traces.get(i).size()>=2){ //beads are not connected
+				windowCounter = (int) Math.ceil((traces.get(i).get(0).getY() - minY)/shiftY); //calculates index of current window
+				if (windowCounter > windowCounterOld){//begin of new patch
+					for(int k = 0; k<windowCounter-windowCounterOld; k++){
+						startingIdx.add(distancesXY.size());
+					}
+					windowCounterOld = windowCounter;
+				}
+				for (int j = 1; j<traces.get(i).size(); j++) {
+					distancesXY.add(Math.sqrt(Math.pow(traces.get(i).get(j).getX()-traces.get(i).get(j-1).getX(),2) + 
+							Math.pow(traces.get(i).get(j).getY()-traces.get(i).get(j-1).getY(),2)));
+				}
+			}
+		}
 	}
 	
 	public static ArrayList<StormLocalization> connectTraces(
@@ -329,6 +359,7 @@ public class Utilities {
 				d2 = jj2.solve(new Matrix(jr));
 			}
 			catch(java.lang.RuntimeException e){
+				return -1.;
 				//System.out.println(" ");
 			}
 			
@@ -697,5 +728,7 @@ public class Utilities {
 			ArrayList<Double> res = new ArrayList<Double>();
 			return sigma;
 		}
+
+		
 }
 

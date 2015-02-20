@@ -20,18 +20,15 @@ import StormLib.HelperClasses.BasicProcessingInformation;
 public class Main {
 
 	public static void main(String[] args) {
-
- 
-		String tag = "150212MitochondriaCF680CosMessung2";
-		String addition = "";//"_cropped";
-		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
-		String path1 = "D:\\Mover vglut1-140216\\";
-		//twoColorRegistration(path1,"meos-storm.txt", path1, "mover-storm.txt");
-		twoColorRegistration(path1, "141204Mover.txt", path1, "141204Vglut.txt");
-		//singleColor2dImage(path1,"LeftChannel"+tag+".txt");
-		//singleColor3dImage(path1, "RightChannel"+tag+addition+".txt");
-
-		//dualColor2dImage(path1, "LeftChannel"+tag+addition+".txt", path1, "RightChannel"+tag+addition+".txt");
+		
+		//String path1 = "D:\\MessungenTemp\\150210MicrotubuliAlexa647Cos3DMessung1\\Auswertung\\RapidStorm\\";
+		String tag = "150218MicrotubuliAlexa647CosMethanol2DMessung1";
+		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
+		//twoColorRegistration(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
+		//twoColorRegistration(path1, "Cell2 - 0 min - 488 -_2_MMImages-undrift.txt", path1, "Cell2 - 0 min - 647 -_1_MMImages-undrift.txt");
+		//singleColor2dImage(path1,"LeftChannel150210MicrotubuliAlexa647Cos3DMessung1_cropped"+".txt");
+		//singleColor3dImage(path1,"LeftChannel"+tag+".txt");
+		dualColor2dImage(path1, "LeftChannel"+tag+".txt", path1, "RightChannel"+tag+".txt");
 	}
 	
 	static void twoColorRegistrationMultipleFiles(String path1,String pattern1,String path2,String pattern2){
@@ -73,8 +70,8 @@ public class Main {
 		sd2.createPdf();
 		
 		ArrayList<StormData> channels = BeadRegistration.doRegistration(sd1,sd2);
-		channels.get(0).renderImage2D(10,"alignedCH1");
-		channels.get(1).renderImage2D(10,"alignedCH1");
+		channels.get(0).renderImage2D(10,true,"ch1");
+		channels.get(1).renderImage2D(10,true,"ch1");
 		channels.get(0).writeLocs();
 		channels.get(1).writeLocs();
 	}
@@ -94,21 +91,21 @@ public class Main {
 		sd.renderImage3D(10);
 		sd.connectPoints(100, 100, 150, 3);
 		sd.renderImage3D(10);
-		sd.correctDrift(4000);
-		sd.renderImage3D(10);
-		sd.writeArrayListForVisp();
-
+		sd.writeArrayListForVisp("");
+		//sd.correctDrift(4000);
+		//sd.renderImage3D(10);
 	}
 	
 	static void singleColor2dImage(String path, String fname){
 		StormData sd = new StormData(path, fname);
+		sd.estimateLocalLocalizationPrecision2(100, 100,2000, 2000, 50, 50);
 		sd.renderImage2D(10);
 		sd.estimateLocalizationPrecision(100, 200);
 		sd.createPdf();
 		sd.connectPoints(100, 100, 150, 3);
 		sd.renderImage2D(10);
 		sd.getLocsPerFrame();
-		sd.correctDrift(5000);
+		sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/5));
 		sd.renderImage2D(10);
 		sd.getLocsPerFrame();
 	}
@@ -116,6 +113,7 @@ public class Main {
 	static void dualColor2dImage(String path1, String fname1, String path2, String fname2){
 		StormData sd1 = new StormData(path1,fname1);
 		sd1.getLocsPerFrame();
+
 		//System.out.println("maxFrame ch1"+sd1.getDimensions().get(7));
 		//sd1.correctDrift(5000);
 		//sd1.connectPoints(100., 100., 150, 3);
@@ -132,6 +130,7 @@ public class Main {
 		sd2.createPdf();
 		StormData unmixedSd = Demixing.spectralUnmixing(sd1, sd2);
 		unmixedSd.estimateLocalizationPrecision(50, 900);
+
 		unmixedSd.correctDrift((int)Math.ceil((double)unmixedSd.getDimensions().get(7)/5));
 
 		unmixedSd.connectPoints(60, 60, 120, 2);

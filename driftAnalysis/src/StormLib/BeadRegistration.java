@@ -18,6 +18,7 @@ public class BeadRegistration {
 	public static ArrayList<StormData> doRegistration(StormData sd1,
 			StormData sd2) {
 		ArrayList<ArrayList<StormLocalization>> beads = findBeads(sd1,sd2);
+
 		String b1 = "";
 		for(int i = 0; i<beads.get(0).size(); i++){
 			b1 = b1+beads.get(0).get(i).toPlainString()+"\n";
@@ -31,6 +32,7 @@ public class BeadRegistration {
 		System.out.println(b2);
 		System.out.println("number Beads channel1: "+beads.get(0).size()+" number Beads channel2: "+beads.get(1).size());
 		double[][] trafo = findTransformation(beads);
+
 		StormData transformedSd1 = TransformationControl.applyTrafo(trafo, sd1);
 		writeTransformation(sd1.getPath(), sd1.getBasename(), trafo);
 		ArrayList<StormData> retList = new ArrayList<StormData>();
@@ -43,7 +45,7 @@ public class BeadRegistration {
 			ArrayList<ArrayList<StormLocalization>> beads) {
 		int bestMatches = 0;
 		double bestError = 1e8;
-		double toleranceForMatching = 100;
+		double toleranceForMatching = 1000;
 		double[][] bestTrafo = {{1,0,0},{0,1,0}};
 		ArrayList<ArrayList<StormLocalization>> bestSubsets = new ArrayList<ArrayList<StormLocalization>>();
 		StormData set1 = new StormData();
@@ -51,8 +53,11 @@ public class BeadRegistration {
 		StormData set2 = new StormData();
 		set2.setLocs(beads.get(1));
 		double[][] distmat = TransformationControl.createDistanceMatrix(set1,set2);
-		int nbrIter = 300000;
+		int nbrIter = 100000;
 		for (int i = 0; i<nbrIter; i++){
+			if(i%100==0){
+				System.out.println(i);
+			}
 			double[][] currTrafo = new double[2][3];
 			ArrayList<ArrayList<StormLocalization>> subsets = TransformationControl.findCandidatesForTransformation(distmat, set1, set2,5);
 			currTrafo = TransformationControl.findTransformation(subsets);

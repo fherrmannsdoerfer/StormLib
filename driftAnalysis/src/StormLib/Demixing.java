@@ -89,7 +89,8 @@ public class Demixing {
 		}
 		
 		for (int frame : frames) {
-			Runnable t = new Thread(new findTransformation(collectionOfGoodPoints, listOfMatchingPoints, listOfErrors, frame, ch1, ch2, verbose, nbrIter, toleratedError, pb));
+			Runnable t = new Thread(new findTransformation(collectionOfGoodPoints, listOfMatchingPoints, listOfErrors, 
+					frame, ch1, ch2, verbose, nbrIter, toleratedError, pb));
 			executor.execute(t);
 		}
 		executor.shutdown();

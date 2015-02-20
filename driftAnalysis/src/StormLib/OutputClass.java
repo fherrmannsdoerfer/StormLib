@@ -442,4 +442,21 @@ public class OutputClass {
 			e.printStackTrace();
 		}
 	}
+	
+	public static void saveLocalLocalizationPrecision(double[][] lLP, String path, String basename, String tag){
+		try {
+			String output = "";
+			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\LocalLocalizationPrecision_"+basename+tag+".txt"));
+			for(int i = 0; i<lLP.length; i++){
+				for (int j=0; j<lLP[i].length; j++){
+					outputStream.print(lLP[i][j]+" ");
+				}
+				outputStream.print("\n");
+			}
+			outputStream.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
