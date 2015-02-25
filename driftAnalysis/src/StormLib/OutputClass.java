@@ -27,9 +27,7 @@ public class OutputClass {
 	
 	public static void writeLoadingStatistics(String path, String basename, ArrayList<Integer> errorlist, int nbrLocs){
 		try{
-			new File(path + "Statistics").mkdir();
-			new File(path + "Statistics\\Texts\\").mkdir();
-			new File(path + "Statistics\\Pictures\\").mkdir();
+			createOutputFolder(path);
 			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\Texts\\"+basename+"_generalInformation.txt"));
 			outputStream.println("Filename: "+basename);
 			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -44,6 +42,12 @@ public class OutputClass {
 			outputStream.println();
 			outputStream.close();
 		} catch (IOException e) {e.printStackTrace();}
+	}
+	
+	public static void createOutputFolder(String path) throws IOException{
+		new File(path + "Statistics").mkdir();
+		new File(path + "Statistics\\Texts\\").mkdir();
+		new File(path + "Statistics\\Pictures\\").mkdir();
 	}
 
 	private static void writeImageSaveStatistics(String path, String basename, double pixelsize, ImagePlus imgP, String picname){
@@ -328,10 +332,10 @@ public class OutputClass {
 		return fullFilename;
 	}
 	
-	static void writeDriftLogFile(ArrayList<double[][]> dds, UnivariateFunction fx, UnivariateFunction fy, String path, String basename, int frameMax, String tag){
+	static void writeDriftLogFile(ArrayList<double[][]> dds, UnivariateFunction fx, UnivariateFunction fy, UnivariateFunction fz, String path, String basename, int frameMax, String tag){
 		try {
 			int nbrChunks = dds.get(0)[0].length-1;
-			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\Texts\\"+basename+"ConnectionStatistic"+tag+".txt"));
+			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\Texts\\"+basename+"DriftLog"+tag+".txt"));
 			outputStream.println("Automatically generated log file for drift correction");
 			outputStream.println("Matrix of chunkwise drift X");
 			for (int j = 0;j<nbrChunks;j++){
@@ -347,19 +351,30 @@ public class OutputClass {
 				}
 				outputStream.println();
 			}
-			String strFrames= "", strDriftX= "", strDriftY = "";
+			outputStream.println("Matrix of chunkwise drift Z");
+			for (int j = 0;j<nbrChunks;j++){
+				for (int jj = 0;jj<nbrChunks;jj++){
+					outputStream.print(dds.get(3)[j][jj]+" ");
+				}
+				outputStream.println();
+			}
+			String strFrames= "", strDriftX= "", strDriftY = "", strDriftZ = "";
 			double maxDriftX = 0;
 			double maxDriftY = 0;
+			double maxDriftZ = 0;
 			for (int k = 0; k<frameMax; k=k+100){
 				strFrames = strFrames +k+" ";
 				strDriftX = strDriftX +fx.value(k)+" ";
 				strDriftY = strDriftY +fy.value(k)+" ";
+				strDriftZ = strDriftZ +fz.value(k)+" ";
 				maxDriftX = Math.max(maxDriftX, fx.value(k));
 				maxDriftY = Math.max(maxDriftY, fy.value(k));
+				maxDriftZ = Math.max(maxDriftZ, fz.value(k));
 			}
 			outputStream.println(strFrames);
 			outputStream.println(strDriftX);
 			outputStream.println(strDriftY);
+			outputStream.println(strDriftZ);
 			outputStream.close();
 			if (maxDriftX>40 || maxDriftY > 40){
 				System.out.println("High drift probably incorrect driftcorrection!!!");
@@ -373,33 +388,45 @@ public class OutputClass {
 
 	public static String saveDriftGraph(String path, String basename, String tag,
 			ArrayList<Integer> frames, UnivariateFunction fx,
-			UnivariateFunction fy) {
+			UnivariateFunction fy, UnivariateFunction fz) {
 		String picname = basename+"_DriftData_"+tag+".png";
 		String fullFilename = path+"Statistics\\Pictures\\"+picname;
 		ArrayList<ArrayList<ArrayList<Double>>> data = new ArrayList<ArrayList<ArrayList<Double>>>();
 		data.add(new ArrayList<ArrayList<Double>>());
 		data.add(new ArrayList<ArrayList<Double>>());
+		data.add(new ArrayList<ArrayList<Double>>());
 		ArrayList<Double> dFrames = new ArrayList<Double>();
 		ArrayList<Double> xdrift = new ArrayList<Double>();
 		ArrayList<Double> ydrift = new ArrayList<Double>();
+		ArrayList<Double> zdrift = new ArrayList<Double>();
 		for (int i = 0;i<frames.size(); ++i){
 			dFrames.add((double)frames.get(i));
 			xdrift.add(fx.value(frames.get(i)));
 			ydrift.add(fy.value(frames.get(i)));
+			zdrift.add(fz.value(frames.get(i)));
 		}
 		data.get(0).add(dFrames);
 		data.get(0).add(xdrift);
 		data.get(1).add(dFrames);
 		data.get(1).add(ydrift);
+		data.get(2).add(dFrames);
+		data.get(2).add(zdrift);
 		ArrayList<String> datalabels = new ArrayList<String>();
-		datalabels.add(" ");
-		datalabels.add(" ");
+		datalabels.add("x");
+		datalabels.add("y");
+		datalabels.add("z");
 		
 		CreateScatterPlot.createScatterPlot2(data, datalabels, "frame", "drift in ", "Overview drift x\\y over frames", fullFilename);
 		
 		return fullFilename;
 		// TODO Auto-generated method stub
-		
+	}
+	
+	public static String saveMulticolorPlot(String path, String basename, String tag, String nameOfPicture,String xtitle, String ytitle, String title, ArrayList<ArrayList<ArrayList<Double>>> data, ArrayList<String> datalabels){
+		String picname = basename+nameOfPicture+tag+".png";
+		String fullFilename = path+"Statistics\\Pictures\\"+picname;
+		CreateScatterPlot.createScatterPlot2(data, datalabels, xtitle, ytitle, title, fullFilename);
+		return fullFilename;
 	}
 	
 	public static String savePlot(String path, String basename, String tag, ArrayList<ArrayList<Double>> data, String datalabel, 

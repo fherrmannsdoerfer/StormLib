@@ -252,36 +252,72 @@ public class StormData {
 		return ret;
 	}
 	public ImagePlus renderImage2D(double pixelsize){
-		return renderImage2D(pixelsize, true, processingLog); // function is also used to create images for the fourier transformation for the drift correction
+		return renderImage2D(pixelsize, true, processingLog,0,-1); // function is also used to create images for the fourier transformation for the drift correction
 	}
 	public ImagePlus renderImage2D(double pixelsize, String tag) {
-		return renderImage2D(pixelsize, true, tag);
+		return renderImage2D(pixelsize, true, tag,0,-1);
 	}
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage){
-		return renderImage2D(pixelsize, saveImage, "");
+		return renderImage2D(pixelsize, saveImage, "",0,-1);
 	}
-	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag){ //render localizations from Stormdata to Image Plus Object
+	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag){
+		return renderImage2D(pixelsize, saveImage,tag,0,-1);
+	}
+	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize){ 
+		//render localizations from Stormdata to Image Plus Object
+		//mode specifies which projection is rendered 0:xy plane, 1: xz, 2:yz
 		double sigma = 5/pixelsize; //in nm sigma to blur localizations
 		int filterwidth = 3; // must be odd
 		ArrayList<Double> dims = getDimensions();
-		int pixelX, pixelY;
+		int pixelX = 0;
+		int pixelY = 0;
 		if (saveImage){
-			pixelX =(int) Math.pow(2, Math.ceil(Math.log(dims.get(1) / pixelsize)/Math.log(2)));
-			pixelY = (int) Math.pow(2, Math.ceil(Math.log(dims.get(3) / pixelsize)/Math.log(2)));
-			//pixelX = (int) Math.ceil(dims.get(1)/pixelsize);
-			//pixelY = (int) Math.ceil(dims.get(3)/pixelsize);
+			switch (mode){
+				case 0://xy
+					pixelX =(int) Math.pow(2, Math.ceil(Math.log(dims.get(1) / pixelsize)/Math.log(2)));
+					pixelY = (int) Math.pow(2, Math.ceil(Math.log(dims.get(3) / pixelsize)/Math.log(2)));
+					break;
+				case 1://xz
+					pixelX =(int) Math.pow(2, Math.ceil(Math.log(dims.get(1) / pixelsize)/Math.log(2)));
+					pixelY = (int) Math.pow(2, Math.ceil(Math.log(dims.get(5) / pixelsize)/Math.log(2)));
+					break;
+				case 2://yz
+					pixelX =(int) Math.pow(2, Math.ceil(Math.log(dims.get(3) / pixelsize)/Math.log(2)));
+					pixelY = (int) Math.pow(2, Math.ceil(Math.log(dims.get(5) / pixelsize)/Math.log(2)));
+					break;
+			}
 		}
 		else{
 			//finds nearest power of 2 to either the width or height of the image, depending on which number is larger
+			int dimsImg = 0;
+			if (maxPixelsize==-1){
+				switch (mode){
+					case 0:
+						dimsImg = Math.max((int) Math.pow(2, Math.ceil(Math.log(dims.get(1) / pixelsize)/Math.log(2))), 
+										   (int) Math.pow(2, Math.ceil(Math.log(dims.get(3) / pixelsize)/Math.log(2))));
+						break;
+					case 1:
+						dimsImg = Math.max((int) Math.pow(2, Math.ceil(Math.log(dims.get(1) / pixelsize)/Math.log(2))), 
+										   (int) Math.pow(2, Math.ceil(Math.log(dims.get(5) / pixelsize)/Math.log(2))));
+						break;
+					case 2:
+						dimsImg = Math.max((int) Math.pow(2, Math.ceil(Math.log(dims.get(3) / pixelsize)/Math.log(2))), 
+										   (int) Math.pow(2, Math.ceil(Math.log(dims.get(5) / pixelsize)/Math.log(2))));
+						break;
+					
+				}
+			}
+				else{//max pixel size is overwritten if provided
+					dimsImg = maxPixelsize;
+				}
 			
-			int dimsImg = Math.max((int) Math.pow(2, Math.ceil(Math.log(dims.get(1) / pixelsize)/Math.log(2))), (int) Math.pow(2, Math.ceil(Math.log(dims.get(3) / pixelsize)/Math.log(2))));
-			pixelX = dimsImg;
 			//int pixelX = (int) Math.ceil(dims.get(1) / pixelsize);
 			pixelY = dimsImg;
+			pixelX = dimsImg;
 		}
 		
 		float [][] image = new float[pixelX][pixelY];
-		image = addFilteredPoints(image, sigma, filterwidth, pixelsize, getLocs());
+		image = addFilteredPoints(image, sigma, filterwidth, pixelsize, getLocs(),mode);
 		ImageProcessor ip = new FloatProcessor(pixelX,pixelY);
 		ip.setFloatArray(image);
 		ImagePlus imgP = new ImagePlus("", ip);
@@ -289,12 +325,14 @@ public class StormData {
 		if (saveImage){
 			Save2DImage si = new Save2DImage(path, getBasename(), tag,imgP, pixelsize);
 			logs.add(si);
-			OutputClass.save2DImage(path, getBasename(), tag																									, imgP, pixelsize);
+
+			OutputClass.save2DImage(path, getBasename(), tag, imgP, pixelsize);
 			//OutputClass.writeImageSaveStatistics(path, getBasename(), pixelsize, imgP, picname);
 		}
 		
 		return imgP;
 	}
+	
 	
 	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, DemixingParameters params){
 		return renderDemixingImage(pixelsize, params, processingLog);
@@ -429,15 +467,31 @@ public class StormData {
 		return colImg;
 	}
 	
-	float[][] addFilteredPoints(float[][] image, double sigma, int filterwidth, double pixelsize, ArrayList<StormLocalization> sd){
+	float[][] addFilteredPoints(float[][] image, double sigma, int filterwidth, 
+			double pixelsize, ArrayList<StormLocalization> sd, int mode){
 		if (filterwidth %2 == 0) {System.err.println("filterwidth must be odd");}
 		double factor = 100*1/(2*Math.PI*sigma*sigma);
 		double factor2 = -0.5/sigma/sigma;
 		//System.out.println(sd.getSize());
 		for (int i = 1; i<getSize(); i++){
 			StormLocalization sl = sd.get(i);
-			double posX = sl.getX()/pixelsize; //position of current localization
-			double posY = sl.getY()/pixelsize;
+			double posX = 0;
+			double posY = 0;
+			switch (mode){
+				case 0:
+					posX = sl.getX()/pixelsize; //position of current localization
+					posY = sl.getY()/pixelsize;
+					break;
+				case 1:
+					posX = sl.getX()/pixelsize; //position of current localization
+					posY = sl.getZ()/pixelsize;
+					break;
+				case 2:
+					posX = sl.getY()/pixelsize; //position of current localization
+					posY = sl.getZ()/pixelsize;
+					break;
+			}
+			
 			int pixelXStart = (int)Math.floor(posX) - (filterwidth-1)/2;
 			int pixelYStart = (int)Math.floor(posY) - (filterwidth-1)/2;
 			for (int k = pixelXStart; k<pixelXStart+ filterwidth;k++){
@@ -792,7 +846,7 @@ public class StormData {
 		int nbrWindowsX =((Double) Math.floor((widthImg-widthWindow)/shiftX)).intValue();
 		int nbrWindowsY =((Double) Math.floor((heightImg-heightWindow)/shiftY)).intValue();
 		double[][] localSigma = new double[nbrWindowsX][nbrWindowsY];
-		ExecutorService executor2 = Executors.newFixedThreadPool(11);
+		ExecutorService executor2 = Executors.newFixedThreadPool(8);
 		for (int i = 0; i<nbrWindowsX; i++){
 			System.out.println(i+" "+nbrWindowsX);
 			ulcX = i * shiftX;

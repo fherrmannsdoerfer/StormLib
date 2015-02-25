@@ -54,8 +54,80 @@ public class FeatureBasedDriftCorrection {
 		return sdTrans;
 	}
 	
-	static StormData correctLocalizations(StormData sd, ArrayList<double[][]> dds, int chunksize, int pixelsize){//corrects the data for drift an returns an StormData set
+	static ArrayList<double[]> calculateAbsoluteDrift(double[][] dds1, double[][] dds2, int chunksize){
+		int nbrChunks = dds1[0].length; //the idea is that also the information about the shift
+		//for example from the first to the third and fourth chunk is considered and not only the shift of consecutive chunks
+		double frames[] = new double[nbrChunks+2];
+		frames[0] = 0;
+		frames[1] = chunksize / 2;
+		double dx[] = new double[nbrChunks+2];
+		double dy[] = new double[nbrChunks+2];
+
+		for (int i = 1;i<nbrChunks;i++){
+			double tmpx = 0;
+			double tmpy = 0;
+			for (int j = 0;j<i;j++){
+				tmpx = tmpx + dds1[i][j]- dds1[i-1][j];
+				tmpy = tmpy + dds2[i][j]- dds2[i-1][j];
+			}
+			dx[i+1] = -tmpx / i; //dy and dx contain the difference between the chunks
+			dy[i+1] = -tmpy / i; //mean of all differences that describe the shift between
+			//the i th and the previous chunk
+			frames[i+1] = frames[i]+chunksize;
+		}
+		dx[0] = 0;				//the first frame has no drift
+		dy[0] = 0;
+		dx[1] = (dx[2])/2; //the middle of the first block gets an back interpolated value
+		dy[1] = (dy[2])/2; //based on the difference between the middle of the first chunk and the middle of the second chunk
+		dx[nbrChunks+1] = (dx[nbrChunks]) ;// the end of the last chunk has to be interpolated also
+		dy[nbrChunks+1] = (dy[nbrChunks]) ;// 
+		frames[nbrChunks+1] = frames[nbrChunks]+chunksize;//this is the last frame of the last chunk
+		for (int i = 0;i<nbrChunks;i++){
+		dx[i+1] = dx[i] + dx[i+1]; //sum the shift up so that dx now holds the displacement relative to the first frame
+		dy[i+1] = dy[i] + dy[i+1];
+		}
+		ArrayList<double[]> retList = new ArrayList<double[]>();
+		retList.add(dx);
+		retList.add(dy);
+		retList.add(frames);
+		return retList;
+	}
 	
+	static ArrayList<UnivariateFunction> getInterpolation(ArrayList<double[][]> dds, int chunksize){
+		
+		ArrayList<double[]> displXY = calculateAbsoluteDrift(dds.get(0), dds.get(1), chunksize);
+		ArrayList<double[]> displXZ = calculateAbsoluteDrift(dds.get(2), dds.get(3), chunksize);
+		ArrayList<double[]> displYZ = calculateAbsoluteDrift(dds.get(4), dds.get(5), chunksize);
+		ArrayList<Double> aldx = new ArrayList<Double>();
+		ArrayList<Double> aldy = new ArrayList<Double>();
+		ArrayList<Double> aldz = new ArrayList<Double>();
+		double[] frames = displXY.get(2);
+		for (int i = 0;i<displXY.get(0).length; i++){
+			aldx.add((displXY.get(0)[i]+displXZ.get(0)[i])/2.);
+			aldy.add((displXY.get(1)[i]+displYZ.get(0)[i])/2.);
+			aldz.add((displXZ.get(1)[i]+displYZ.get(1)[i])/2.);
+		}
+		double[] dx = new double[aldx.size()];
+		double[] dy = new double[aldy.size()];
+		double[] dz = new double[aldz.size()];
+		for (int i = 0; i<aldx.size(); i++){
+			dx[i] = aldx.get(i);
+			dy[i] = aldy.get(i);
+			dz[i] = aldz.get(i);
+		}
+		UnivariateInterpolator i = new SplineInterpolator(); //for the interpolation dx and dy must contain the shift relative to the first frame
+		UnivariateFunction fx = i.interpolate(frames, dx);
+		UnivariateFunction fy = i.interpolate(frames, dy);
+		UnivariateFunction fz = i.interpolate(frames, dz);
+		ArrayList<UnivariateFunction> retList = new ArrayList<UnivariateFunction>();
+		retList.add(fx);
+		retList.add(fy);
+		retList.add(fz);
+		return retList;
+	}
+	
+	static StormData correctLocalizations(StormData sd, ArrayList<double[][]> dds, int chunksize, int pixelsize){//corrects the data for drift an returns an StormData set
+		/*
 		int nbrChunks = dds.get(0)[0].length; //the idea is that also the information about the shift
 												//for example from the first to the third and fourth chunk is considered and not only the shift of consecutive chunks
 		double frames[] = new double[nbrChunks+2];
@@ -88,7 +160,12 @@ public class FeatureBasedDriftCorrection {
 		}
 		UnivariateInterpolator i = new SplineInterpolator(); //for the interpolation dx and dy must contain the shift relative to the first frame
 		UnivariateFunction fx = i.interpolate(frames, dx);
-		UnivariateFunction fy = i.interpolate(frames, dy);
+		UnivariateFunction fy = i.interpolate(frames, dy); */
+		int nbrChunks = dds.get(0)[0].length;
+		ArrayList<UnivariateFunction> aluf = getInterpolation(dds, chunksize);
+		UnivariateFunction fx = aluf.get(0);
+		UnivariateFunction fy = aluf.get(1);
+		UnivariateFunction fz = aluf.get(2);
 		boolean safeMode = true; //savemode skips localizations from the first and last chunk
 		StormData sdTrans = new StormData();
 		sdTrans.setPath(sd.getPath());
@@ -107,13 +184,14 @@ public class FeatureBasedDriftCorrection {
 			}*/
 			double x = sd.getElement(j).getX()+fx.value(frame)*pixelsize;
 			double y = sd.getElement(j).getY()+fy.value(frame)*pixelsize;
-			sdTrans.addElement(new StormLocalization(x, y, sd.getElement(j).getZ(), frame, sd.getElement(j).getIntensity(), sd.getElement(j).getAngle()));
+			double z = sd.getElement(j).getZ()+fz.value(frame)*pixelsize;
+			sdTrans.addElement(new StormLocalization(x, y, z, frame, sd.getElement(j).getIntensity(), sd.getElement(j).getAngle()));
 		}
 		System.out.println(counter+" Localizations were skipped.");
 		Double frameMax2 = (double)sd.getDimensions().get(7);
 		int frameMax = frameMax2.intValue()-chunksize;
-		OutputClass.writeDriftLogFile(dds,fx,fy,sd.getPath(), sd.getBasename(), frameMax,sd.getProcessingLog());
-		DriftCorrectionLog cl = new DriftCorrectionLog(dds,fx,fy,sd.getPath(), sd.getBasename(), frameMax, chunksize, nbrChunks, sd.getProcessingLog());
+		OutputClass.writeDriftLogFile(dds,fx,fy,fz,sd.getPath(), sd.getBasename(), frameMax,sd.getProcessingLog());
+		DriftCorrectionLog cl = new DriftCorrectionLog(dds,fx,fy,fz,sd.getPath(), sd.getBasename(), frameMax, chunksize, nbrChunks, sd.getProcessingLog());
 		sd.addToLog(cl);
 		
 		return sdTrans;
@@ -152,65 +230,144 @@ public class FeatureBasedDriftCorrection {
 		
 		return centerCoords;
 	}
+	
+	static ArrayList<Double> findDisplacementBetweenFrames(ImageProcessor ip1, ImageProcessor ip2, int window){
+		FHT fftk = new FHT(ip1);
+		FHT fftl = new FHT(ip2);
+		FHT fftCM = fftk.conjugateMultiply(fftl);
+		fftCM.inverseTransform();
+		fftCM.swapQuadrants();
+		ImageProcessor retransformed = fftCM.convertToFloat();
+		ImagePlus retransformed2D = new ImagePlus("", retransformed);
+		//ij.IJ.save(retransformed2D, "c:\\tmp2\\retransformed2D"+k+"_"+l+".tiff");
+		//System.out.println("k: "+k+" l: "+l);
+		ArrayList<Double> mxmy = new ArrayList<Double>();
+		mxmy = findmaximumgauss(retransformed2D, window);
+		double dxh = mxmy.get(0) - ip1.getWidth()/2+1;
+		double dyh = mxmy.get(1) - ip1.getWidth()/2+1;
+		ArrayList<Double> retList = new ArrayList<Double>();
+		retList.add(dxh);
+		retList.add(dyh);
+		return retList;
+	}
 		
 	static ArrayList<double[][]> finddisplacements2(StormData sd, int chunksize, int pixelsize){
-		ArrayList<ImagePlus> movie = makemovie(sd, chunksize, pixelsize);
+		ArrayList<ArrayList<ImagePlus>> movie = makemovie(sd, chunksize, pixelsize);
 		int window = 90;
-		int numFrames = movie.size();
-		double [][] ddx = new double[numFrames][numFrames];
-		double [][] ddy = new double[numFrames][numFrames];
+		int numFrames = movie.get(0).size();
+		double [][] ddxXY = new double[numFrames][numFrames];
+		double [][] ddyXY = new double[numFrames][numFrames];
+		double [][] ddxXZ = new double[numFrames][numFrames];
+		double [][] ddzXZ = new double[numFrames][numFrames];
+		double [][] ddyYZ = new double[numFrames][numFrames];
+		double [][] ddzYZ = new double[numFrames][numFrames];
 		//for (int k = 0; k< numFrames - 1; k++){
 		//for (int k = 0; k< 1; k++){ only upper row
 		for (int k = 0; k< numFrames - 1; k++){
 			for (int l = k+1; l< numFrames; l++){
-			//for (int l = k+1; l< k+2; l++){
-				FHT fftk = new FHT(movie.get(k).getProcessor());
-				FHT fftl = new FHT(movie.get(l).getProcessor());
-				FHT fftCM = fftk.conjugateMultiply(fftl);
-				fftCM.inverseTransform();
-				fftCM.swapQuadrants();
-				ImageProcessor retransformed = fftCM.convertToFloat();
-				ImagePlus retransformed2D = new ImagePlus("", retransformed);
-				//ij.IJ.save(retransformed2D, "c:\\tmp2\\retransformed2D"+k+"_"+l+".tiff");
-				//System.out.println("k: "+k+" l: "+l);
-				ArrayList<Double> mxmy = new ArrayList<Double>();
-				mxmy = findmaximumgauss(retransformed2D, window);
-				double dxh = mxmy.get(0) - movie.get(0).getProcessor().getWidth()/2+1;
-				double dyh = mxmy.get(1) - movie.get(0).getProcessor().getWidth()/2+1;
-				ddx[k][l] = dxh;
-				ddy[k][l] = dyh;
-				ddx[l][k] = -dxh;
-				ddy[l][k] = -dyh;
+				for(int m = 0; m<3; m++){
+				//for (int l = k+1; l< k+2; l++){
+					ArrayList<Double> displacements = findDisplacementBetweenFrames(movie.get(0).get(k).getProcessor(),
+							movie.get(0).get(l).getProcessor(), window);
+					ddxXY[k][l] = displacements.get(0);
+					ddyXY[k][l] = displacements.get(1);
+					ddxXY[l][k] = -displacements.get(0);
+					ddyXY[l][k] = -displacements.get(1);
+					
+					displacements = findDisplacementBetweenFrames(movie.get(1).get(k).getProcessor(),
+							movie.get(1).get(l).getProcessor(), window);
+					ddxXZ[k][l] = displacements.get(0);
+					ddzXZ[k][l] = displacements.get(1);
+					ddxXZ[l][k] = -displacements.get(0);
+					ddzXZ[l][k] = -displacements.get(1);
+					
+					displacements = findDisplacementBetweenFrames(movie.get(2).get(k).getProcessor(),
+							movie.get(2).get(l).getProcessor(), window);
+					ddyYZ[k][l] = displacements.get(0);
+					ddzYZ[k][l] = displacements.get(1);
+					ddyYZ[l][k] = -displacements.get(0);
+					ddzYZ[l][k] = -displacements.get(1);
+					/*FHT fftk = new FHT(movie.get(0).get(k).getProcessor());
+					FHT fftl = new FHT(movie.get(0).get(l).getProcessor());
+					FHT fftCM = fftk.conjugateMultiply(fftl);
+					fftCM.inverseTransform();
+					fftCM.swapQuadrants();
+					ImageProcessor retransformed = fftCM.convertToFloat();
+					ImagePlus retransformed2D = new ImagePlus("", retransformed);
+					//ij.IJ.save(retransformed2D, "c:\\tmp2\\retransformed2D"+k+"_"+l+".tiff");
+					//System.out.println("k: "+k+" l: "+l);
+					ArrayList<Double> mxmy = new ArrayList<Double>();
+					mxmy = findmaximumgauss(retransformed2D, window);
+					double dxh = mxmy.get(0) - movie.get(0).get(0).getProcessor().getWidth()/2+1;
+					double dyh = mxmy.get(1) - movie.get(0).get(0).getProcessor().getWidth()/2+1;
+					ddxXY[k][l] = dxh;
+					ddyXY[k][l] = dyh;
+					ddxXY[l][k] = -dxh;
+					ddyXY[l][k] = -dyh;*/
+				}
 			}
 		}
 		ArrayList<double[][]> ret = new ArrayList<double[][]>();
-		ret.add(ddx);
-		ret.add(ddy);
+		ret.add(ddxXY);
+		ret.add(ddyXY);
+		ret.add(ddxXZ);
+		ret.add(ddzXZ);
+		ret.add(ddyYZ);
+		ret.add(ddzYZ);
 		return ret;
 	}
 	
-	static ArrayList<ImagePlus> makemovie(StormData sd, int chunksize, int pixelsize){
-		ArrayList<ImagePlus> movie = new ArrayList<ImagePlus>();
+	static ArrayList<ArrayList<ImagePlus>> makemovie(StormData sd, int chunksize, int pixelsize){
+		ArrayList<ArrayList<ImagePlus>> movie = new ArrayList<ArrayList<ImagePlus>>();
 		ArrayList<Double> dims = sd.getDimensions();
 		int startFrame = dims.get(6).intValue();
 		int endFrame = dims.get(7).intValue();
 		int i = startFrame;
 		int counter = 0;
+		ArrayList<ImagePlus> imgsxy = new ArrayList<ImagePlus>();
+		ArrayList<ImagePlus> imgsxz = new ArrayList<ImagePlus>();
+		ArrayList<ImagePlus> imgsyz = new ArrayList<ImagePlus>();
+		
+		int pixelX =(int) Math.pow(2, Math.ceil(Math.log(dims.get(1) / pixelsize)/Math.log(2)));
+		int pixelY = (int) Math.pow(2, Math.ceil(Math.log(dims.get(3) / pixelsize)/Math.log(2)));
+		int longestDimension = (int) Math.max(pixelX, pixelY);//it might be that different subsets have different
+		//widths or heights, especially if the longer dimension is the one projected on
 		while (i<endFrame){
 			//System.out.println(i+"\\"+endFrame);
-			StormData subset = sd.findSubset(i,i+chunksize);
-			ImagePlus img = subset.renderImage2D(pixelsize, false);
-			//ij.IJ.save(img, "c:\\tmp2\\origImg"+i+".tiff");
-			FHT fft3 = new FHT(img.getProcessor());
-			fft3.rc2DFHT((float[])fft3.getPixels(), false, img.getWidth());
-			ImageProcessor transformedImageIP = fft3.convertToFloat();
-			ImagePlus transformedImage2D = new ImagePlus("", transformedImageIP);
+			
 			//ij.IJ.save(transformedImage2D,"c:\\tmp2\\movie"+counter+".tiff");
-			movie.add(transformedImage2D);
+			StormData subset = sd.findSubset(i,i+chunksize);
+			ArrayList<ImagePlus> imgs = calculateFourierTransforms(subset,pixelsize,longestDimension);
+			imgsxy.add(imgs.get(0));
+			imgsxz.add(imgs.get(1));
+			imgsyz.add(imgs.get(2));
 			i = i + chunksize;
 			counter = counter +1;
 		}	
+		movie.add(imgsxy);
+		movie.add(imgsxz);
+		movie.add(imgsyz);
 		return movie;
+	}
+	
+	static ArrayList<ImagePlus> calculateFourierTransforms(StormData subset, int pixelsize, int longestDimension){
+		ArrayList<ImagePlus> retImg = new ArrayList<ImagePlus>();
+		ImagePlus imgXY = subset.renderImage2D(pixelsize, false,"",0,longestDimension);
+		ImagePlus imgXZ = subset.renderImage2D(pixelsize, false,"",1,longestDimension);
+		ImagePlus imgYZ = subset.renderImage2D(pixelsize, false,"",2,longestDimension);
+		ArrayList<ImagePlus> realImgs = new ArrayList<ImagePlus>();
+		realImgs.add(imgXY);
+		realImgs.add(imgXZ);
+		realImgs.add(imgYZ);
+		//ij.IJ.save(img, "c:\\tmp2\\origImg"+i+".tiff");
+		for (int i = 0; i<realImgs.size(); i++){
+			FHT fft3 = new FHT(realImgs.get(i).getProcessor());
+			fft3.rc2DFHT((float[])fft3.getPixels(), false, realImgs.get(i).getWidth());
+			ImageProcessor transformedImageIP = fft3.convertToFloat();
+			ImagePlus transformedImage2D = new ImagePlus("", transformedImageIP);
+			retImg.add(transformedImage2D);
+		}
+		return retImg;
 	}
 
 	float[][] addFilteredPoints(float[][] image, double sigma, int filterwidth, double pixelsize, StormData sd){

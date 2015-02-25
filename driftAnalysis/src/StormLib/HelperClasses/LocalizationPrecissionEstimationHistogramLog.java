@@ -17,14 +17,35 @@ public class LocalizationPrecissionEstimationHistogramLog extends
 		addParam("Fitted simga of XY:", sigmaXY);
 		addParam("Fitted sigma of Z:", sigmaZ);
 		String strAngle= "", strCount= "";
+		double maxCount = 0;
 		for (int k = 0; k<histXY.get(0).size(); k=k+1){
 			strAngle = strAngle +histXY.get(0).get(k)+" ";
 			strCount = strCount +histXY.get(1).get(k)+" ";
+			if (histXY.get(1).get(k)>maxCount){
+				maxCount = histXY.get(1).get(k);
+			}
 		}
 		//addParam("Distances XY:", strAngle);
 		//addParam("Counts XY:", strCount);
-		String fullPath = OutputClass.saveImgHist(path, basename, tag, histXY, "", "distances", 
-				"counts", "distances of consecutive points","locHistXY");
+		ArrayList<Double> distsXY = new ArrayList<Double>();
+		ArrayList<Double> fit = new ArrayList<Double>();
+		for (int i = 0; i<histXY.get(0).size(); i++){
+			distsXY.add(histXY.get(0).get(i));
+			fit.add(maxCount*Math.exp(0.5)/Math.sqrt(2)/sigmaXY*histXY.get(0).get(i)*Math.exp(-Math.pow(histXY.get(0).get(i), 2)/4/Math.pow(sigmaXY, 2)));
+		}
+		ArrayList<ArrayList<Double>> fitPlot = new ArrayList<ArrayList<Double>>();
+		fitPlot.add(distsXY);
+		fitPlot.add(fit);
+		ArrayList<ArrayList<ArrayList<Double>>> data = new ArrayList<ArrayList<ArrayList<Double>>>();
+		data.add(histXY);
+		data.add(fitPlot);
+		ArrayList<String> labels = new ArrayList<String>();
+		labels.add("data");
+		labels.add("fit");
+		String fullPath = OutputClass.saveMulticolorPlot(path, basename, tag, "Localization Fit", "distances in nm", 
+				"counts","fit of local localization precision estimation",data, labels);
+		//String fullPath = OutputClass.saveImgHist(path, basename, tag, histXY, "", "distances", 
+		//		"counts", "distances of consecutive points","locHistXY");
 		addGraph("Histogram of distribution of distances of consecutive points in XY of :"+ this.breakName(basename), fullPath);
 		
 		strAngle= "";

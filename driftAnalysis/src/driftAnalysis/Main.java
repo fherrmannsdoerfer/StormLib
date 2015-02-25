@@ -21,14 +21,51 @@ public class Main {
 
 	public static void main(String[] args) {
 		
+
 		//String path1 = "D:\\MessungenTemp\\150210MicrotubuliAlexa647Cos3DMessung1\\Auswertung\\RapidStorm\\";
-		String tag = "150218MicrotubuliAlexa647CosMethanol2DMessung1";
+		String tag = "141216Mitochondrien647TubuliCF680CosMessung2";
 		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
+
 		//twoColorRegistration(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
+		demixingMultipleInputFiles(path1,"LeftChannel",path1,"RightChannel");
 		//twoColorRegistration(path1, "Cell2 - 0 min - 488 -_2_MMImages-undrift.txt", path1, "Cell2 - 0 min - 647 -_1_MMImages-undrift.txt");
 		//singleColor2dImage(path1,"LeftChannel150210MicrotubuliAlexa647Cos3DMessung1_cropped"+".txt");
 		//singleColor3dImage(path1,"LeftChannel"+tag+".txt");
-		dualColor2dImage(path1, "LeftChannel"+tag+".txt", path1, "RightChannel"+tag+".txt");
+		//dualColor2dImage(path1, "LeftChannel"+tag+".txt", path1, "RightChannel"+tag+".txt");
+	}
+	
+	static void demixingMultipleInputFiles(String path1, String pattern1, String path2, String pattern2){
+		ArrayList<StormData> list = Utilities.openSeries(path1, pattern1, path2, pattern2);
+		StormData sd1 = list.get(0);
+		StormData sd2 = list.get(1);
+		sd1.getLocsPerFrame();
+
+		//System.out.println("maxFrame ch1"+sd1.getDimensions().get(7));
+		//sd1.correctDrift(5000);
+		//sd1.connectPoints(100., 100., 150, 3);
+		sd1.renderImage2D(10);
+		sd1.estimateLocalizationPrecision(50, 900);
+		sd1.createPdf();
+		//System.out.println("maxFrame ch2"+sd2.getDimensions().get(7));
+		sd2.estimateLocalizationPrecision(50, 900);
+		//sd2.correctDrift(5000);
+		//sd2.connectPoints(100., 100., 150, 3);
+		sd2.renderImage2D(10);
+
+		sd2.createPdf();
+		StormData unmixedSd = Demixing.spectralUnmixing(sd1, sd2);
+		unmixedSd.estimateLocalizationPrecision(50, 900);
+		unmixedSd.writeArrayListForVisp("uncorrected");
+		unmixedSd.correctDrift((int)Math.ceil((double)unmixedSd.getDimensions().get(7)/5));
+
+		unmixedSd.connectPoints(60, 60, 120, 2);
+		unmixedSd.estimateLocalizationPrecision(50, 300);
+		DemixingParameters demixingParams= new DemixingParameters((44)/180. * Math.PI,
+				(67)/180.*Math.PI, 20/180.*Math.PI, 15/180.*Math.PI);
+		ArrayList<ImagePlus> colImg = unmixedSd.renderDemixingImage(10, demixingParams);
+		unmixedSd.createPdf();
+		unmixedSd.writeArrayListForVisp();
+		unmixedSd.estimateLocalLocalizationPrecision2(100, 100,2000, 2000, 50, 50);
 	}
 	
 	static void twoColorRegistrationMultipleFiles(String path1,String pattern1,String path2,String pattern2){
@@ -91,6 +128,7 @@ public class Main {
 		sd.renderImage3D(10);
 		sd.connectPoints(100, 100, 150, 3);
 		sd.renderImage3D(10);
+		sd.correctDrift(5000);
 		sd.writeArrayListForVisp("");
 		//sd.correctDrift(4000);
 		//sd.renderImage3D(10);
@@ -99,6 +137,7 @@ public class Main {
 	static void singleColor2dImage(String path, String fname){
 		StormData sd = new StormData(path, fname);
 		sd.estimateLocalLocalizationPrecision2(100, 100,2000, 2000, 50, 50);
+
 		sd.renderImage2D(10);
 		sd.estimateLocalizationPrecision(100, 200);
 		sd.createPdf();

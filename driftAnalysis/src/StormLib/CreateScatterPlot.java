@@ -93,6 +93,7 @@ public class CreateScatterPlot{
 			//plot.getRenderer().setSeriesPaint(0, colors.get(i));	
 
 		}
+
 		ValueAxis axisX = plot.getDomainAxis();
 		ValueAxis axisY = plot.getRangeAxis();
 		Font font = new Font("Dialog", Font.PLAIN, 30);
@@ -105,7 +106,6 @@ public class CreateScatterPlot{
 		LegendTitle legend = new LegendTitle(plot.getRenderer());
 		legend.setItemFont(font);
 		ChartRenderingInfo info = new ChartRenderingInfo();
-		chart2.addLegend(legend);
 		BufferedImage img = chart2.createBufferedImage(1000, 1000, info);
 		try {
 			ImageIO.write(img, "png", new File(fname));
