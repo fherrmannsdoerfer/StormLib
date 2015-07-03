@@ -57,6 +57,11 @@ public class StormData {
 		this.path = "path not set yet";
 		
 	}
+	private StormData(ArrayList<StormLocalization> sl, String path, String fname){
+		this.locs = sl;
+		this.path = path;
+		this.fname = fname;
+	}
 	private StormData(ArrayList<StormLocalization> sl, String path){
 		this.locs = sl;
 		this.path = path;
@@ -73,33 +78,57 @@ public class StormData {
 		String delimiter = " ";
 		try {
 			int counter = 0;
+			ArrayList<Integer> errorLines = new ArrayList<Integer>(); 
 			br = new BufferedReader(new FileReader(fullpath));
 			line = br.readLine(); //skip header
-			ArrayList<Integer> errorLines = new ArrayList<Integer>();
-			while ((line = br.readLine())!= null){
-				String[] tmpStr = line.split(delimiter);
-				
-				counter  = counter + 1;
-				try{
-					if (tmpStr.length == 4) { //2D data
-						StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Integer.valueOf(tmpStr[2]), Double.valueOf(tmpStr[3]));
-						getLocs().add(sl);
+			String[] headerComma = line.split(",");
+			String[] headerBlank = line.split(" ");
+			if (headerBlank.length > headerComma.length){
+				while ((line = br.readLine())!= null){
+					String[] tmpStr = line.split(delimiter);
+					
+					counter  = counter + 1;
+					try{
+						if (tmpStr.length == 4) { //2D data
+							StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Integer.valueOf(tmpStr[2]), Double.valueOf(tmpStr[3]));
+							getLocs().add(sl);
+						}
+						else if(tmpStr.length == 5) { //3d data
+							StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Double.valueOf(tmpStr[2]), Integer.valueOf(tmpStr[3]), Double.valueOf(tmpStr[4]));
+							getLocs().add(sl);
+						}
+						else if(tmpStr.length == 6) { //Malk output
+							StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Integer.valueOf(tmpStr[2]), Double.valueOf(tmpStr[3]));
+							getLocs().add(sl);
+						}
+						else if(tmpStr.length == 7) { //no Malk output
+							StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Double.valueOf(tmpStr[2]), Integer.valueOf(tmpStr[3]), Double.valueOf(tmpStr[4]));
+							getLocs().add(sl);
+						}
+						else {System.out.println("File format not understood!");}
 					}
-					else if(tmpStr.length == 5) { //3d data
-						StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Double.valueOf(tmpStr[2]), Integer.valueOf(tmpStr[3]), Double.valueOf(tmpStr[4]));
-						getLocs().add(sl);
-					}
-					else if(tmpStr.length == 6) { //Malk output
-						StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Integer.valueOf(tmpStr[2]), Double.valueOf(tmpStr[3]));
-						getLocs().add(sl);
-					}
-					else if(tmpStr.length == 7) { //no Malk output
-						StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Double.valueOf(tmpStr[2]), Integer.valueOf(tmpStr[3]), Double.valueOf(tmpStr[4]));
-						getLocs().add(sl);
-					}
-					else {System.out.println("File format not understood!");}
+					catch(java.lang.NumberFormatException ne){System.out.println("Problem in line:"+counter+ne); errorLines.add(counter);}
 				}
-				catch(java.lang.NumberFormatException ne){System.out.println("Problem in line:"+counter+ne); errorLines.add(counter);}
+			}
+			else if (headerBlank.length <= headerComma.length) {
+				while ((line = br.readLine())!= null){
+					String[] tmpStr = line.split(",");
+					
+					counter  = counter + 1;
+					try{
+						if (tmpStr.length >=10) { // 3D
+							StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[1]), Double.valueOf(tmpStr[2]), Double.valueOf(tmpStr[3]), Double.valueOf(tmpStr[0]).intValue(), Double.valueOf(tmpStr[6]));
+							getLocs().add(sl);
+						}
+						if (tmpStr.length <10) { //2D
+							StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[1]), Double.valueOf(tmpStr[2]), 0., Double.valueOf(tmpStr[0]).intValue(), Double.valueOf(tmpStr[4]));
+							getLocs().add(sl);
+						}
+					} catch (java.lang.NumberFormatException ne){System.out.println("Problem in line:"+counter+ne); errorLines.add(counter);}
+				}
+			}
+			else {
+				
 			}
 			FileImportLog fl = new FileImportLog(errorLines,locs.size(),path,getBasename());
 			logs.add(fl);
@@ -135,6 +164,10 @@ public class StormData {
 	
 	public void addElement(StormLocalization sl){
 		getLocs().add(sl);
+	}
+	
+	public void append(StormData sd){
+		this.locs.addAll(sd.getLocs());
 	}
 	
 	public int findFirstIndexForFrame(int frame){ //finds the index with the first appearance of a framenumber larger or equal the given frame
@@ -197,7 +230,11 @@ public class StormData {
 		return getLocs().size();
 	}
 	
-	public ArrayList<Double> getDimensions(){ //returns minimal and maximal positions in an ArrayList in the following order (xmin, xmax, ymin, ymax, zmin, zmax, minFrame, maxFrame)
+	public ArrayList<Double> getDimensions(){
+		return getDimensions(this.locs);
+	}
+	
+	public ArrayList<Double> getDimensions(ArrayList<StormLocalization> locs){ //returns minimal and maximal positions in an ArrayList in the following order (xmin, xmax, ymin, ymax, zmin, zmax, minFrame, maxFrame)
 		double minX = Double.MAX_VALUE;
 		double minY = Double.MAX_VALUE;
 		double minZ = Double.MAX_VALUE;
@@ -206,8 +243,8 @@ public class StormData {
 		double maxZ = 0;
 		double minFrame = Double.MAX_VALUE;
 		double maxFrame = 0;
-		for (int i = 0; i<getLocs().size(); i++){
-			StormLocalization sl = getLocs().get(i);
+		for (int i = 0; i<locs.size(); i++){
+			StormLocalization sl = locs.get(i);
 			double currX = sl.getX();
 			double currY = sl.getY();
 			double currZ = sl.getZ();
@@ -361,7 +398,14 @@ public class StormData {
 		DemixingHistogramLog dl = new DemixingHistogramLog(path, getBasename(), histData, binWidth, tag);
 		logs.add(dl);
 		OutputClass.writeDemixingHistogram(path, getBasename(), histData, binWidth, tag);
-		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, params);
+		ArrayList<StormLocalization> locsCh1 = new ArrayList<StormLocalization>();
+		ArrayList<StormLocalization> locsCh2 = new ArrayList<StormLocalization>();
+		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, params, locsCh1, locsCh2);
+		StormData channel1 = new StormData(locsCh1,getPath(),getFname());
+		StormData channel2 = new StormData(locsCh2,getPath(),getFname());
+		channel1.renderImage3D(pixelsize, "ColorCodedChannel1");
+		channel2.renderImage3D(pixelsize, "ColorCodedChannel2");
+		
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipBlue = new FloatProcessor(pixelX,pixelY);
@@ -383,7 +427,8 @@ public class StormData {
 		return colImg;
 	}
 	
-	ArrayList<float[][]> renderDemixing(ArrayList<float[][]> coloredImage, double sigma, int filterwidth, double pixelsize, DemixingParameters params){
+	ArrayList<float[][]> renderDemixing(ArrayList<float[][]> coloredImage, double sigma, int filterwidth, 
+			double pixelsize, DemixingParameters params,ArrayList<StormLocalization> locsCh1,ArrayList<StormLocalization> locsCh2){
 		if (filterwidth %2 == 0) {System.err.println("filterwidth must be odd");}
 		double minAngle1 = params.getAngle1() - params.getWidth1()/2;
 		double maxAngle1 = params.getAngle1() + params.getWidth1()/2;
@@ -411,9 +456,11 @@ public class StormData {
 					try{
 						if (((sl.getAngle()> minAngle1 && sl.getAngle()< maxAngle1))|| sl.getAngle() == 0){
 							redChannel[k][l] = redChannel[k][l] + (float)((sl.getIntensity())*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
+							locsCh1.add(sl);
 						}
 						else if ((sl.getAngle()> minAngle2 && sl.getAngle()< maxAngle2) || sl.getAngle() == Math.PI/2){
 							greenChannel[k][l] = greenChannel[k][l] + (float)((sl.getIntensity())*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
+							locsCh2.add(sl);
 						}
 					} catch(IndexOutOfBoundsException e){e.toString();}
 				}
@@ -434,7 +481,7 @@ public class StormData {
 	}
 	
 	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag){ //render localizations from Stormdata to Image Plus Object
-		double sigma = 10/pixelsize; //in nm sigma to blur localizations
+		double sigma = 20/pixelsize; //in nm sigma to blur localizations
 		int filterwidth = 3; // must be odd
 		ArrayList<Double> dims = getDimensions();
 		int pixelX = (int) Math.pow(2, Math.ceil(Math.log(dims.get(1) / pixelsize)/Math.log(2)));
@@ -529,7 +576,7 @@ public class StormData {
 				for(int l= pixelYStart; l<pixelYStart+ filterwidth;l++){
 					double kk = 1;
 					try{
-						if (false){
+						if (true){
 							if (posZ < 0.25* zMax){
 								//redChannel[k][l] = redChannel[k][l] + (float)((0)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
 								//greenChannel[k][l] = greenChannel[k][l] + (float)((posZ)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
@@ -541,12 +588,12 @@ public class StormData {
 								//redChannel[k][l] = redChannel[k][l] + (float)((0)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
 								//green rises from 0 to 1 blue stays one
 								greenChannel[k][l] = greenChannel[k][l] + (float)((4*posZ/zMax - 1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								blueChannel[k][l] = blueChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
+								blueChannel[k][l] = blueChannel[k][l] + (float)((2 - 4*posZ/zMax)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
 							}
 							else if (posZ < 0.75* zMax){
 								//green stays one, blue goes to zero again
 								//redChannel[k][l] = redChannel[k][l] + (float)((0)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								greenChannel[k][l] = greenChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
+								greenChannel[k][l] = greenChannel[k][l] + (float)((4*posZ/zMax - 2)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
 								blueChannel[k][l] = blueChannel[k][l] + (float)((3 - 4*posZ/zMax)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
 							}
 							else {
@@ -804,6 +851,14 @@ public class StormData {
 		}
 	}
 	
+	public void writeArrayListForVisp(DemixingParameters demixingParams){
+		OutputClass.writeArrayListForVisp(path,getBasename(), locs,processingLog, demixingParams);
+	}
+	
+	public void writeArrayListForVisp(DemixingParameters demixingParams, String tag){
+		OutputClass.writeArrayListForVisp(path,getBasename(), locs,tag, demixingParams);
+	}
+	
 	public void writeArrayListForVisp(){
 		writeArrayListForVisp(processingLog);
 	}
@@ -965,7 +1020,7 @@ public class StormData {
 		return subsets;
 	}
 	
-	StormData findSubset(int minFrame, int maxFrame, boolean setZCoordToZero){
+	public StormData findSubset(int minFrame, int maxFrame, boolean setZCoordToZero){
 		int currframe = minFrame;
 		StormData subset = new StormData();
 		subset.setFname(fname);
@@ -1020,6 +1075,10 @@ public class StormData {
 	}
 	
 	public void addStormData(StormData tmp) {
+		if (this.getLocs().size()==0){
+			this.path = tmp.getPath();
+			this.fname = tmp.getFname();
+		}
 		int lastFrame = (int) ((double)getDimensions().get(7));
 		for (int i = 0; i< tmp.getSize(); i++){
 			StormLocalization sl = tmp.getElement(i);
@@ -1111,7 +1170,7 @@ public class StormData {
 				continue;
 			}
 			if (this.locs.get(i).getX()>xmax){
-				break;
+				continue;
 			}
 			croppedList.add(this.locs.get(i));
 		}
@@ -1123,7 +1182,7 @@ public class StormData {
 				continue;
 			}
 			if (croppedList.get(i).getY()>ymax){
-				break;
+				continue;
 			}
 			croppedList2.add(croppedList.get(i));
 		}
@@ -1135,7 +1194,7 @@ public class StormData {
 				continue;
 			}
 			if (croppedList2.get(i).getZ()>zmax){
-				break;
+				continue;
 			}
 			croppedList.add(croppedList2.get(i));
 		}
@@ -1147,11 +1206,11 @@ public class StormData {
 				continue;
 			}
 			if (croppedList.get(i).getFrame()>framemax){
-				break;
+				continue;
 			}
 			croppedList2.add(croppedList.get(i));
 		}
-		
+		this.locs = croppedList2;
 		return croppedList2;
 	}
 }

@@ -172,7 +172,7 @@ public class TransformationControl {
 		}
 		return usable;
 	}
-	static int findMatches(double[][] currTrafo, StormData subset1, StormData subset2, double toleranceForMatching){
+	static int findMatches(double[][] currTrafo, StormData 			subset1, StormData subset2, double toleranceForMatching){
 		int matches = 0;
 		StormData transformedSubset1 = TransformationControl.applyTrafo(currTrafo, subset1);
 		double[][] distMat = TransformationControl.createDistanceMatrix(transformedSubset1,subset2);

@@ -15,24 +15,34 @@ public class Demixing {
 	static boolean verbose = false;
 	static ExecutorService executor;
 	static ExecutorService executor2;
+	
 	public static StormData spectralUnmixing(StormData ch1, StormData ch2){
+		return spectralUnmixing(ch1, ch2, false);
+	}
+	
+	public static StormData spectralUnmixing(StormData ch1, StormData ch2, boolean useAll){
 		executor = Executors.newFixedThreadPool(7);
 		executor2 = Executors.newFixedThreadPool(7);
 		double[][] trafo = findGlobalTransformationMultithreaded(ch1, ch2);
-		StormData combinedSet = doUnmixingMultiThreaded(ch1,ch2,trafo);
+		//double[][] trafo = {{0.9989659705798773, -0.00152716543305873, 100.09632875943628},{-4.850730075698712E-4, 0.9986236679388222, -51.39384826518874}};
+		
+		
+		//double[][] trafo = {{0.9988,-0.0013,65.9763},{-0.0004,0.9988,-7.46}};
+		StormData combinedSet = doUnmixingMultiThreaded(ch1,ch2,trafo, useAll);
 		//StormData combinedSet = doUnmixing(ch1, ch2, trafo);
 		return combinedSet;
 	}
 	
-	static StormData doUnmixingMultiThreaded(StormData ch1, StormData ch2, double[][] trafo){
-		ch1 = TransformationControl.applyTrafo(trafo, ch1);
-		double dist = 75; //in nm //this variable determines within which distance for matching points are searched
+	static StormData doUnmixingMultiThreaded(StormData untransformedCh1, StormData ch2, double[][] trafo, boolean useAll){
+		StormData ch1 = TransformationControl.applyTrafo(trafo, untransformedCh1);
+		double dist = 40; //in nm //this variable determines within which distance for matching points are searched
 		double minInt = 500; // minimal intensity of at least one channel
 		if (verbose) {
 			System.out.println("start unmixing...");
 			System.out.println("maximal tolerance for matching points: "+dist);
 			System.out.println("minimal intensity for matching points: "+minInt);
 		}
+		ArrayList<ArrayList<Double>> demixingProperties = new ArrayList<ArrayList<Double>>(); //matrix contains mean xyz coordinates and difference in xy and 
 		StormData coloredSet = new StormData();
 		coloredSet.setFname(ch1.getMeassurement());
 		coloredSet.setPath(ch1.getPath());
@@ -48,7 +58,7 @@ public class Demixing {
 		Progressbar pb = new Progressbar(0, maxFrame,0, "Start demixing ...");
 		for (int currFrame = 0; currFrame < maxFrame; currFrame++){
 			Runnable t = new Thread(new UnmixFrame(demixingData, coloredSet, ch1, ch2, 
-					currFrame, dist, minInt,pb));
+					currFrame, dist, minInt,pb, useAll, untransformedCh1));
 			executor2.execute(t);
 		}
 		executor2.shutdown();
@@ -57,25 +67,26 @@ public class Demixing {
 		} catch (InterruptedException e) {
 		
 		}
-		OutputClass.writeDemixingOutput(ch1.getPath(), ch1.getBasename(), demixingData.getList1(), demixingData.getList2(), ch1.getProcessingLog());
-		DemixingResultLog rl = new DemixingResultLog(demixingData.getList1().size(), demixingData.getList2().size());
+		OutputClass.writeDemixingOutput(ch1.getPath(), ch1.getBasename(), demixingData.getCh1(), demixingData.getCh2(), demixingData.getUntransformedCh1(), ch1.getProcessingLog());
+		DemixingResultLog rl = new DemixingResultLog(demixingData.getCh1().size(), demixingData.getCh2().size(), useAll);
 		ch1.addToLog(rl);
 		if (true) {
 			System.out.println("unmixing done.");
-			System.out.println("Number of matches: "+ demixingData.getList1().size()+" of "+ coloredSet.getSize()+" points.");
+			System.out.println("Number of matches: "+ demixingData.getCh1().size()+" of "+ coloredSet.getSize()+" points.");
 		}
 		return coloredSet;
 	}
 	
 		static double[][] findGlobalTransformationMultithreaded(StormData ch1, StormData ch2){
-		int nbrIter = 2000;
-		double toleratedError = 50;
+		int nbrIter = 500;
+		double toleratedError = 20;
 		ArrayList<ArrayList<ArrayList<StormLocalization>>> collectionOfGoodPoints = new ArrayList<ArrayList<ArrayList<StormLocalization>>>();
 		ArrayList<Integer> listOfMatchingPoints = new ArrayList<Integer>();
 		ArrayList<Double> listOfErrors = new ArrayList<Double>();
 		ArrayList<Integer> frames = new ArrayList<Integer>();//(Arrays.asList(1,10,15,20,25,30,35,50));//,75,100,200,300,1000,10000,15000,20000,25000));//,3,4,5,6,7,8,9,10,20,90,1000,4000));
-		for (int i = 0; i<7;i++){
-			frames.add(i*1000);
+		ArrayList<Double>dims = ch1.getDimensions();
+		for (int i = 1; i<10;i++){
+			frames.add((int)Math.floor((dims.get(7)+dims.get(6))/2)+i);
 		}
 		Progressbar pb = new Progressbar(0,nbrIter * frames.size(),0,"Finding transformation.");
 		if (verbose) {
@@ -266,30 +277,35 @@ class UnmixFrame implements Runnable{
 	StormData coloredSet;
 	private StormData ch1;
 	private StormData ch2;
+	private StormData untransformedCh1;
 	int currFrame;
 	double dist;
 	double minInt;
 	Progressbar pb;
+	boolean useAll;
 	
 	public UnmixFrame(DemixingData demixingData ,StormData coloredSet,StormData ch1, 
-			StormData ch2, int currFrame, double dist, double minInt, Progressbar pb){
+			StormData ch2, int currFrame, double dist, double minInt, Progressbar pb, boolean useAll, StormData untransformedCh1){
 		this.demixingData = demixingData;
 		this.coloredSet = coloredSet;
 		this.ch1 = ch1;
 		this.ch2 = ch2;
+		this.untransformedCh1 = untransformedCh1;
 		this.currFrame = currFrame;
 		this.dist = dist;
 		this.minInt = minInt;
 		this.pb = pb;
+		this.useAll = useAll;
 	}
 	
 	public void run(){
-		boolean useAll = false;
 		//System.out.println(currFrame);
 		StormData currFrameCh1 = ch1.findSubset(currFrame, currFrame);
 		StormData currFrameCh2 = ch2.findSubset(currFrame, currFrame);
+		StormData currFrameUntransformedCh1 = untransformedCh1.findSubset(currFrame,currFrame);
 		currFrameCh1.sortX();
 		currFrameCh2.sortX();
+		currFrameUntransformedCh1.sortX();
 		for (int i = 0; i<currFrameCh1.getSize(); i++){
 			StormLocalization currLoc = currFrameCh1.getElement(i); 
 			boolean matching = false;
@@ -310,9 +326,17 @@ class UnmixFrame implements Runnable{
 					else {
 						double atan = Math.atan(thisLoc.getIntensity() / currLoc.getIntensity()); //atan(ch2 / ch1)
 						synchronized(coloredSet){
-							coloredSet.addElement(new StormLocalization((thisLoc.getX()+currLoc.getX())/2,(thisLoc.getY()+currLoc.getY())/2,(thisLoc.getZ()+currLoc.getZ())/2, currFrame,(thisLoc.getIntensity()+currLoc.getIntensity())/2, atan));}
+							double int0 = thisLoc.getIntensity();
+							double int1 = currLoc.getIntensity();
+							double sumInt = int0+int1;
+							coloredSet.addElement(new StormLocalization((int0*thisLoc.getX()+int1*currLoc.getX())/sumInt,
+																		(int0*thisLoc.getY()+int1*currLoc.getY())/sumInt,
+																		(int0*thisLoc.getZ()+int1*currLoc.getZ())/sumInt, 
+																		currFrame,
+																		(thisLoc.getIntensity()+currLoc.getIntensity())/2, 
+																		atan));}
 						synchronized(demixingData){
-						demixingData.addElements(currLoc, thisLoc);}
+						demixingData.addElements(currLoc, thisLoc, currFrameUntransformedCh1.getElement(i));}
 						//matchingCounter = matchingCounter + 1;
 					}
 					break;
@@ -320,7 +344,38 @@ class UnmixFrame implements Runnable{
 			}
 			if (!matching){
 				if (currLoc.getIntensity()>minInt && useAll){
-					coloredSet.addElement(new StormLocalization(currLoc,0));
+					synchronized(coloredSet){
+						coloredSet.addElement(new StormLocalization(currLoc,0));
+					}
+				}
+			}
+		}
+		//second run to add not matching points from channel 2, this is only necessary if useAll is set to true
+		if (useAll){
+			for (int i = 0; i<currFrameCh2.getSize(); i++){
+				StormLocalization currLoc = currFrameCh2.getElement(i); 
+				boolean matching = false;
+				int startvalue = 0; //if a match was found at the 20 th. position of the second channel, all following matches will lie after that
+				for (int j = startvalue; j<currFrameCh1.getSize(); j++){
+					StormLocalization thisLoc = currFrameCh1.getElement(j);
+					//System.out.println("thisLoc.getX() "+thisLoc.getX()+" "+"currLoc.getX() "+currLoc.getX()+"thisLoc.getY() "+thisLoc.getY()+" "+"currLoc.getY() "+currLoc.getY());
+					if (thisLoc.getX()>currLoc.getX()+dist){ //sorted for X, if thislocs x value is larger all following will be larger
+						break;
+					}
+					
+					if (Math.abs(thisLoc.getX() - currLoc.getX())<dist && Math.abs(thisLoc.getY() - currLoc.getY())<dist){
+						matching = true;
+						startvalue = i;
+						
+						break;
+					}
+				}
+				if (!matching){
+					if (currLoc.getIntensity()>minInt && useAll){
+						synchronized(coloredSet){
+							coloredSet.addElement(new StormLocalization(currLoc,Math.PI/2));
+						}
+					}
 				}
 			}
 		}
@@ -331,14 +386,20 @@ class UnmixFrame implements Runnable{
 class DemixingData{
 	private ArrayList<StormLocalization> listCh1 = new ArrayList<StormLocalization>();
 	private ArrayList<StormLocalization> listCh2 = new ArrayList<StormLocalization>();
-	synchronized void addElements(StormLocalization slch1,StormLocalization slch2){
+	private ArrayList<StormLocalization> listUntransformedCh2 = new ArrayList<StormLocalization>();
+	synchronized void addElements(StormLocalization slch1,StormLocalization slch2, StormLocalization slutch1){
 		listCh1.add(slch1);
 		listCh2.add(slch2);
+		listUntransformedCh2.add(slutch1);
 	}
-	public ArrayList<StormLocalization> getList1(){
+	public ArrayList<StormLocalization> getCh1(){
 		return listCh1;
 	}
-	public ArrayList<StormLocalization> getList2(){
+	public ArrayList<StormLocalization> getCh2(){
 		return listCh2;
 	}
+	public ArrayList<StormLocalization> getUntransformedCh1(){
+		return listUntransformedCh2;
+	}
 }
+ 

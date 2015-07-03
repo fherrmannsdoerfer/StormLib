@@ -120,6 +120,31 @@ public class OutputClass {
 		ij.IJ.save(coloredImage, fullFilename);
 		return fullFilename;
 	}
+	
+	public static void writeArrayListForVisp(String path, String basename, ArrayList<StormLocalization> locs, 
+			String tag,DemixingParameters demixingParams) {
+		double minAngle1 = demixingParams.getAngle1() - demixingParams.getWidth1()/2;
+		double maxAngle1 = demixingParams.getAngle1() + demixingParams.getWidth1()/2;
+		double minAngle2 = demixingParams.getAngle2() - demixingParams.getWidth2()/2;
+		double maxAngle2 = demixingParams.getAngle2() + demixingParams.getWidth2()/2;
+		try {
+			FileWriter writer1 = new FileWriter(path+"forVispCH1_"+basename+tag+".txt");
+			FileWriter writer2 = new FileWriter(path+"forVispCH2_"+basename+tag+".txt");
+			for (int i = 0; i<locs.size(); i++){
+				StormLocalization sl = locs.get(i);
+				if (((sl.getAngle()> minAngle1 && sl.getAngle()< maxAngle1))|| sl.getAngle() == 0){
+					writer1.append(sl.toPlainVispString()+"\n");
+				}
+				else if ((sl.getAngle()> minAngle2 && sl.getAngle()< maxAngle2) || sl.getAngle() == Math.PI/2){
+					writer2.append(sl.toPlainVispString()+"\n");
+				}
+			}
+			writer1.flush();
+			writer1.close();
+			writer2.flush();
+			writer2.close();
+		} catch (IOException e) {e.printStackTrace();}
+	}
 
 	public static void writeArrayListForVisp(String path, String basename, ArrayList<StormLocalization> locs, String tag) {
 		try {
@@ -291,15 +316,17 @@ public class OutputClass {
 		System.out.println("Drift log saved.");
 	}
 	
-	public static void writeDemixingOutput(String path, String basename, ArrayList<StormLocalization> ch1, ArrayList<StormLocalization> ch2, String tag){
+	public static void writeDemixingOutput(String path, String basename, ArrayList<StormLocalization> ch1, 
+			ArrayList<StormLocalization> ch2 ,ArrayList<StormLocalization> utch1, String tag){
 		try {
 			PrintWriter outputStream = new PrintWriter(new FileWriter(
 					path+"Statistics\\Texts\\"+basename+"DemixingStatistic"+tag+".txt"));
 			outputStream.print("Automatically generated log file for the pairwise occuring points.  ");
-			outputStream.println("Structure: data StormLocalization channel 1 , data StormLocalization channel2");
+			outputStream.println("Structure: channel 1 channel2 untransformed channel 1");
 			for (int j = 0;j<ch1.size();j++){
 					outputStream.print(ch1.get(j).toPlainString()+" ");
 					outputStream.print(ch2.get(j).toPlainString()+" ");
+					outputStream.print(utch1.get(j).toPlainString());
 					outputStream.println();
 			}
 			

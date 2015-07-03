@@ -26,27 +26,35 @@ public class Utilities {
 			e.printStackTrace();
 		}
 		
-		Arrays.sort(files);
-		Arrays.sort(files2);
 		StormData sd1 = new StormData();
-		sd1.setPath(path1);
-		sd1.setFname(pattern1+"mergedFile"+".txt");
 		StormData sd2 = new StormData();
-		sd2.setPath(path2);
-		sd2.setFname(pattern2+"mergedFile"+".txt");
-
-		for (int i = 0; i<files.length; i++ ){
-			if(files[i].isFile() && files[i].getAbsolutePath().contains(pattern1)&& files[i].getAbsolutePath().contains(".txt")&&!files[i].getAbsolutePath().contains("-settings")){
-				StormData tmp = new StormData(files[i].getAbsolutePath());
-				sd1.addStormData(tmp);
+		try{
+			Arrays.sort(files);
+			sd1.setPath(path1);
+			sd1.setFname(pattern1+"mergedFile"+".txt");
+			for (int i = 0; i<files.length; i++ ){
+				if(files[i].isFile() && files[i].getAbsolutePath().contains(pattern1)&& files[i].getAbsolutePath().contains(".txt")&&!files[i].getAbsolutePath().contains("-settings")){
+					StormData tmp = new StormData(files[i].getAbsolutePath());
+					sd1.addStormData(tmp);
+				}
+			}
+			
+		}
+		catch(NullPointerException e){}
+		try{
+			Arrays.sort(files2);
+			sd2.setPath(path2);
+			sd2.setFname(pattern2+"mergedFile"+".txt");
+	
+			
+			for (int i = 0; i<files2.length; i++ ){
+				if(files2[i].isFile() && files2[i].getAbsolutePath().contains(pattern2)&& files2[i].getAbsolutePath().contains(".txt")&&!files2[i].getAbsolutePath().contains("-settings")){
+					StormData tmp = new StormData(files2[i].getAbsolutePath());
+					sd2.addStormData(tmp);
+				}
 			}
 		}
-		for (int i = 0; i<files2.length; i++ ){
-			if(files2[i].isFile() && files2[i].getAbsolutePath().contains(pattern2)&& files2[i].getAbsolutePath().contains(".txt")&&!files2[i].getAbsolutePath().contains("-settings")){
-				StormData tmp = new StormData(files2[i].getAbsolutePath());
-				sd2.addStormData(tmp);
-			}
-		}
+		catch(NullPointerException e){}
 		ArrayList<StormData> retList = new ArrayList<StormData>();
 		retList.add(sd1);
 		retList.add(sd2);
