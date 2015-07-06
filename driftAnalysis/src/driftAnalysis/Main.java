@@ -22,19 +22,19 @@ public class Main {
 	public static void main(String[] args) {
 		
 		String tag = "150703_Calyx3b_TomCF680_VGlut647_Gain20_ExpTime120";
-		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
+		String path1 = "D:\\MT-crop\\";
 		
 		//String tag = "150612BeadNo3DMessung1";
 		//String path1 = "D:\\Nup\\Int2000\\";
 		String tag2 ="pt1";
 		//twoColorRegistration(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
 		//demixingMultipleInputFiles(path1,"LeftChannel",path1,"RightChannel");
-		dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
+		//dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
 		//singleColor2dImage(path1,"Nup 133 colony 12Int1000"+".txt");
 		//createVispOutput(path1,"LeftChannel"+tag+".txt");
 		//singleColor3dImage(path1,"LeftChannel"+tag+tag2+".txt");
 		//singleColor3dMultipleInput(path1,"LeftChannel");
-		//singleColor3dImage(path1,"Concatenated Stacks150508nativerythrocytesphalloidin647.txt");
+		singleColor3dImage(path1,"ThunderSTORMeveryframe.txt");
 		//dualColor2dImage(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
 		//String fname = "SelfMeassuredloa15.00aoa1.57bspnm1.65pabs0.10abpf14.00rof12.00sxy8.00sz35.00bspsnm0.01_MalkOutput.txt";
 		//createVispOutput("D:\\MessungenTemp\\150701ErythrocytesPhalloidin647Messung12\\LeftChannel\\","LeftChannel150701ErythrocytesPhalloidin647Messung12pt1.txt");
@@ -155,11 +155,14 @@ public class Main {
 	}
 	static void singleColor3dImage(String path, String fname){
 		StormData sd = new StormData(path, fname);
-		
 		sd.renderImage3D(10);
 		sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/3 ));
 		sd.connectPoints(100, 100, 150, 3);
 		sd.estimateLocalizationPrecision(100, 100);
+		sd.cropCoords(11300, 11940, 14400, 15040);
+		sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/3 ));
+		sd.connectPoints(100, 100, 150, 3);
+		
 		
 		sd.writeArrayListForVisp("");
 		//sd.correctDrift(4000);
@@ -256,7 +259,7 @@ public class Main {
 
 		unmixedSd.correctDrift((int)Math.ceil((double)unmixedSd.getDimensions().get(7)/5));
 
-		unmixedSd.connectPoints(20, 20, 120, 2);
+		//unmixedSd.connectPoints(20, 20, 120, 2);
 		unmixedSd.estimateLocalizationPrecision(50, 300);
 		DemixingParameters demixingParams= new DemixingParameters((40)/180. * Math.PI,
 				(65)/180.*Math.PI, 20/180.*Math.PI, 20/180.*Math.PI);
