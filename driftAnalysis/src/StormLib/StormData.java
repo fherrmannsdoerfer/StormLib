@@ -10,6 +10,8 @@ import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -38,9 +40,10 @@ public class StormData {
 	private ArrayList<Object> logs = new ArrayList<Object>();
 	
 	public StormData(String path, String fname){
-		this.path = path;
-		this.fname = fname;
-		importData(path+fname);
+		Path fullPath = (Paths.get(path, fname));
+		this.path = fullPath.getParent().toString()+"\\";
+		this.fname = fullPath.getFileName().toString();
+		importData(this.path+fname);
 	}
 	
 	public StormData(StormData sl){
@@ -437,8 +440,8 @@ public class StormData {
 		double factor = 10000*1/(2*Math.PI*sigma*sigma);
 		double factor2 = -0.5/sigma/sigma;
 		ArrayList<Double> dims = getDimensions();
-		double zMin = dims.get(4);
-		double zMax = dims.get(5);
+		double zMin = 400 ; //dims.get(4);
+		double zMax = 800; //dims.get(5);
 		System.out.println("zMax: "+zMax);
 		float[][] redChannel = coloredImage.get(0);
 		float[][] greenChannel = coloredImage.get(1);
@@ -486,15 +489,21 @@ public class StormData {
 		ArrayList<Double> dims = getDimensions();
 		int pixelX = (int) Math.pow(2, Math.ceil(Math.log(dims.get(1) / pixelsize)/Math.log(2)));
 		//int pixelX = (int) Math.ceil(dims.get(1) / pixelsize);
-		int pixelY = pixelX;//(int) Math.ceil(dims.get(1) / pixelsize);
-		float [][] imageRed = new float[pixelX][pixelY];
-		float [][] imageGreen = new float[pixelX][pixelY];
-		float [][] imageBlue = new float[pixelX][pixelY];
+		int pixelY = (int) Math.ceil(dims.get(3) / pixelsize);
+		
 		ArrayList<float[][]> coloredImage = new ArrayList<float[][]>();
-		coloredImage.add(imageRed);
-		coloredImage.add(imageGreen);
-		coloredImage.add(imageBlue);
+		for (int i = 0; i<3; i++){
+			float[][] ch = new float[pixelX][pixelY];
+			coloredImage.add(ch);
+		}
+		
 		coloredImage = addFilteredPoints(coloredImage, sigma, filterwidth, pixelsize, getLocs());
+		ArrayList<ImagePlus> colImg =write3dImage(pixelX,pixelY, coloredImage,pixelsize,tag);
+		
+		return colImg;
+	}
+	
+	public ArrayList<ImagePlus> write3dImage(int pixelX, int pixelY, ArrayList<float[][]> coloredImage, double pixelsize,String tag){
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipBlue = new FloatProcessor(pixelX,pixelY);
@@ -576,60 +585,42 @@ public class StormData {
 				for(int l= pixelYStart; l<pixelYStart+ filterwidth;l++){
 					double kk = 1;
 					try{
+						double weight = factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2)));
 						if (true){
-							if (posZ < 0.25* zMax){
-								//redChannel[k][l] = redChannel[k][l] + (float)((0)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								//greenChannel[k][l] = greenChannel[k][l] + (float)((posZ)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								//blue rises from 0 to 1
-								blueChannel[k][l] = blueChannel[k][l] + (float)((4*posZ / zMax)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								
-							}
-							else if (posZ < 0.5* zMax){
-								//redChannel[k][l] = redChannel[k][l] + (float)((0)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								//green rises from 0 to 1 blue stays one
-								greenChannel[k][l] = greenChannel[k][l] + (float)((4*posZ/zMax - 1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								blueChannel[k][l] = blueChannel[k][l] + (float)((2 - 4*posZ/zMax)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-							}
-							else if (posZ < 0.75* zMax){
-								//green stays one, blue goes to zero again
-								//redChannel[k][l] = redChannel[k][l] + (float)((0)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								greenChannel[k][l] = greenChannel[k][l] + (float)((4*posZ/zMax - 2)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								blueChannel[k][l] = blueChannel[k][l] + (float)((3 - 4*posZ/zMax)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-							}
-							else {
-								//green goes to zero red rises
-								redChannel[k][l] = redChannel[k][l] + (float)((4*posZ/zMax - 3)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								greenChannel[k][l] = greenChannel[k][l] + (float)((4-4*posZ/zMax)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								//blueChannel[k][l] = blueChannel[k][l] + (float)((0)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
+							redChannel[k][l] = (float) (redChannel[k][l] + getColor(posZ,zMax,0) * weight);
+							greenChannel[k][l] = (float) (greenChannel[k][l] +getColor(posZ,zMax,1) * weight);
+							blueChannel[k][l] = (float) (blueChannel[k][l] +getColor(posZ,zMax,2) * weight);
+							if (redChannel[k][l]<0||greenChannel[k][l]<0||blueChannel[k][l]<0){
+								System.out.println(k+" "+l);
 							}
 						}
 						else{
 							double parts = 6;
 							double invparts = 1./parts;
 							if (posZ < invparts * zMax){
-								blueChannel[k][l] = blueChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								greenChannel[k][l] = greenChannel[k][l] + (float)((parts*posZ/zMax)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
+								blueChannel[k][l] = blueChannel[k][l] + (float)((1)*weight);
+								greenChannel[k][l] = greenChannel[k][l] + (float)((parts*posZ/zMax)*weight);
 							}
 							else if (posZ<invparts * 2*zMax){
-								greenChannel[k][l] = greenChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								blueChannel[k][l] = blueChannel[k][l] + (float)((1-parts*(posZ/zMax-invparts))*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
+								greenChannel[k][l] = greenChannel[k][l] + (float)((1)*weight);
+								blueChannel[k][l] = blueChannel[k][l] + (float)((1-parts*(posZ/zMax-invparts))*weight);
 							}
 							else if (posZ<invparts * 3*zMax){
-								greenChannel[k][l] = greenChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								redChannel[k][l] = redChannel[k][l] + (float)((parts*(posZ/zMax - invparts*2))*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
+								greenChannel[k][l] = greenChannel[k][l] + (float)((1)*weight);
+								redChannel[k][l] = redChannel[k][l] + (float)((parts*(posZ/zMax - invparts*2))*weight);
 							}
 							else if (posZ<invparts * 4*zMax){
-								redChannel[k][l] = redChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								greenChannel[k][l] = greenChannel[k][l] + (float)((1-parts*(posZ/zMax-invparts*3))*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
+								redChannel[k][l] = redChannel[k][l] + (float)((1)*weight);
+								greenChannel[k][l] = greenChannel[k][l] + (float)((1-parts*(posZ/zMax-invparts*3))*weight);
 							}
 							else if (posZ<invparts * 5*zMax){
-								redChannel[k][l] = redChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								blueChannel[k][l] = blueChannel[k][l] + (float)((parts*(posZ/zMax-invparts*4))*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
+								redChannel[k][l] = redChannel[k][l] + (float)((1)*weight);
+								blueChannel[k][l] = blueChannel[k][l] + (float)((parts*(posZ/zMax-invparts*4))*weight);
 							}
 							else if (posZ<invparts * 6*zMax){
-								redChannel[k][l] = redChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								greenChannel[k][l] = greenChannel[k][l] + (float)((parts*(posZ/zMax-invparts*5))*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								blueChannel[k][l] = blueChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
+								redChannel[k][l] = redChannel[k][l] + (float)((1)*weight);
+								greenChannel[k][l] = greenChannel[k][l] + (float)((parts*(posZ/zMax-invparts*5))*weight);
+								blueChannel[k][l] = blueChannel[k][l] + (float)((1)*weight);
 							}
 							if (redChannel[k][l]<0||greenChannel[k][l]<0||blueChannel[k][l]<0){
 								System.out.print(redChannel[k][l] +" "+greenChannel[k][l] +" "+blueChannel[k][l] );
@@ -658,7 +649,9 @@ public class StormData {
 							}
 							
 						}*/
-					} catch(IndexOutOfBoundsException e){e.toString();}
+					} catch(Exception e){
+						//System.out.println(e.toString());
+						}
 				}
 			}
 		}
@@ -682,6 +675,44 @@ public class StormData {
 		return coloredImage;
 	}
 	
+	private static float getColor(double posZ, double zMax, int color) {
+		
+		if (posZ < 0.25* zMax&&posZ>=0){
+			//blue rises from 0 to 1
+			if (color == 2){
+				return (float) (4*posZ / zMax);
+			}
+		}
+		else if (posZ < 0.5* zMax&&posZ>0){
+			//green rises from 0 to 1 blue stays one
+			if (color == 1){
+				return (float)(4*posZ/zMax - 1);
+			}
+			if (color == 2){
+				return (float) 1;//(2 - 4*posZ/zMax)	;
+			}
+		}
+		else if (posZ < 0.75* zMax&&posZ>0){
+			//green stays one, blue goes to zero again
+			if (color == 1){
+				return (float) 1;//(4*posZ/zMax - 2);
+			}
+			if (color == 2){
+				return (float) (3 - 4*posZ/zMax);
+			}
+		}
+		else if (posZ<zMax&&posZ>0) {
+			//green goes to zero red rises
+			if (color == 0){
+				return (float) (4*posZ/zMax - 3);
+			}
+			if (color == 1){
+				return (float) (4-4*posZ/zMax);
+			}
+		}
+		return 0;
+	}
+
 	ArrayList<float[][]> normalizeChannels(float[][] redChannel, float[][] greenChannel, float[][] blueChannel){
 		double max = 0;
 		double min = Double.MAX_VALUE;
@@ -941,7 +972,7 @@ public class StormData {
 		OutputClass.saveLocalLocalizationPrecision(localSigma, path, getBasename(), processingLog);
 	}
 	
-	public Double estimateLocalizationPrecisionXY(double dxy, double dz, StormData tsd){
+	private Double estimateLocalizationPrecisionXY(double dxy, double dz, StormData tsd){
 		double sigmaXY = 0;
 		try {
 			ArrayList<ArrayList<StormLocalization>> traces = Utilities.findTraces(tsd.getLocs(), dxy, dxy, dz, 2, false);
@@ -1080,9 +1111,10 @@ public class StormData {
 			this.fname = tmp.getFname();
 		}
 		int lastFrame = (int) ((double)getDimensions().get(7));
+		int firstFrame = (int) ((double)tmp.getDimensions().get(6));
 		for (int i = 0; i< tmp.getSize(); i++){
 			StormLocalization sl = tmp.getElement(i);
-			sl.setFrame(sl.getFrame()+lastFrame);
+			sl.setFrame(sl.getFrame()+lastFrame-firstFrame);
 			getLocs().add(sl);
 		}
 		

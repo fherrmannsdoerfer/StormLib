@@ -16,11 +16,16 @@ public class Demixing {
 	static ExecutorService executor;
 	static ExecutorService executor2;
 	
-	public static StormData spectralUnmixing(StormData ch1, StormData ch2){
-		return spectralUnmixing(ch1, ch2, false);
-	}
 	
 	public static StormData spectralUnmixing(StormData ch1, StormData ch2, boolean useAll){
+		return spectralUnmixing(ch1, ch2, useAll,"");
+	}
+	
+	public static StormData spectralUnmixing(StormData ch1, StormData ch2){
+		return spectralUnmixing(ch1, ch2, false,"");
+	}
+	
+	public static StormData spectralUnmixing(StormData ch1, StormData ch2, boolean useAll, String tag){
 		executor = Executors.newFixedThreadPool(7);
 		executor2 = Executors.newFixedThreadPool(7);
 		double[][] trafo = findGlobalTransformationMultithreaded(ch1, ch2);
@@ -28,12 +33,12 @@ public class Demixing {
 		
 		
 		//double[][] trafo = {{0.9988,-0.0013,65.9763},{-0.0004,0.9988,-7.46}};
-		StormData combinedSet = doUnmixingMultiThreaded(ch1,ch2,trafo, useAll);
+		StormData combinedSet = doUnmixingMultiThreaded(ch1,ch2,trafo, useAll,tag);
 		//StormData combinedSet = doUnmixing(ch1, ch2, trafo);
 		return combinedSet;
 	}
 	
-	static StormData doUnmixingMultiThreaded(StormData untransformedCh1, StormData ch2, double[][] trafo, boolean useAll){
+	static StormData doUnmixingMultiThreaded(StormData untransformedCh1, StormData ch2, double[][] trafo, boolean useAll,String tag){
 		StormData ch1 = TransformationControl.applyTrafo(trafo, untransformedCh1);
 		double dist = 40; //in nm //this variable determines within which distance for matching points are searched
 		double minInt = 500; // minimal intensity of at least one channel
@@ -67,7 +72,7 @@ public class Demixing {
 		} catch (InterruptedException e) {
 		
 		}
-		OutputClass.writeDemixingOutput(ch1.getPath(), ch1.getBasename(), demixingData.getCh1(), demixingData.getCh2(), demixingData.getUntransformedCh1(), ch1.getProcessingLog());
+		OutputClass.writeDemixingOutput(ch1.getPath(), ch1.getBasename(), demixingData.getCh1(), demixingData.getCh2(), demixingData.getUntransformedCh1(), ch1.getProcessingLog()+tag);
 		DemixingResultLog rl = new DemixingResultLog(demixingData.getCh1().size(), demixingData.getCh2().size(), useAll);
 		ch1.addToLog(rl);
 		if (true) {
@@ -77,9 +82,9 @@ public class Demixing {
 		return coloredSet;
 	}
 	
-		static double[][] findGlobalTransformationMultithreaded(StormData ch1, StormData ch2){
+	static double[][] findGlobalTransformationMultithreaded(StormData ch1, StormData ch2){
 		int nbrIter = 500;
-		double toleratedError = 20;
+		double toleratedError = 50;
 		ArrayList<ArrayList<ArrayList<StormLocalization>>> collectionOfGoodPoints = new ArrayList<ArrayList<ArrayList<StormLocalization>>>();
 		ArrayList<Integer> listOfMatchingPoints = new ArrayList<Integer>();
 		ArrayList<Double> listOfErrors = new ArrayList<Double>();

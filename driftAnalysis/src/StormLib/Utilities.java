@@ -34,7 +34,7 @@ public class Utilities {
 			sd1.setFname(pattern1+"mergedFile"+".txt");
 			for (int i = 0; i<files.length; i++ ){
 				if(files[i].isFile() && files[i].getAbsolutePath().contains(pattern1)&& files[i].getAbsolutePath().contains(".txt")&&!files[i].getAbsolutePath().contains("-settings")){
-					StormData tmp = new StormData(files[i].getAbsolutePath());
+					StormData tmp = new StormData(files[i].getParent(),files[i].getName());
 					sd1.addStormData(tmp);
 				}
 			}
@@ -746,6 +746,117 @@ public class Utilities {
 			return sigma;
 		}
 
+		//Levenberg Marquard 2D Gaussian fit, return center in pixel
+		static ArrayList<Double> fitGaussian2D(ImagePlus img, double sigma, double scale, double offset, double x0, double y0) throws EOFException{
+		    double tr = 0.0;
+			double t = 1.4, l = 0.1;
+
+			for(int k=0; k< 10; ++k)
+			{
+				double [][] jr = new double[5][1];
+				for(int i = 0; i<5; i++){
+					jr[i][0] = 0.0;
+				}
+				double [] j = new double[5];
+				for(int i = 0; i<5; i++){
+					j[i] = 0.0;
+				}
+				double [][] jj = new double[5][5];
+				for (int i = 0; i<5;i++){
+					for (int p=0;p<5;p++){
+						jj[i][p] = 0.0;
+					}
+				}
+			 
+				for(int x = 0; x<img.getWidth(); x++){
+					for(int y = 0; y<img.getHeight();y++){
+						double xs = Math.pow((x-x0)/sigma,2)+Math.pow((y-y0)/sigma, 2);
+						double e = Math.exp(-0.5*xs);
+						double r = img.getProcessor().getPixelValue(x, y) - (scale * e + offset);
+						j[0] = (scale*e*xs/sigma);
+						j[1] = (e);
+						j[2] = (1.0);
+						j[3] = (scale * e*(x-x0)/Math.pow(sigma,2));
+						j[4] =(scale * e*(y-y0)/Math.pow(sigma,2));
+						
+						for (int i = 0; i<5; i++){ //jr += r*j
+							jr[i][0]=(jr[i][0] + r * j[i]);
+						}
+						for (int i1 =0; i1<5; i1++){ //jj+=j*transpose(j)
+							for (int i2 = 0; i2<5;i2++){
+								jj[i1][i2] = jj[i1][i2] + j[i1]*j[i2];
+							}
+						}
+						tr = tr + Math.pow(r, 2);
+						
+					}
+				}
+		
+				Matrix jj1 = new Matrix(jj);
+				Matrix jj2 = new Matrix(jj);
+				Matrix d1 = new Matrix(5,1);
+				Matrix d2 = new Matrix(5,1);
+				
+				for (int i = 0; i<5;i++){
+					jj1.set(i, i, jj1.get(i,i)+l);
+					jj2.set(i, i, jj2.get(i, i)+l/t);
+				}
+				d1 = jj1.solve(new Matrix(jr));
+				d2 = jj2.solve(new Matrix(jr));
+				
+			    double si1 = sigma + d1.get(0,0), s1 = scale + d1.get(1,0), o1 = offset + d1.get(2,0), c1 = x0 + d1.get(3,0), g1 = y0 + d1.get(4,0);
+			    double si2 = sigma + d2.get(0,0), s2 = scale + d2.get(1,0), o2 = offset + d2.get(2,0), c2 = x0 + d2.get(3,0), g2 = y0 + d2.get(4,0);
+			    double tr1 = 0.0, tr2 = 0.0;
+
+			    for(int x = 0; x<img.getWidth(); x++){
+					for(int y = 0; y<img.getHeight();y++){
+						double r1 = img.getProcessor().getPixelValue(x, y) - (s1 * Math.exp(-0.5 * (Math.pow((x - c1) / si1,2) + Math.pow(y - g1 ,2)))+ o1);
+			            double r2 = img.getProcessor().getPixelValue(x, y) - (s2 * Math.exp(-0.5 * (Math.pow((y - c2) / si2,2) + Math.pow(y - g2 ,2)))+ o2);
+			            tr1 += Math.pow(r1,2);
+			            tr2 += Math.pow(r2,2);
+					}
+			    }
+			    
+			    if(tr1 < tr2)
+			    {
+			        if(tr1 < tr)
+			        {
+			            sigma = si1;
+			            scale = s1;
+			            offset = o1;
+			            x0 = c1;
+						y0 = g1;
+			        }
+			        else
+			        {
+			            l *= t;
+			        }
+			    }
+			    else
+			    {
+			        if(tr2 < tr)
+			        {
+			            sigma = si2;
+			            scale = s2;
+			            offset = o2;
+			            x0 = c2;
+						y0 = g2;
+			            l /= t;
+			        }
+			        else
+			        {
+			            l *= t;
+			        }
+			    }
+
+				if(Math.abs((tr - Math.min(tr1, tr2)) / tr) < 1e-15)
+			        break;
+			}
+			ArrayList<Double> res = new ArrayList<Double>();
+			res.add(x0);
+			res.add(y0);
+			return res;
+		}
 		
 }
 
