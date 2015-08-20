@@ -2,8 +2,8 @@ package StormLib.HelperClasses;
 
 import java.util.ArrayList;
 
+import dataStructure.StormLocalization;
 import StormLib.OutputClass;
-import StormLib.StormLocalization;
 
 public class LocsSaveLog extends BasicProcessingInformation {
 

@@ -1,4 +1,4 @@
-package StormLib;
+package dataStructure;
 
 public class DemixingParameters {
 	private double angle1;

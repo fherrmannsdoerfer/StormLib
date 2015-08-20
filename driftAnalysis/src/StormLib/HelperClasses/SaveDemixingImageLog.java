@@ -2,8 +2,8 @@ package StormLib.HelperClasses;
 
 import java.util.ArrayList;
 
+import dataStructure.DemixingParameters;
 import ij.ImagePlus;
-import StormLib.DemixingParameters;
 import StormLib.OutputClass;
 
 public class SaveDemixingImageLog extends BasicProcessingInformation {

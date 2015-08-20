@@ -1,4 +1,4 @@
-package StormLib;
+package functions;
 
 import ij.ImagePlus;
 import ij.plugin.filter.MaximumFinder;
@@ -12,6 +12,10 @@ import java.util.ArrayList;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
+
+import dataStructure.StormData;
+import dataStructure.StormLocalization;
+import StormLib.Utilities;
 
 public class BeadRegistration {
 

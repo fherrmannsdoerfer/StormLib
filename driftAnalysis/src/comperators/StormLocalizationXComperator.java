@@ -1,6 +1,8 @@
-package StormLib;
+package comperators;
 
 import java.util.Comparator;
+
+import dataStructure.StormLocalization;
 
 public class StormLocalizationXComperator implements Comparator<StormLocalization> {
 	@Override

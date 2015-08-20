@@ -1,5 +1,6 @@
 package StormLib;
 
+import functions.CreateScatterPlot;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ShortProcessor;
@@ -21,6 +22,8 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 
+import dataStructure.DemixingParameters;
+import dataStructure.StormLocalization;
 import StormLib.HelperClasses.BasicProcessingInformation;
 
 public class OutputClass {
@@ -359,7 +362,7 @@ public class OutputClass {
 		return fullFilename;
 	}
 	
-	static void writeDriftLogFile(ArrayList<double[][]> dds, UnivariateFunction fx, UnivariateFunction fy, UnivariateFunction fz, String path, String basename, int frameMax, String tag){
+	public static void writeDriftLogFile(ArrayList<double[][]> dds, UnivariateFunction fx, UnivariateFunction fy, UnivariateFunction fz, String path, String basename, int frameMax, String tag){
 		try {
 			int nbrChunks = dds.get(0)[0].length-1;
 			PrintWriter outputStream = new PrintWriter(new FileWriter(path+"Statistics\\Texts\\"+basename+"DriftLog"+tag+".txt"));

@@ -1,7 +1,9 @@
-package StormLib;
+package comperators;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+
+import dataStructure.StormLocalization;
 
 public class TraceYComperator implements Comparator<ArrayList<StormLocalization>>{
 	@Override

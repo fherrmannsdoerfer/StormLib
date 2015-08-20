@@ -10,6 +10,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
+import comperators.StormLocalizationFrameComperator;
+import dataStructure.StormData;
+import dataStructure.StormLocalization;
 import Jama.Matrix;
 
 public class Utilities {
@@ -302,7 +305,7 @@ public class Utilities {
 		return connectedLoc;
 	}
 	
-	static ArrayList<Double> createDist(ArrayList<Double> x, double sigma){
+	public static ArrayList<Double> createDist(ArrayList<Double> x, double sigma){
 		ArrayList<Double> y = new ArrayList<Double>();
 		for (int i = 0; i<x.size(); i++){
 			y.add(x.get(i)/(2*Math.pow(sigma,2))*Math.exp(-Math.pow(x.get(i),2)/(4*Math.pow(sigma, 2)))+Math.random()/10000);            
@@ -310,7 +313,7 @@ public class Utilities {
 		return y;
 	}
 	
-	static Double fitLocalizationPrecissionDistribution(ArrayList<Double> x, ArrayList<Double> y, double sigma) throws Exception{
+	public static Double fitLocalizationPrecissionDistribution(ArrayList<Double> x, ArrayList<Double> y, double sigma) throws Exception{
 		double max = 0;
 		for (int i =0; i< y.size(); i++){
 			if(max<y.get(i)){
@@ -648,7 +651,7 @@ public class Utilities {
 	}
 	
 	//Levenberg Marquard 1D Gaussian fit, return sigma
-		static Double fitGaussian1D(ArrayList<Double> x, ArrayList<Double> y, double sigma, double scale, double x0) throws Exception{
+		public static Double fitGaussian1D(ArrayList<Double> x, ArrayList<Double> y, double sigma, double scale, double x0) throws Exception{
 		    double tr = 0.0;
 			double t = 1.4, l = 0.1;
 			int nbrParams = 3;
@@ -747,7 +750,7 @@ public class Utilities {
 		}
 
 		//Levenberg Marquard 2D Gaussian fit, return center in pixel
-		static ArrayList<Double> fitGaussian2D(ImagePlus img, double sigma, double scale, double offset, double x0, double y0) throws EOFException{
+		public static ArrayList<Double> fitGaussian2D(ImagePlus img, double sigma, double scale, double offset, double x0, double y0) throws EOFException{
 		    double tr = 0.0;
 			double t = 1.4, l = 0.1;
 

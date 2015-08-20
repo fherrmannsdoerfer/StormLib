@@ -1,4 +1,4 @@
-package StormLib;
+package functions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,6 +7,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import dataStructure.StormData;
+import dataStructure.StormLocalization;
+import StormLib.OutputClass;
+import StormLib.Progressbar;
 import StormLib.HelperClasses.DemixingResultLog;
 import StormLib.HelperClasses.DemixingTransformationLog;
 

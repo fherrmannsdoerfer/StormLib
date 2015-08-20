@@ -1,4 +1,4 @@
-package StormLib;
+package dataStructure;
 
 public class StormLocalization {
 	private double x;
@@ -8,7 +8,7 @@ public class StormLocalization {
 	private double intensity;
 	private double angle;
 	
-	StormLocalization(double x, double y, double z, int frame, double intensity){
+	public StormLocalization(double x, double y, double z, int frame, double intensity){
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -16,7 +16,7 @@ public class StormLocalization {
 		this.intensity = intensity;
 		this.angle = 0;
 	}
-	StormLocalization(double x, double y, double z, int frame, double intensity, double angle){
+	public StormLocalization(double x, double y, double z, int frame, double intensity, double angle){
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -40,7 +40,7 @@ public class StormLocalization {
 		this.intensity = intensity;
 		this.angle = angle;
 	}
-	StormLocalization(StormLocalization sl, double angle){
+	public StormLocalization(StormLocalization sl, double angle){
 		this.x = sl.getX();
 		this.y = sl.getY();
 		this.z = sl.getZ();
@@ -49,14 +49,14 @@ public class StormLocalization {
 		this.angle = angle;
 	}
 	
-	double getX(){return this.x;}
-	double getY(){return this.y;}
-	double getZ(){return this.z;}
+	public double getX(){return this.x;}
+	public double getY(){return this.y;}
+	public double getZ(){return this.z;}
 	void setZ(double z){this.z = z;};
-	int getFrame(){return this.frame;}
+	public int getFrame(){return this.frame;}
 	void setFrame(int frame){this.frame = frame;}
-	double getAngle(){return this.angle;}
-	double getIntensity(){return this.intensity;}
+	public double getAngle(){return this.angle;}
+	public double getIntensity(){return this.intensity;}
 	@Override public String toString(){
 		String tmp = "X: "+this.x+" Y: "+this.y+" Z: "+this.z+" frame: "+this.frame+" intensity: "+this.intensity+" angle: "+this.angle;
 		return tmp;

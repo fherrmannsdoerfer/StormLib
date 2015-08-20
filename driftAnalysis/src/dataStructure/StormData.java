@@ -1,6 +1,7 @@
 
-package StormLib;
+package dataStructure;
 
+import functions.FeatureBasedDriftCorrection;
 import ij.ImagePlus;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
@@ -19,6 +20,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import comperators.StormLocalizationFrameComperator;
+import comperators.StormLocalizationXComperator;
+import comperators.StormLocalizationYComperator;
+import comperators.StormLocalizationZComperator;
+import comperators.TraceYComperator;
+import StormLib.OutputClass;
+import StormLib.Progressbar;
+import StormLib.Utilities;
 import StormLib.HelperClasses.BasicProcessingInformation;
 import StormLib.HelperClasses.ConnectionResultLog;
 import StormLib.HelperClasses.DemixingHistogramLog;
@@ -1071,11 +1080,11 @@ public class StormData {
 		return subset;
 	}
 	
-	StormData findSubset(int minFrame, int maxFrame){ //only returns StormLocalizations which come from frames between minFrame and maxFrame
+	public StormData findSubset(int minFrame, int maxFrame){ //only returns StormLocalizations which come from frames between minFrame and maxFrame
 		return findSubset(minFrame, maxFrame, false); 
 	}
 	
-	void sortX(){
+	public void sortX(){
 		isSortedByFrame = false;
 		Comparator<StormLocalization> compX = new StormLocalizationXComperator();
 		Collections.sort(this.locs,compX);

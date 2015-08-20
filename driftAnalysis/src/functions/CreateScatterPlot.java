@@ -1,4 +1,4 @@
-package StormLib;
+package functions;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -28,7 +28,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 public class CreateScatterPlot{
-	static void createScatterPlotSingle(ArrayList<Double> x, ArrayList<Double> y,String datalabel,String xlabel, String ylabel, String title, String fname){
+	public static void createScatterPlotSingle(ArrayList<Double> x, ArrayList<Double> y,String datalabel,String xlabel, String ylabel, String title, String fname){
 		if (x.size() != y.size()){
 			System.out.println("x and y list must be of same size!");
 			return;
@@ -62,7 +62,7 @@ public class CreateScatterPlot{
 		}
 		
 	}
-	static void createScatterPlot2(ArrayList<ArrayList<ArrayList<Double>>> data, ArrayList<String> datalabels, String xlabel, String ylabel, String title, String fname){
+	public static void createScatterPlot2(ArrayList<ArrayList<ArrayList<Double>>> data, ArrayList<String> datalabels, String xlabel, String ylabel, String title, String fname){
 		if (data.size() != datalabels.size()){
 			System.out.println("number of datasets and datalabels has to match!");
 			return;

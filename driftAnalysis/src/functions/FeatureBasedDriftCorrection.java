@@ -1,4 +1,4 @@
-package StormLib;
+package functions;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -15,6 +15,8 @@ import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
 import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 
+import dataStructure.StormData;
+import dataStructure.StormLocalization;
 import ij.ImagePlus;
 import ij.process.FHT;
 import ij.process.FloatProcessor;
@@ -42,6 +44,8 @@ import net.imglib2.converter.ComplexPhaseFloatConverter;
 import net.imglib2.converter.ComplexRealFloatConverter;
 import net.imglib2.exception.IncompatibleTypeException;
 import Jama.*;
+import StormLib.OutputClass;
+import StormLib.Utilities;
 import StormLib.HelperClasses.DriftCorrectionLog;
 
 public class FeatureBasedDriftCorrection {

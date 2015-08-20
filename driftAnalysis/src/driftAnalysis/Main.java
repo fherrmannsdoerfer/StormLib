@@ -1,17 +1,17 @@
 package driftAnalysis;
 
+import functions.BeadRegistration;
+import functions.Demixing;
+import functions.FeatureBasedDriftCorrection;
 import ij.ImagePlus;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import StormLib.BeadRegistration;
-import StormLib.Demixing;
-import StormLib.DemixingParameters;
-import StormLib.FeatureBasedDriftCorrection;
-import StormLib.StormData;
-import StormLib.StormLocalization;
+import dataStructure.DemixingParameters;
+import dataStructure.StormData;
+import dataStructure.StormLocalization;
 import StormLib.Utilities;
 import StormLib.HelperClasses.BasicProcessingInformation;
 
