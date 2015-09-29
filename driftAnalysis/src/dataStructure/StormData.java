@@ -47,11 +47,13 @@ public class StormData {
 	private String fname;
 	private String processingLog = "-";
 	private ArrayList<Object> logs = new ArrayList<Object>();
+	private String outputPath;
 	
 	public StormData(String path, String fname){
 		Path fullPath = (Paths.get(path, fname));
 		this.path = fullPath.getParent().toString()+"\\";
 		this.fname = fullPath.getFileName().toString();
+		this.outputPath = this.path;
 		importData(this.path+fname);
 	}
 	
@@ -1253,6 +1255,14 @@ public class StormData {
 		}
 		this.locs = croppedList2;
 		return croppedList2;
+	}
+
+	public String getOutputPath() {
+		return outputPath;
+	}
+
+	public void setOutputPath(String outputPath) {
+		this.outputPath = outputPath;
 	}
 }
 	

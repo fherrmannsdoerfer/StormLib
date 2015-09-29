@@ -70,7 +70,7 @@ public class OutputClass {
 			outputStream.println("Filename: "+picname);
 			outputStream.println("Used pixelsize: "+pixelsize);
 			outputStream.println("Dimensions: "+imgP.getHeight()+" x "+imgP.getWidth());
-			outputStream.println("Angle1: "+params.getAngle1()+ "Angle2: "+params.getAngle2()+" Width1: "
+			outputStream.println("Angle1: "+params.getAngle1()+ "Angle2: "+params.getAngle2()+" Width1: " //Angle 1 = maximum intensity color 1
 					+ params.getWidth1()+ "Width2: "+ params.getWidth2());
 			outputStream.close();
 		} catch (IOException e) {e.printStackTrace();}
