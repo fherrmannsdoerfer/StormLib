@@ -154,7 +154,7 @@ public class StormData {
 		catch (IOException e) {e.printStackTrace();}
 	}
 	
-	public void sortFrame(){
+	public synchronized void sortFrame(){
 		Comparator<StormLocalization> compFrame = new StormLocalizationFrameComperator();
 		Collections.sort(getLocs(),compFrame);
 		isSortedByFrame = true;
@@ -182,7 +182,7 @@ public class StormData {
 		this.locs.addAll(sd.getLocs());
 	}
 	
-	public int findFirstIndexForFrame(int frame){ //finds the index with the first appearance of a framenumber larger or equal the given frame
+	public synchronized int findFirstIndexForFrame(int frame){ //finds the index with the first appearance of a framenumber larger or equal the given frame
 		if (isSortedByFrame){
 		}
 		else {

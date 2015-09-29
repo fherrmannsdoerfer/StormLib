@@ -1,6 +1,8 @@
 package functions;
 
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.File;
@@ -49,6 +51,17 @@ import StormLib.Utilities;
 import StormLib.HelperClasses.DriftCorrectionLog;
 
 public class FeatureBasedDriftCorrection {
+	private static PropertyChangeSupport propertyChangeSupport =
+		       new PropertyChangeSupport(Utilities.class);
+	
+	public static void addPropertyChangeListener(PropertyChangeListener listener) {
+	       propertyChangeSupport.addPropertyChangeListener(listener);
+	   }
+
+	   public static synchronized void setProgress(String messageName, int val) {
+		  String message = Integer.toString(val);
+		  propertyChangeSupport.firePropertyChange(messageName, 0, val);
+	   }
 	public static StormData correctDrift(StormData sd ,int chunksize)
 	{
 		//int chunksize = 5000;  //number frames that are summed up to calculate drift between this frame and the next
@@ -270,6 +283,7 @@ public class FeatureBasedDriftCorrection {
 		for (int k = 0; k< numFrames - 1; k++){
 			for (int l = k+1; l< numFrames; l++){
 				for(int m = 0; m<3; m++){
+					setProgress("DriftCorrections", (int) 50+(50*k*numFrames+l)/numFrames/numFrames);
 				//for (int l = k+1; l< k+2; l++){
 					ArrayList<Double> displacements = findDisplacementBetweenFrames(movie.get(0).get(k).getProcessor(),
 							movie.get(0).get(l).getProcessor(), window);
@@ -337,6 +351,7 @@ public class FeatureBasedDriftCorrection {
 		int longestDimension = (int) Math.max(pixelX, pixelY);//it might be that different subsets have different
 		//widths or heights, especially if the longer dimension is the one projected on
 		while (i<endFrame){
+			setProgress("DriftCorrections", (int)(50.*i/endFrame));
 			//System.out.println(i+"\\"+endFrame);
 			
 			//ij.IJ.save(transformedImage2D,"c:\\tmp2\\movie"+counter+".tiff");

@@ -21,18 +21,18 @@ public class Main {
 
 	public static void main(String[] args) {
 		
-		String tag = "150818PhaloidinAlexa647MitochondriaCF680Messung2";
+		//String tag = "150818PhaloidinAlexa647MitochondriaCF680Messung2";
 		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
-		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
-		String tag2 = "pt2";
-		//String path1 = "D:\\Nup\\Int2000\\";
+		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
+		String tag2 = "LeftChannel141107MicrotubuliAlexa647Cos3dMessung2.txt";
+		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\150714ActingPhalloidin647MitochondrienCF680rPFACosMessung1\\Auswertung\\RapidStorm\\" ;
 		//String tag2 ="Nup133colony12-int2500.txt";
 		//twoColorRegistration(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
 		demixingMultipleInputFiles(path1,"LeftChannel",path1,"RightChannel");
 
 		//dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
 		//dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
-		//singleColor3dImage(path1,tag+tag2+".txt");
+		//singleColor3dImage(path1,tag2);
 	//singleColor3dImage(path1,tag);
 		//createVispOutput(path1,"LeftChannel"+tag+".txt");
 		//singleColor3dImage(path1,"LeftChannel"+tag+tag2+".txt");
@@ -225,6 +225,7 @@ public class Main {
 		//sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/3 ));8
 		//sd.connectPoints(100, 100, 150, 3);
 		sd.renderImage3D(10);
+		sd.cropCoords(0, 100000, 0, 100000, 75, 875, 8000, 18000);
 		
 		
 		//sd.writeArrayListForVisp("");
@@ -232,9 +233,9 @@ public class Main {
 		//sd.cropCoords(1000, 8000, 15500, 23000, 140, 450);
 		
 		sd.writeArrayListForVisp();
-		sd.cropCoords(0, 100000, 0, 100000, 200, 550, 0, 60000);
+		//sd.cropCoords(0, 100000, 0, 100000, 200, 550, 0, 60000);
 		sd.writeArrayListForVisp("cropped");
-		sd.renderImage3D(10,"cropped200-500NewColor");
+		sd.renderImage3D(10,"croppedzandframes");
 		//sd.createPdf();
 	}
 	
