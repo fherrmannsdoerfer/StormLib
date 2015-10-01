@@ -59,4 +59,12 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 	public String getPattern2(){
 		return pattern2.getText();
 	}
+	public String[] getSettings(){
+		String[] tempString = {path1.getText(), pattern1.getText()};
+		return tempString;
+	}
+	public void setSettings(String[] tempString){
+		path1.setText(tempString[0]);
+		pattern1.setText(tempString[1]);
+	}
 }

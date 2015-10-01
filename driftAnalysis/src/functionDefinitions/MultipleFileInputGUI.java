@@ -38,4 +38,12 @@ public class MultipleFileInputGUI extends ProcessingStepsPanel{
 	public String getPattern(){
 		return pattern.getText();
 	}
+	public String[] getSettings(){
+		String[] tempString = {path.getText(), pattern.getText()};
+		return tempString;
+	}
+	public void setSettings(String[] tempString){
+		path.setText(tempString[0]);
+		pattern.setText(tempString[1]);
+	}
 }

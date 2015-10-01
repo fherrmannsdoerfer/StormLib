@@ -2,8 +2,12 @@ package functionDefinitions;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.Box;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -11,11 +15,20 @@ import javax.swing.JTextField;
 import gui.MainFrame;
 import gui.ProcessingStepsPanel;
 
+import javax.swing.JButton;
+
 public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 	JTextField path1 = new JTextField();
 	JTextField file1 = new JTextField();
 	JTextField path2 = new JTextField();
 	JTextField file2 = new JTextField();
+	private final Box horizontalBox = Box.createHorizontalBox();
+	private final Box verticalBox_1 = Box.createVerticalBox();
+	private final JButton loadFile1Button = new JButton("Load File1");
+	private final JButton loadFile2Button = new JButton("Load File2");
+	final JFileChooser dualChannel1FileChooser = new JFileChooser();
+	final JFileChooser dualChannel2FileChooser = new JFileChooser();
+	
 	
 	public DualChannelSingleFileInputGUI(MainFrame mf) {
 		super(mf);
@@ -27,8 +40,11 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
 		retPanel.setSize(300, 500);
+		Dimension d = new Dimension(100,22);
+		
+		retPanel.add(horizontalBox);
 		Box verticalBox = Box.createVerticalBox();
-		Dimension d = new Dimension(350,22);
+		horizontalBox.add(verticalBox);
 		path1.setPreferredSize(d);
 		path2.setPreferredSize(d);
 		file1.setPreferredSize(d);
@@ -42,7 +58,35 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 		verticalBox.add(path2);
 		verticalBox.add(new JLabel("File 2:"));
 		verticalBox.add(file2);
-		retPanel.add(verticalBox);
+		
+		horizontalBox.add(verticalBox_1);		
+		verticalBox_1.add(loadFile1Button);
+		verticalBox_1.add(loadFile2Button);
+		
+		loadFile1Button.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e){
+				int returnVal = dualChannel1FileChooser.showOpenDialog(null);
+				if (returnVal == JFileChooser.APPROVE_OPTION){
+					File file = dualChannel1FileChooser.getSelectedFile();
+					path1.setText(file.getParent()+"\\");
+					file1.setText(file.getName());
+				}
+			}
+		});
+		
+		loadFile2Button.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e){
+				int returnVal = dualChannel2FileChooser.showOpenDialog(null);
+				if (returnVal == JFileChooser.APPROVE_OPTION){
+					File file = dualChannel2FileChooser.getSelectedFile();
+					path2.setText(file.getParent()+"\\");
+					file2.setText(file.getName());
+				}
+			}
+		});
+		
 		return retPanel;
 	}
 	
@@ -57,5 +101,13 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 	}
 	public String getFile2(){
 		return file2.getText();
+	}
+	public String[] getSettings(){
+		String[] tempString = {path1.getText(), file1.getText()};
+		return tempString;
+	}
+	public void setSettings(String[] tempString){
+		path1.setText(tempString[0]);
+		file1.setText(tempString[1]);
 	}
 }

@@ -37,6 +37,13 @@ public class DriftcorrectionGUI extends ProcessingStepsPanel{
 		catch(Exception e){
 			return Integer.valueOf("3000");
 		}
-		
+	
+	}
+	public String[] getSettings(){
+		String[] tempString = {chunksize.getText()};
+		return tempString;
+	}
+	public void setSettings(String[] tempString){
+		chunksize.setText(tempString[0]);
 	}
 }

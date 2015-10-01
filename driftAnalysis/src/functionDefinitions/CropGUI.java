@@ -31,17 +31,25 @@ public class CropGUI extends ProcessingStepsPanel{
 		retPanel.setSize(300, 500);
 		Box verticalBox = Box.createVerticalBox();
 		verticalBox.add(new JLabel("Path:"));
-		verticalBox.add(path);
+//		verticalBox.add(path);
 		verticalBox.add(new JLabel("Pattern:"));
-		verticalBox.add(pattern);
+//		verticalBox.add(pattern);
 		retPanel.add(verticalBox);
 		return retPanel;
 	}
 	
-	public String getPath(){
-		return path.getText();
+//	public String getPath(){
+//		return path.getText();
+//	}
+//	public String getPattern(){
+//		return pattern.getText();
+//	}
+	public String[] getSettings(){
+		String[] tempString = {minX.getText(), maxX.getText()};
+		return tempString;
 	}
-	public String getPattern(){
-		return pattern.getText();
+	public void setSettings(String[] tempString){
+		minX.setText(tempString[0]);
+		maxX.setText(tempString[1]);
 	}
 }

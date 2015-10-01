@@ -2,6 +2,7 @@ package gui;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import StormLib.Utilities;
@@ -18,7 +19,7 @@ import functionDefinitions.SingleFileInputGUI;
 import functions.Demixing;
 import functions.FeatureBasedDriftCorrection;
 
-public class Controler implements PropertyChangeListener{
+public class Controler implements PropertyChangeListener, Serializable{
 	MainFrame mf;
 	static StormData ch1;
 	static StormData ch2;

@@ -76,4 +76,12 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 		}
 		
 	}
+	public String[] getSettings(){
+		String[] tempString = {distx.getText(), disty.getText()};
+		return tempString;
+	}
+	public void setSettings(String[] tempString){
+		distx.setText(tempString[0]);
+		disty.setText(tempString[1]);
+	}
 }

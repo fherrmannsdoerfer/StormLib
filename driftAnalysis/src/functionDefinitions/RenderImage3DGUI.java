@@ -38,5 +38,12 @@ public class RenderImage3DGUI extends ProcessingStepsPanel{
 	public String getTag(){
 		return tag.getText();
 	}
-
+	public String[] getSettings(){
+		String[] tempString = {pixelsize.getText(), tag.getText()};
+		return tempString;
+	}
+	public void setSettings(String[] tempString){
+		pixelsize.setText(tempString[0]);
+		tag.setText(tempString[1]);
+	}
 }

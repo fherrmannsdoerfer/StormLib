@@ -9,6 +9,8 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -16,13 +18,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-public class ProcessingStepsPanel extends JPanel implements Transferable{
+public abstract class ProcessingStepsPanel extends JPanel implements Transferable, Serializable{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private int id = 0;
 	public JButton parameterButton;
+	public JButton removeButton;
 	private MainFrame mf;
 	private ProcessingStepsPanel thisPanel;
 	private Color color;
@@ -31,52 +34,55 @@ public class ProcessingStepsPanel extends JPanel implements Transferable{
 	private JProgressBar progressbar;
 	
 	public ProcessingStepsPanel(final MainFrame mf){
-		thisPanel = this;
-		Box horizontalBox = Box.createHorizontalBox();
-		Box verticalBox = Box.createVerticalBox();
-		final Dimension d = new Dimension(300,50);
-		verticalBox.setPreferredSize(d);
-		verticalBox.add(horizontalBox);
-		this.add(verticalBox);
-		this.mf = mf;
-		this.addMouseListener(new MyDraggableMouseListener());
-		this.setTransferHandler(new DragAndDropTransferHandler());
-		this.setBackground(Color.cyan);
-		this.setMaximumSize(d);
-		this.setPreferredSize(d);
-
-		parameterButton = new JButton();
-		parameterButton.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e){
-				mf.hideAllOptionPanels();
-				setVisibilityOptionPanel(true);
-				mf.repaint();
-			}
-		});
-				
-		JButton removeButton = new JButton("X");
-		removeButton.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mf.optionPanel.remove(optionPanel);
-				mf.removePanel(thisPanel);
-				mf.repaint();
-			}
-		});
-		horizontalBox.add(parameterButton);
-		Component vg = Box.createHorizontalGlue();
-		horizontalBox.add(vg);
-		horizontalBox.add(removeButton);
-		
-		Component verticalGlue = Box.createVerticalGlue();
-		verticalBox.add(verticalGlue);
-		
-		progressbar = new JProgressBar(0,100);
-		progressbar.setValue(0);
-		progressbar.setPreferredSize(new Dimension(d.width,20));
-		verticalBox.add(progressbar);
+		initialize(mf);
+		setActionListener();
+//		thisPanel = this;
+//		Box horizontalBox = Box.createHorizontalBox();
+//		Box verticalBox = Box.createVerticalBox();
+//		final Dimension d = new Dimension(300,50);
+//		verticalBox.setPreferredSize(d);
+//		verticalBox.add(horizontalBox);
+//		this.add(verticalBox);
+//		this.mf = mf;
+//		this.addMouseListener(new MyDraggableMouseListener());
+//		this.setTransferHandler(new DragAndDropTransferHandler());
+//		this.setBackground(Color.cyan);
+//		this.setMaximumSize(d);
+//		this.setPreferredSize(d);
+//
+//		parameterButton = new JButton();
+//		parameterButton.addActionListener(new ActionListener(){
+//			@Override
+//			public void actionPerformed(ActionEvent e){
+//				mf.hideAllOptionPanels();
+//				setVisibilityOptionPanel(true);
+//				mf.repaint();
+//			}
+//		});
+//				
+//		JButton removeButton = new JButton("X");
+//		removeButton.addActionListener(new ActionListener(){
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				mf.optionPanel.remove(optionPanel);
+//				mf.removePanel(thisPanel);
+//				mf.repaint();
+//			}
+//		});
+//		horizontalBox.add(parameterButton);
+//		Component vg = Box.createHorizontalGlue();
+//		horizontalBox.add(vg);
+//		horizontalBox.add(removeButton);
+//		
+//		Component verticalGlue = Box.createVerticalGlue();
+//		verticalBox.add(verticalGlue);
+//		
+//		progressbar = new JProgressBar(0,100);
+//		progressbar.setValue(0);
+//		progressbar.setPreferredSize(new Dimension(d.width,20));
+//		verticalBox.add(progressbar);
 	}
+	
 	
 	public void setParameterButtonsName(String name){
 		parameterButton.setText(name);
@@ -163,6 +169,82 @@ public class ProcessingStepsPanel extends JPanel implements Transferable{
 	
 	public void setProgressbarValue(int val){
 		progressbar.setValue(val);
+	}
+	
+	public void setActionListener(){
+		thisPanel = this;
+		parameterButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e){
+				System.out.println("232");
+				mf.hideAllOptionPanels();
+				setVisibilityOptionPanel(true);
+				mf.repaint();
+			}
+		});
+		removeButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("66");
+				mf.optionPanel.remove(optionPanel);
+				mf.removePanel(thisPanel);
+				mf.repaint();
+				mf.revalidate();
+			}
+		});
+	}
+	
+	abstract public String[] getSettings();
+	abstract public void setSettings(String[] tempString);
+	public void initialize(final MainFrame mf){
+		thisPanel = this;
+		Box horizontalBox = Box.createHorizontalBox();
+		Box verticalBox = Box.createVerticalBox();
+		final Dimension d = new Dimension(300,50);
+		verticalBox.setPreferredSize(d);
+		verticalBox.add(horizontalBox);
+		this.add(verticalBox);
+		this.mf = mf;
+		this.addMouseListener(new MyDraggableMouseListener());
+		this.setTransferHandler(new DragAndDropTransferHandler());
+		this.setBackground(Color.cyan);
+		this.setMaximumSize(d);
+		this.setPreferredSize(d);
+
+		parameterButton = new JButton();
+//		parameterButton.addActionListener(new ActionListener(){
+//			@Override
+//			public void actionPerformed(ActionEvent e){
+//				System.out.println("232");
+//				mf.hideAllOptionPanels();
+//				setVisibilityOptionPanel(true);
+//				mf.repaint();
+//			}
+//		});
+				
+		removeButton = new JButton("X");
+//		removeButton.addActionListener(new ActionListener(){
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				System.out.println("66");
+//				mf.optionPanel.remove(optionPanel);
+//				mf.removePanel(thisPanel);
+//				mf.repaint();
+//			}
+//		});
+		horizontalBox.add(parameterButton);
+		Component vg = Box.createHorizontalGlue();
+		horizontalBox.add(vg);
+		horizontalBox.add(removeButton);
+		
+		Component verticalGlue = Box.createVerticalGlue();
+		verticalBox.add(verticalGlue);
+		
+		progressbar = new JProgressBar(0,100);
+		progressbar.setValue(0);
+		progressbar.setPreferredSize(new Dimension(d.width,20));
+		verticalBox.add(progressbar);
+	
 	}
 
 }

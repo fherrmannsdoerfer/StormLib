@@ -22,5 +22,10 @@ public class DemixingGUI extends ProcessingStepsPanel{
 		retPanel.setSize(300, 500);
 		return retPanel;
 	}
-
+	public String[] getSettings(){
+		String[] tempString = null;
+		return tempString;
+	}
+	public void setSettings(String[] tempString){
+	}
 }
