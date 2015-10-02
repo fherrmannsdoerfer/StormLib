@@ -45,11 +45,24 @@ public class CropGUI extends ProcessingStepsPanel{
 //		return pattern.getText();
 //	}
 	public String[] getSettings(){
-		String[] tempString = {minX.getText(), maxX.getText()};
+		String[] tempString = {minX.getText(), maxX.getText(), minY.getText(), maxY.getText(), minZ.getText(), maxZ.getText(), minFrame.getText(), maxFrame.getText()};
 		return tempString;
 	}
 	public void setSettings(String[] tempString){
 		minX.setText(tempString[0]);
 		maxX.setText(tempString[1]);
+		minY.setText(tempString[2]);
+		maxY.setText(tempString[3]);
+		minZ.setText(tempString[4]);
+		maxZ.setText(tempString[5]);
+		minFrame.setText(tempString[6]);
+		maxFrame.setText(tempString[7]);
+	}
+	public CropGUI getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
+		if (processingStepsPanelObject instanceof CropGUI){
+			CropGUI returnObject = new CropGUI(mf);
+			return returnObject;
+		}
+		return null;
 	}
 }

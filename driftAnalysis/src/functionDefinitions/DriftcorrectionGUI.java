@@ -46,4 +46,11 @@ public class DriftcorrectionGUI extends ProcessingStepsPanel{
 	public void setSettings(String[] tempString){
 		chunksize.setText(tempString[0]);
 	}
+	public DriftcorrectionGUI getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
+		if (processingStepsPanelObject instanceof DriftcorrectionGUI){
+			DriftcorrectionGUI returnObject = new DriftcorrectionGUI(mf);
+			return returnObject;
+		}
+		return null;
+	}
 }

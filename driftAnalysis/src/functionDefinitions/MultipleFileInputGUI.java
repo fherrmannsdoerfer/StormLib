@@ -46,4 +46,11 @@ public class MultipleFileInputGUI extends ProcessingStepsPanel{
 		path.setText(tempString[0]);
 		pattern.setText(tempString[1]);
 	}
+	public MultipleFileInputGUI getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
+		if (processingStepsPanelObject instanceof MultipleFileInputGUI){
+			MultipleFileInputGUI returnObject = new MultipleFileInputGUI(mf);
+			return returnObject;
+		}
+		return null;
+	}
 }

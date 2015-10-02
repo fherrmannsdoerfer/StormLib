@@ -46,4 +46,11 @@ public class RenderImage3DGUI extends ProcessingStepsPanel{
 		pixelsize.setText(tempString[0]);
 		tag.setText(tempString[1]);
 	}
+	public RenderImage3DGUI getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
+		if (processingStepsPanelObject instanceof RenderImage3DGUI){
+			RenderImage3DGUI returnObject = new RenderImage3DGUI(mf);
+			return returnObject;
+		}
+		return null;
+	}
 }

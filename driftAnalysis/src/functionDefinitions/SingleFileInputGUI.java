@@ -28,10 +28,12 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 		String[] settings = new String[2];
 		settings[0] = "C:\\Uni\\STORM-Test-Data\\";
 		settings[1] = "Daten.txt";
+		path.setText(settings[0]);
+		foldername.setText(settings[1]);
 		setSettings(settings);
-//		this.setParameterButtonsName("Single File Input");
-//		this.setColor(Color.WHITE);
-//		this.setOptionPanel(createOptionPanel());
+		this.setParameterButtonsName("Single File Input");
+		this.setColor(Color.WHITE);
+		this.setOptionPanel(createOptionPanel());
 	}
 	
 	private JPanel createOptionPanel(){
@@ -72,10 +74,14 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 		return tempString;
 	}
 	public void setSettings(String[] tempString){
-		this.setParameterButtonsName("Single File Input");
-		this.setColor(Color.WHITE);
-		this.setOptionPanel(createOptionPanel());
 		path.setText(tempString[0]);
 		foldername.setText(tempString[1]);
+	}
+	public ProcessingStepsPanel getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
+		if (processingStepsPanelObject instanceof SingleFileInputGUI){
+			SingleFileInputGUI returnObject = new SingleFileInputGUI(mf);
+			return returnObject;
+		}
+		return null;
 	}
 }

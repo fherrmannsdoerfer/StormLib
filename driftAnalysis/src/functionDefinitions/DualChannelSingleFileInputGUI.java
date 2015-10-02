@@ -48,7 +48,7 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 		path1.setPreferredSize(d);
 		path2.setPreferredSize(d);
 		file1.setPreferredSize(d);
-		file1.setPreferredSize(d);
+		file2.setPreferredSize(d);
 		
 		verticalBox.add(new JLabel("Path 1:"));
 		verticalBox.add(path1);
@@ -103,11 +103,20 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 		return file2.getText();
 	}
 	public String[] getSettings(){
-		String[] tempString = {path1.getText(), file1.getText()};
+		String[] tempString = {path1.getText(), file1.getText(), path2.getText(), file2.getText()};
 		return tempString;
 	}
 	public void setSettings(String[] tempString){
 		path1.setText(tempString[0]);
 		file1.setText(tempString[1]);
+		path2.setText(tempString[2]);
+		file2.setText(tempString[3]);
+	}
+	public DualChannelSingleFileInputGUI getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
+		if (processingStepsPanelObject instanceof DualChannelSingleFileInputGUI){
+			DualChannelSingleFileInputGUI returnObject = new DualChannelSingleFileInputGUI(mf);
+			return returnObject;
+		}
+		return null;
 	}
 }

@@ -42,8 +42,8 @@ import javax.swing.JComboBox;
 import javax.swing.border.TitledBorder;
 
 public class MainFrame extends JFrame implements Serializable{
-//	private final ArrayList<ProcessingStepsPanel> listProcessingStepPanels = new ArrayList<ProcessingStepsPanel>();
-	private ArrayList<ProcessingStepsPanel> listProcessingStepPanels = new ArrayList<ProcessingStepsPanel>();
+	private final ArrayList<ProcessingStepsPanel> listProcessingStepPanels = new ArrayList<ProcessingStepsPanel>();
+//	private ArrayList<ProcessingStepsPanel> listProcessingStepPanels = new ArrayList<ProcessingStepsPanel>();
 	Controler controlerReference;
 	JPanel panel;
 	JPanel optionPanel;
@@ -54,7 +54,6 @@ public class MainFrame extends JFrame implements Serializable{
 	private JComboBox outputComboBox;
 	private JComboBox processingComboBox;
 	transient ActionListener outputActionListener;
-	final JFileChooser settingsFileChooser = new JFileChooser();
 	String[] optionsPreselectedTasksComboBox = {"Single Channel Input", "Demixing"};
 	String[] optionsInputComboBox = {"Single File Input", "Multiple File Input", "Dual Channel Single File Input", "Dual Channel Multiple File Input"};
 	String[] optionsProcessingComboBox = {"Drift Correction", "Merging", "Demixing", "Cropping", "Multi Channel Alignment"};
@@ -127,9 +126,32 @@ public class MainFrame extends JFrame implements Serializable{
 		Component verticalGlue = Box.createVerticalGlue();
 		verticalBox_1.add(verticalGlue);
 		
+		Box horizontalBox_1 = Box.createHorizontalBox();
+		verticalBox_1.add(horizontalBox_1);
+		
+		Box verticalBox_3 = Box.createVerticalBox();
+		horizontalBox_1.add(verticalBox_3);
+		
+		JButton loadSettingsButton = new JButton("Load Settings");
+		verticalBox_3.add(loadSettingsButton);
+		
+		
+		JButton saveSettingsButton = new JButton("Save Settings");
+		verticalBox_3.add(saveSettingsButton);
+		
 		JButton runButton = new JButton("Start Processing");
+		verticalBox_3.add(runButton);
+		
+		Box verticalBox_4 = Box.createVerticalBox();
+		horizontalBox_1.add(verticalBox_4);
+		
+		JButton loadDefaultSettingsButton = new JButton("Load Default Settings");
+		verticalBox_4.add(loadDefaultSettingsButton);
+		
+		JButton saveDefaultSettingsButton = new JButton("Save Default Settings");
+		verticalBox_4.add(saveDefaultSettingsButton);
+		
 		runButton.addActionListener(new ActionListener(){
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Thread t = new Thread(){
@@ -141,32 +163,83 @@ public class MainFrame extends JFrame implements Serializable{
 					}
 				};
 				t.start();
-			}
-			
+			}			
 		});
 		
-		JButton loadSettingsButton = new JButton("Load Settings");
-		verticalBox_1.add(loadSettingsButton);
-		loadSettingsButton.addActionListener(new ActionListener(){
-
+		final JFileChooser settingsFileChooserLoad = new JFileChooser();
+		final JFileChooser settingsFileChooserSave = new JFileChooser();
+		
+		saveDefaultSettingsButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
-				ArrayList<ProcessingStepsPanel> tempOrderList = new ArrayList<ProcessingStepsPanel>();
-				String settingsPath = "settings.ser";
-//				int returnVal = settingsFileChooser.showOpenDialog(null);
-//
-//				if (returnVal == JFileChooser.APPROVE_OPTION){
-//					File file = settingsFileChooser.getSelectedFile();
-//					settingsPath = file.getAbsolutePath();
-//				}
 				try {
-					FileInputStream fileIn = new FileInputStream(settingsPath);
-					ObjectInputStream in = new ObjectInputStream(fileIn);
-					tempOrderList = (ArrayList<ProcessingStepsPanel>) in.readObject();
-					in.close();
-					fileIn.close();
-					System.out.println("loaded");					
+					FileOutputStream fileOutDefault = new FileOutputStream("settings.default");
+					ObjectOutputStream outDefault = new ObjectOutputStream(fileOutDefault);
+					outDefault.writeObject(listProcessingStepPanels);
+					outDefault.close();
+					fileOutDefault.close();
+					System.out.println("saved default");					
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		
+		saveSettingsButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("before saved");
+				int saveVal = settingsFileChooserSave.showSaveDialog(null);
+				System.out.println("saveSettingsButton");
+				if (saveVal == JFileChooser.APPROVE_OPTION){
+					File file = settingsFileChooserSave.getSelectedFile();
+					String settingsPath = file.getAbsolutePath();
+					try {
+//						if (!settingsPath.endsWith(".ser")){return;}
+						FileOutputStream fileOut = new FileOutputStream(settingsPath);
+						ObjectOutputStream out = new ObjectOutputStream(fileOut);
+						out.writeObject(listProcessingStepPanels);
+						out.close();
+						fileOut.close();
+						System.out.println("saved");					
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}				
+			}
+		});
+		
+		loadDefaultSettingsButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {				
+				ArrayList<ProcessingStepsPanel> tempOrderList = new ArrayList<ProcessingStepsPanel>();
+				String settingsPath = "settings.default";
+				try {
+					FileInputStream fileInDefault = new FileInputStream(settingsPath);
+					ObjectInputStream inDefault = new ObjectInputStream(fileInDefault);
+					tempOrderList = (ArrayList<ProcessingStepsPanel>) inDefault.readObject();
+					inDefault.close();
+					fileInDefault.close();
+					System.out.println("loaded default");
+					listProcessingStepPanels.clear();
+					panel.removeAll();
+					optionPanel.removeAll();				
+					for (int i = 0; i < tempOrderList.size(); i++){						
+						ProcessingStepsPanel tempObject = tempOrderList.get(i);
+						listProcessingStepPanels.add(tempObject.getProcessingStepsPanelObject(tempObject, mf));
+						listProcessingStepPanels.get(i).setSettings(tempOrderList.get(i).getSettings());
+					}				
+					updatePanels();
+					revalidate();
+					repaint();					
 				} catch (FileNotFoundException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -177,95 +250,51 @@ public class MainFrame extends JFrame implements Serializable{
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
-				listProcessingStepPanels.clear();
-				panel.removeAll();
-				optionPanel.removeAll();
-				listProcessingStepPanels = tempOrderList;
-//				updatePanels();
-//				revalidate();
-//				repaint();
-//				for (int i = 0; i < tempOrderList.size(); i++){
-//					Class<? extends ProcessingStepsPanel> c = tempOrderList.get(i).getClass();
-//
-//					((c) listProcessingStepPanels.get(i)).setRenderImage2DGUI(
-//							String.valueOf(((RenderImage2DGUI) tempOrderList.get(i)).getPixelsize()),
-//							((RenderImage2DGUI) tempOrderList.get(i)).getTag());
-//				}
-				
-				for (int i = 0; i < tempOrderList.size(); i++){					
-//					listProcessingStepPanels.get(i).initialize(mf);
-					listProcessingStepPanels.get(i).setActionListener();
-					listProcessingStepPanels.get(i).setSettings(tempOrderList.get(i).getSettings());
-//					listProcessingStepPanels.add(new RenderImage2DGUI(mf));
-//					listProcessingStepPanels.get(i)
-				}
-				
-//				for (int i = 0; i < tempOrderList.size(); i++){
-//					if (tempOrderList.get(i).getClass() == RenderImage2DGUI.class){
-////						listProcessingStepPanels.add(tempOrderList.get(i));
-////						listProcessingStepPanels.add(tempOrderList.get(i).copyTo());
-////						((RenderImage2DGUI) listProcessingStepPanels).get(i).setRenderImage2DGUI(
-////								String.valueOf(tempOrderList.get(i).getPixelsize()),
-////								((RenderImage2DGUI) tempOrderList.get(i)).getTag());	
-//					}
-//					if (tempOrderList.get(i).getClass() == RenderImage3DGUI.class){
-//						listProcessingStepPanels.add(new RenderImage3DGUI(mf));
-//						
-//					}
-//					if (tempOrderList.get(i).getClass() == SingleFileInputGUI.class){
-//						listProcessingStepPanels.add(new SingleFileInputGUI(mf));
-//						
-//					}
-//					if (tempOrderList.get(i).getClass() == MultipleFileInputGUI.class){
-//						listProcessingStepPanels.add(new MultipleFileInputGUI(mf));
-//						
-//					}
-//					if (tempOrderList.get(i).getClass() == DemixingGUI.class){
-//						listProcessingStepPanels.add(new DemixingGUI(mf));
-//						
-//					}
-//					if (tempOrderList.get(i).getClass() == DriftcorrectionGUI.class){
-//						listProcessingStepPanels.add(new DriftcorrectionGUI(mf));
-//						
-//					}
-//					if (tempOrderList.get(i).getClass() == MergePointsGUI.class){
-//						listProcessingStepPanels.add(new MergePointsGUI(mf));
-//						
-//					}
-//					
-//				}
-				updatePanels();
-				revalidate();
-				repaint();
 			}			
 		});
 		
-		
-		JButton saveSettingsButton = new JButton("Save Settings");
-		saveSettingsButton.addActionListener(new ActionListener(){
-
+		loadSettingsButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					FileOutputStream fileOut = new FileOutputStream("settings.ser");
-					ObjectOutputStream out = new ObjectOutputStream(fileOut);
-					out.writeObject(listProcessingStepPanels);
-					out.close();
-					fileOut.close();
-					System.out.println("saved");					
-				} catch (FileNotFoundException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				System.out.println("before loaded");
+				int returnVal = settingsFileChooserLoad.showOpenDialog(null);
+				System.out.println("loadSettingsButton");
+				if (returnVal == JFileChooser.APPROVE_OPTION){
+					ArrayList<ProcessingStepsPanel> tempOrderList = new ArrayList<ProcessingStepsPanel>();
+					String settingsPath = null;
+					File file = settingsFileChooserLoad.getSelectedFile();
+					settingsPath = file.getAbsolutePath();
+					try {
+						FileInputStream fileIn = new FileInputStream(settingsPath);
+						ObjectInputStream in = new ObjectInputStream(fileIn);
+						tempOrderList = (ArrayList<ProcessingStepsPanel>) in.readObject();
+						in.close();
+						fileIn.close();
+						System.out.println("loaded");	
+						listProcessingStepPanels.clear();
+						panel.removeAll();
+						optionPanel.removeAll();				
+						for (int i = 0; i < tempOrderList.size(); i++){						
+							ProcessingStepsPanel tempObject = tempOrderList.get(i);
+							listProcessingStepPanels.add(tempObject.getProcessingStepsPanelObject(tempObject, mf));
+							listProcessingStepPanels.get(i).setSettings(tempOrderList.get(i).getSettings());
+						}
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (ClassNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					updatePanels();
+					revalidate();
+					repaint();
 				}
 			}
 		});
-		
-		verticalBox_1.add(saveSettingsButton);
-		verticalBox_1.add(runButton);
 		
 		
 		horizontalBox.add(panel);

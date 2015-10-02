@@ -77,11 +77,20 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 		
 	}
 	public String[] getSettings(){
-		String[] tempString = {distx.getText(), disty.getText()};
+		String[] tempString = {distx.getText(), disty.getText(), distz.getText(), distframe.getText()};
 		return tempString;
 	}
 	public void setSettings(String[] tempString){
 		distx.setText(tempString[0]);
 		disty.setText(tempString[1]);
+		distz.setText(tempString[2]);
+		distframe.setText(tempString[3]);
+	}
+	public MergePointsGUI getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
+		if (processingStepsPanelObject instanceof MergePointsGUI){
+			MergePointsGUI returnObject = new MergePointsGUI(mf);
+			return returnObject;
+		}
+		return null;
 	}
 }

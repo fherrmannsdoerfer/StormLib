@@ -28,4 +28,11 @@ public class DemixingGUI extends ProcessingStepsPanel{
 	}
 	public void setSettings(String[] tempString){
 	}
+	public DemixingGUI getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
+		if (processingStepsPanelObject instanceof DemixingGUI){
+			DemixingGUI returnObject = new DemixingGUI(mf);
+			return returnObject;
+		}
+		return null;
+	}
 }
