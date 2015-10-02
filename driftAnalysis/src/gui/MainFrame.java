@@ -43,7 +43,6 @@ import javax.swing.border.TitledBorder;
 
 public class MainFrame extends JFrame implements Serializable{
 	private final ArrayList<ProcessingStepsPanel> listProcessingStepPanels = new ArrayList<ProcessingStepsPanel>();
-//	private ArrayList<ProcessingStepsPanel> listProcessingStepPanels = new ArrayList<ProcessingStepsPanel>();
 	Controler controlerReference;
 	JPanel panel;
 	JPanel optionPanel;
@@ -58,6 +57,7 @@ public class MainFrame extends JFrame implements Serializable{
 	String[] optionsInputComboBox = {"Single File Input", "Multiple File Input", "Dual Channel Single File Input", "Dual Channel Multiple File Input"};
 	String[] optionsProcessingComboBox = {"Drift Correction", "Merging", "Demixing", "Cropping", "Multi Channel Alignment"};
 	String[] optionsOutputComboBox = {"Render 2D Image", "Render 3D Image", "Processing Log File", "Visp File", "Localization File "};
+	File folder = new File("C:\\Users\\bwpc\\git\\StormLib\\driftAnalysis\\preSetSettings");
 	
 	
 	public MainFrame(final Controler controler) {
@@ -81,9 +81,26 @@ public class MainFrame extends JFrame implements Serializable{
 		JLabel lblNewLabel_3 = new JLabel("Preselected tasks");
 		verticalBox_1.add(lblNewLabel_3);
 		
-		preselectionComboBox = new JComboBox(optionsPreselectedTasksComboBox);
+
+		File[] listOfFiles = folder.listFiles();
+		String[] optionsPreselectedTasksComboBoxAuto = new String[listOfFiles.length];
+		
+		    for (int i = 0; i < listOfFiles.length; i++) {
+		      if (listOfFiles[i].isFile()) {
+		        optionsPreselectedTasksComboBoxAuto[i] = (listOfFiles[i].getName());
+		      } 
+		    }
+		
+		preselectionComboBox = new JComboBox(optionsPreselectedTasksComboBoxAuto);
+		preselectionComboBox.addActionListener(outputActionListener);
 		preselectionComboBox.setMaximumSize(new Dimension(32767, 22));
 		verticalBox_1.add(preselectionComboBox);
+		
+		
+		
+		
+		
+		
 		
 		Component verticalStrut_2 = Box.createVerticalStrut(20);
 		verticalBox_1.add(verticalStrut_2);
@@ -396,7 +413,52 @@ public class MainFrame extends JFrame implements Serializable{
 					panelToAdd = new DemixingGUI(mf);
 					break;
 			}
+		}		
+		
+		if (thisBox == preselectionComboBox){
+			File[] listOfFiles = folder.listFiles();
+			String[] preselectionComboBoxSelection = new String[listOfFiles.length];
+			
+			    for (int i = 0; i < listOfFiles.length; i++) {
+			      if (listOfFiles[i].isFile()) {
+			    	  preselectionComboBoxSelection[i] = (listOfFiles[i].getName());
+			      } 
+			    }			
+			ArrayList<ProcessingStepsPanel> tempOrderListSettings = new ArrayList<ProcessingStepsPanel>();
+			String settingsPath = folder + "\\"+ preselectionComboBoxSelection[thisBox.getSelectedIndex()];
+//			System.out.println(settingsPath);
+			try {
+				FileInputStream fileInDefault = new FileInputStream(settingsPath);
+				ObjectInputStream inPreselection = new ObjectInputStream(fileInDefault);
+				tempOrderListSettings = (ArrayList<ProcessingStepsPanel>) inPreselection.readObject();
+				inPreselection.close();
+				fileInDefault.close();
+				System.out.println("loaded default");
+				listProcessingStepPanels.clear();
+				panel.removeAll();
+				optionPanel.removeAll();				
+				for (int i = 0; i < tempOrderListSettings.size(); i++){						
+					ProcessingStepsPanel tempObject = tempOrderListSettings.get(i);
+					listProcessingStepPanels.add(tempObject.getProcessingStepsPanelObject(tempObject, mf));
+					listProcessingStepPanels.get(i).setSettings(tempOrderListSettings.get(i).getSettings());
+				}				
+				updatePanels();
+				revalidate();
+				repaint();					
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
+		
+		
+		
 		if (panelToAdd !=null){
 			listProcessingStepPanels.add(panelToAdd);
 		}
