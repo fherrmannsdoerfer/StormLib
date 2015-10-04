@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import StormLib.Utilities;
 import dataStructure.StormData;
+import functionDefinitions.CropGUI;
 import functionDefinitions.DemixingGUI;
 import functionDefinitions.DriftcorrectionGUI;
 import functionDefinitions.DualChannelSingleFileInputGUI;
@@ -110,6 +111,12 @@ public class Controler implements PropertyChangeListener{
 				}
 				ch1 = unmixedFromParts;
 				functions.get(i).setProgressbarValue(100);
+			}
+			
+			if (functions.get(i).getClass() == CropGUI.class){
+				CropGUI cg = (CropGUI) functions.get(i);
+				ch1.cropCoords(cg.getMinX(), cg.getMaxX(), cg.getMinY(), cg.getMaxY(), cg.getMinZ(), cg.getMaxZ(),cg.getFrameMax(), cg.getFrameMax());
+				cg.setProgressbarValue(100);
 			}
 			
 			if (functions.get(i).getClass() == RenderImage2DGUI.class){

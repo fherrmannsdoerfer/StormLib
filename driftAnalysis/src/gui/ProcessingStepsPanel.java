@@ -65,8 +65,8 @@ public class ProcessingStepsPanel extends JPanel implements Transferable{
 			}
 		});
 		horizontalBox.add(parameterButton);
-		Component vg = Box.createHorizontalGlue();
-		horizontalBox.add(vg);
+		Component hg = Box.createHorizontalGlue();
+		horizontalBox.add(hg);
 		horizontalBox.add(removeButton);
 		
 		Component verticalGlue = Box.createVerticalGlue();

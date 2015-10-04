@@ -18,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import functionDefinitions.CropGUI;
 import functionDefinitions.DemixingGUI;
 import functionDefinitions.DriftcorrectionGUI;
 import functionDefinitions.DualChannelSingleFileInputGUI;
@@ -66,8 +67,14 @@ public class MainFrame extends JFrame{
 		Box verticalBox_1 = Box.createVerticalBox();
 		horizontalBox.add(verticalBox_1);
 		
+		Box horizontalBox_5 = Box.createHorizontalBox();
+		verticalBox_1.add(horizontalBox_5);
+		
 		JLabel lblNewLabel_3 = new JLabel("Preselected tasks");
-		verticalBox_1.add(lblNewLabel_3);
+		horizontalBox_5.add(lblNewLabel_3);
+		
+		Component horizontalGlue_4 = Box.createHorizontalGlue();
+		horizontalBox_5.add(horizontalGlue_4);
 		
 		preselectionComboBox = new JComboBox(optionsPreselectedTasksComboBox);
 		preselectionComboBox.setMaximumSize(new Dimension(32767, 22));
@@ -80,20 +87,32 @@ public class MainFrame extends JFrame{
 		verticalBox_2.setBorder(new TitledBorder(null, "Modules", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		verticalBox_1.add(verticalBox_2);
 		
-		JLabel lblNewLabel_2 = new JLabel("Input");
-		lblNewLabel_2.setAlignmentY(Component.TOP_ALIGNMENT);
-		verticalBox_2.add(lblNewLabel_2);
-		
 		inputComboBox = new JComboBox(optionsInputComboBox);
 		inputComboBox.addActionListener(outputActionListener);
+		
+		Box horizontalBox_3 = Box.createHorizontalBox();
+		verticalBox_2.add(horizontalBox_3);
+		
+		JLabel lblNewLabel_2 = new JLabel("Input");
+		horizontalBox_3.add(lblNewLabel_2);
+		lblNewLabel_2.setAlignmentY(Component.TOP_ALIGNMENT);
+		
+		Component horizontalGlue_2 = Box.createHorizontalGlue();
+		horizontalBox_3.add(horizontalGlue_2);
 		verticalBox_2.add(inputComboBox);
 		inputComboBox.setMaximumSize(new Dimension(32767, 22));
 		
 		Component verticalStrut = Box.createVerticalStrut(20);
 		verticalBox_2.add(verticalStrut);
 		
+		Box horizontalBox_2 = Box.createHorizontalBox();
+		verticalBox_2.add(horizontalBox_2);
+		
 		JLabel lblNewLabel_1 = new JLabel("Processing");
-		verticalBox_2.add(lblNewLabel_1);
+		horizontalBox_2.add(lblNewLabel_1);
+		
+		Component horizontalGlue_1 = Box.createHorizontalGlue();
+		horizontalBox_2.add(horizontalGlue_1);
 		
 		processingComboBox = new JComboBox(optionsProcessingComboBox);
 		processingComboBox.addActionListener(outputActionListener);
@@ -103,8 +122,15 @@ public class MainFrame extends JFrame{
 		Component verticalStrut_1 = Box.createVerticalStrut(20);
 		verticalBox_2.add(verticalStrut_1);
 		
+		Box horizontalBox_1 = Box.createHorizontalBox();
+		verticalBox_2.add(horizontalBox_1);
+		
 		JLabel lblNewLabel = new JLabel("Output");
-		verticalBox_2.add(lblNewLabel);
+		lblNewLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		horizontalBox_1.add(lblNewLabel);
+		
+		Component horizontalGlue = Box.createHorizontalGlue();
+		horizontalBox_1.add(horizontalGlue);
 		
 		outputComboBox = new JComboBox(optionsOutputComboBox);
 		outputComboBox.addActionListener(outputActionListener);
@@ -114,7 +140,14 @@ public class MainFrame extends JFrame{
 		Component verticalGlue = Box.createVerticalGlue();
 		verticalBox_1.add(verticalGlue);
 		
+		Box horizontalBox_4 = Box.createHorizontalBox();
+		verticalBox_1.add(horizontalBox_4);
+		
 		JButton runButton = new JButton("Start Processing");
+		horizontalBox_4.add(runButton);
+		
+		Component horizontalGlue_3 = Box.createHorizontalGlue();
+		horizontalBox_4.add(horizontalGlue_3);
 		runButton.addActionListener(new ActionListener(){
 
 			@Override
@@ -131,7 +164,6 @@ public class MainFrame extends JFrame{
 			}
 			
 		});
-		verticalBox_1.add(runButton);
 		
 		
 		horizontalBox.add(panel);
@@ -231,6 +263,9 @@ public class MainFrame extends JFrame{
 					break;
 				case 2:
 					panelToAdd = new DemixingGUI(mf);
+					break;
+				case 3:
+					panelToAdd = new CropGUI(mf);
 					break;
 			}
 		}
