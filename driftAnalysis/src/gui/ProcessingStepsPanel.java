@@ -34,8 +34,6 @@ public abstract class ProcessingStepsPanel extends JPanel implements Transferabl
 	private JProgressBar progressbar;
 	
 	public ProcessingStepsPanel(final MainFrame mf){
-//		initialize(mf);
-//		setActionListener();
 		thisPanel = this;
 		Box horizontalBox = Box.createHorizontalBox();
 		Box verticalBox = Box.createVerticalBox();
@@ -83,6 +81,7 @@ public abstract class ProcessingStepsPanel extends JPanel implements Transferabl
 		verticalBox.add(progressbar);
 	}
 	
+	public ProcessingStepsPanel(){}
 	
 	public void setParameterButtonsName(String name){
 		parameterButton.setText(name);
@@ -171,9 +170,10 @@ public abstract class ProcessingStepsPanel extends JPanel implements Transferabl
 		progressbar.setValue(val);
 	}
 	
-	
+	abstract public ProcessingStepsPanel getFunction(MainFrame mf);
 	abstract public String[] getSettings();
 	abstract public void setSettings(String[] tempString);
 	abstract public ProcessingStepsPanel getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf);
-
+	abstract public String getFunctionName();
+	
 }

@@ -10,12 +10,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class DemixingGUI extends ProcessingStepsPanel{
+	private static String name = "Demixing";
 	public DemixingGUI(MainFrame mf) {
 		super(mf);
-		this.setParameterButtonsName("Demixing");
+		this.setParameterButtonsName(name);
 		this.setColor(Color.RED);
 		this.setOptionPanel(createOptionPanel());
 	}
+	
+	public DemixingGUI(){}
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
@@ -34,5 +37,11 @@ public class DemixingGUI extends ProcessingStepsPanel{
 			return returnObject;
 		}
 		return null;
+	}
+	public ProcessingStepsPanel getFunction(MainFrame mf){
+		return new DemixingGUI(mf);
+	}
+	public String getFunctionName(){
+		return name;
 	}
 }

@@ -12,12 +12,15 @@ import gui.ProcessingStepsPanel;
 
 public class DriftcorrectionGUI extends ProcessingStepsPanel{
 	JTextField chunksize = new JTextField();
+	private static String name = "Driftcorrection";
 	public DriftcorrectionGUI(MainFrame mf) {
 		super(mf);
-		this.setParameterButtonsName("Drift Correction");
+		this.setParameterButtonsName(name);
 		this.setColor(Color.RED);
 		this.setOptionPanel(createOptionPanel());
 	}
+	
+	public DriftcorrectionGUI(){}
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
@@ -52,5 +55,11 @@ public class DriftcorrectionGUI extends ProcessingStepsPanel{
 			return returnObject;
 		}
 		return null;
+	}
+	public ProcessingStepsPanel getFunction(MainFrame mf){
+		return new DriftcorrectionGUI(mf);
+	}
+	public String getFunctionName(){
+		return name;
 	}
 }

@@ -19,31 +19,27 @@ public class CropGUI extends ProcessingStepsPanel{
 	JTextField maxZ = new JTextField();
 	JTextField minFrame = new JTextField();
 	JTextField maxFrame = new JTextField();
+	private static String name = "Crop";
+	
 	public CropGUI(MainFrame mf) {
 		super(mf);
-		this.setParameterButtonsName("Multiple File Input");
+		this.setParameterButtonsName(name);
 		this.setColor(Color.WHITE);
 		this.setOptionPanel(createOptionPanel());
 	}
+	
+	public CropGUI(){}
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
 		retPanel.setSize(300, 500);
 		Box verticalBox = Box.createVerticalBox();
 		verticalBox.add(new JLabel("Path:"));
-//		verticalBox.add(path);
 		verticalBox.add(new JLabel("Pattern:"));
-//		verticalBox.add(pattern);
 		retPanel.add(verticalBox);
 		return retPanel;
 	}
 	
-//	public String getPath(){
-//		return path.getText();
-//	}
-//	public String getPattern(){
-//		return pattern.getText();
-//	}
 	public String[] getSettings(){
 		String[] tempString = {minX.getText(), maxX.getText(), minY.getText(), maxY.getText(), minZ.getText(), maxZ.getText(), minFrame.getText(), maxFrame.getText()};
 		return tempString;
@@ -64,5 +60,11 @@ public class CropGUI extends ProcessingStepsPanel{
 			return returnObject;
 		}
 		return null;
+	}
+	public ProcessingStepsPanel getFunction(MainFrame mf){
+		return new CropGUI(mf);
+	}
+	public String getFunctionName(){
+		return name;
 	}
 }

@@ -22,6 +22,7 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 	JTextField foldername = new JTextField();
 	final JFileChooser singleFileChooser = new JFileChooser();
 	JButton loadFileButton;
+	private static String name ="SingleFileInput";
 	
 	public SingleFileInputGUI(MainFrame mf) {
 		super(mf);
@@ -31,10 +32,12 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 		path.setText(settings[0]);
 		foldername.setText(settings[1]);
 		setSettings(settings);
-		this.setParameterButtonsName("Single File Input");
+		this.setParameterButtonsName(name);
 		this.setColor(Color.WHITE);
 		this.setOptionPanel(createOptionPanel());
 	}
+	
+	public SingleFileInputGUI(){}
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
@@ -79,9 +82,21 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 	}
 	public ProcessingStepsPanel getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
 		if (processingStepsPanelObject instanceof SingleFileInputGUI){
-			SingleFileInputGUI returnObject = new SingleFileInputGUI(mf);
-			return returnObject;
+			return new SingleFileInputGUI(mf);
 		}
 		return null;
+	}
+	public ProcessingStepsPanel getFunctionOfName(String tempName, MainFrame mf){
+		if (tempName.equals(name)){
+			return new SingleFileInputGUI(mf);
+		}
+		return null;
+	}	
+	
+	public ProcessingStepsPanel getFunction(MainFrame mf){
+			return new SingleFileInputGUI(mf);
+	}
+	public String getFunctionName(){
+		return name;
 	}
 }

@@ -16,13 +16,16 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 	JTextField pattern1 = new JTextField();
 	JTextField path2 = new JTextField();
 	JTextField pattern2 = new JTextField();
+	private static String name = "DualColorMultipleFileInput";
 	
 	public DualColorMultipleFileInputGUI(MainFrame mf) {
 		super(mf);
-		this.setParameterButtonsName("Multiple File Input");
+		this.setParameterButtonsName(name);
 		this.setColor(Color.WHITE);
 		this.setOptionPanel(createOptionPanel());
 	}
+	
+	public DualColorMultipleFileInputGUI(){}
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
@@ -75,5 +78,11 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 			return returnObject;
 		}
 		return null;
+	}
+	public ProcessingStepsPanel getFunction(MainFrame mf){
+		return new DualColorMultipleFileInputGUI(mf);
+	}
+	public String getFunctionName(){
+		return name;
 	}
 }

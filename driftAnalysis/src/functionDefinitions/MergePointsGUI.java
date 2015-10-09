@@ -15,12 +15,15 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 	JTextField disty = new JTextField();
 	JTextField distz = new JTextField();
 	JTextField distframe = new JTextField();
+	private static String name = "MergePoints";
 	public MergePointsGUI(MainFrame mf) {
 		super(mf);
-		this.setParameterButtonsName("Merge Consecutive Localizations");
+		this.setParameterButtonsName(name);
 		this.setColor(Color.RED);
 		this.setOptionPanel(createOptionPanel());
 	}
+	
+	public MergePointsGUI(){}
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
@@ -92,5 +95,11 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 			return returnObject;
 		}
 		return null;
+	}
+	public ProcessingStepsPanel getFunction(MainFrame mf){
+		return new MergePointsGUI(mf);
+	}
+	public String getFunctionName(){
+		return name;
 	}
 }

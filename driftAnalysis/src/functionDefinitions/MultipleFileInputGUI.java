@@ -13,12 +13,15 @@ import gui.ProcessingStepsPanel;
 public class MultipleFileInputGUI extends ProcessingStepsPanel{
 	JTextField path = new JTextField();
 	JTextField pattern = new JTextField();
+	private static String name = "MultipleFileInput";
 	public MultipleFileInputGUI(MainFrame mf) {
 		super(mf);
-		this.setParameterButtonsName("Multiple File Input");
+		this.setParameterButtonsName(name);
 		this.setColor(Color.WHITE);
 		this.setOptionPanel(createOptionPanel());
 	}
+	
+	public MultipleFileInputGUI(){}
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
@@ -52,5 +55,11 @@ public class MultipleFileInputGUI extends ProcessingStepsPanel{
 			return returnObject;
 		}
 		return null;
+	}
+	public ProcessingStepsPanel getFunction(MainFrame mf){
+	return new MultipleFileInputGUI(mf);
+	}
+	public String getFunctionName(){
+		return name;
 	}
 }

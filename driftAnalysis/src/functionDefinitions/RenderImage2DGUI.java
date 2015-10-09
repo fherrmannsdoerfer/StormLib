@@ -14,6 +14,7 @@ import gui.ProcessingStepsPanel;
 public class RenderImage2DGUI extends ProcessingStepsPanel implements Serializable{
 	JTextField pixelsize = null; 
 	JTextField tag = null;
+	private static String name = "Render 2D Image";
 
 	
 	public RenderImage2DGUI(MainFrame mf) {
@@ -23,10 +24,12 @@ public class RenderImage2DGUI extends ProcessingStepsPanel implements Serializab
 		settings[1] = "";
 		pixelsize  = new JTextField();
 		tag = new JTextField();
-		this.setParameterButtonsName("Render 2D Image");
+		this.setParameterButtonsName(name);
 		this.setColor(Color.GREEN);
 		this.setOptionPanel(createOptionPanel());
 	}
+	
+	public RenderImage2DGUI(){}
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
@@ -72,5 +75,20 @@ public class RenderImage2DGUI extends ProcessingStepsPanel implements Serializab
 			return returnObject;
 		}
 		return null;
+	}
+	
+	public ProcessingStepsPanel getFunctionOfName(String tempName, MainFrame mf){
+		if (tempName.equals(name)){
+			RenderImage2DGUI returnObject = new RenderImage2DGUI(mf);
+			return returnObject;
+		}
+		return null;
+	}
+	public ProcessingStepsPanel getFunction(MainFrame mf){
+		return new RenderImage2DGUI(mf);
+	}
+	
+	public String getFunctionName(){
+		return name;
 	}
 }

@@ -13,12 +13,15 @@ import gui.ProcessingStepsPanel;
 public class RenderImage3DGUI extends ProcessingStepsPanel{
 	JTextField pixelsize = new JTextField();
 	JTextField tag = new JTextField();
+	private static String name = "RenderImage3D";
 	public RenderImage3DGUI(MainFrame mf) {
 		super(mf);
-		this.setParameterButtonsName("Render 3D Image");
+		this.setParameterButtonsName(name);
 		this.setColor(Color.GREEN);
 		this.setOptionPanel(createOptionPanel());
 	}
+	
+	public RenderImage3DGUI(){}
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
@@ -52,5 +55,11 @@ public class RenderImage3DGUI extends ProcessingStepsPanel{
 			return returnObject;
 		}
 		return null;
+	}
+	public ProcessingStepsPanel getFunction(MainFrame mf){
+	return new RenderImage3DGUI(mf);
+	}
+	public String getFunctionName(){
+		return name;
 	}
 }

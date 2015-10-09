@@ -46,21 +46,28 @@ public class MainFrame extends JFrame implements Serializable{
 	Controler controlerReference;
 	JPanel panel;
 	JPanel optionPanel;
-	MainFrame mf;
+	static MainFrame mf;
 	private static DataFlavor dragAndDropPanelDataFlavor = null;
 	private JComboBox preselectionComboBox;
 	private JComboBox inputComboBox;
 	private JComboBox outputComboBox;
 	private JComboBox processingComboBox;
 	transient ActionListener outputActionListener;
-	String[] optionsPreselectedTasksComboBox = {"Single Channel Input", "Demixing"};
-	String[] optionsInputComboBox = {"Single File Input", "Multiple File Input", "Dual Channel Single File Input", "Dual Channel Multiple File Input"};
-	String[] optionsProcessingComboBox = {"Drift Correction", "Merging", "Demixing", "Cropping", "Multi Channel Alignment"};
-	String[] optionsOutputComboBox = {"Render 2D Image", "Render 3D Image", "Processing Log File", "Visp File", "Localization File "};
-	File folder = new File("C:\\Users\\bwpc\\git\\StormLib\\driftAnalysis\\preSetSettings");
+//	String[] optionsPreselectedTasksComboBox = {"Single Channel Input", "Demixing"}; //is taken care of automatically (File folder = new ...)
+//	String[] optionsInputComboBox = {"SingleFileInput", "MultipleFileInput", "DualChannelSingleFileInput", "DualChannelMultipleFileInput"}; // moved to inputComboBoxOptions
+//	String[] optionsProcessingComboBox = {"Driftcorrection", "MergePoints", "Demixing", "Crop", "Multi Channel Alignment"}; // moved to processingComboBoxOptions
+//	String[] optionsOutputComboBox = {"Render 2D Image", "RenderImage3D", "Processing Log File", "Visp File", "Localization File "}; // moved to outputComboBoxOptions
+	File folder = new File("C:\\Users\\bwpc\\git\\StormLib\\driftAnalysis\\preSetSettings"); //Folder of savedPresettings
+	private final ArrayList<ProcessingStepsPanel> outputComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
+	private final ArrayList<ProcessingStepsPanel> inputComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
+	private final ArrayList<ProcessingStepsPanel> processingComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
+
+
 	
 	
 	public MainFrame(final Controler controler) {
+		
+
 		this.controlerReference = controler;
 		outputActionListener = new OutputActionListener();
 		this.setBounds(0,0,1200,800);
@@ -72,6 +79,24 @@ public class MainFrame extends JFrame implements Serializable{
 		getContentPane().add(horizontalBox, BorderLayout.CENTER);
 		panel = new RootPanel(this);
 		panel.setMinimumSize(new Dimension(4, 2));
+		
+		//////////////////////////////////////////////////////////////////// set options to choose from for drop-down menus; creates empty GUI class objects with member name
+
+		outputComboBoxOptions.add(new RenderImage2DGUI());
+		outputComboBoxOptions.add(new RenderImage3DGUI());
+		
+		inputComboBoxOptions.add(new SingleFileInputGUI());
+		inputComboBoxOptions.add(new DualChannelSingleFileInputGUI());
+		inputComboBoxOptions.add(new MultipleFileInputGUI());
+		inputComboBoxOptions.add(new DualColorMultipleFileInputGUI());
+		
+		processingComboBoxOptions.add(new DriftcorrectionGUI());
+		processingComboBoxOptions.add(new MergePointsGUI());
+		processingComboBoxOptions.add(new DemixingGUI());
+//		processingComboBoxOptions.add(new CropGUI());
+		
+		///////////////////////////////////////////////////////////////////
+		
 		
 		Box verticalBox = Box.createVerticalBox();
 			
@@ -94,13 +119,7 @@ public class MainFrame extends JFrame implements Serializable{
 		preselectionComboBox = new JComboBox(optionsPreselectedTasksComboBoxAuto);
 		preselectionComboBox.addActionListener(outputActionListener);
 		preselectionComboBox.setMaximumSize(new Dimension(32767, 22));
-		verticalBox_1.add(preselectionComboBox);
-		
-		
-		
-		
-		
-		
+		verticalBox_1.add(preselectionComboBox);		
 		
 		Component verticalStrut_2 = Box.createVerticalStrut(20);
 		verticalBox_1.add(verticalStrut_2);
@@ -113,6 +132,11 @@ public class MainFrame extends JFrame implements Serializable{
 		lblNewLabel_2.setAlignmentY(Component.TOP_ALIGNMENT);
 		verticalBox_2.add(lblNewLabel_2);
 		
+		
+		String[] optionsInputComboBox = new String[inputComboBoxOptions.size()];		
+		for (int i = 0; i < inputComboBoxOptions.size(); i++){
+			optionsInputComboBox[i] = inputComboBoxOptions.get(i).getFunctionName();}		
+		
 		inputComboBox = new JComboBox(optionsInputComboBox);
 		inputComboBox.addActionListener(outputActionListener);
 		verticalBox_2.add(inputComboBox);
@@ -124,6 +148,10 @@ public class MainFrame extends JFrame implements Serializable{
 		JLabel lblNewLabel_1 = new JLabel("Processing");
 		verticalBox_2.add(lblNewLabel_1);
 		
+		String[] optionsProcessingComboBox = new String[processingComboBoxOptions.size()];		
+		for (int i = 0; i < processingComboBoxOptions.size(); i++){
+			optionsProcessingComboBox[i] = processingComboBoxOptions.get(i).getFunctionName();}		
+		
 		processingComboBox = new JComboBox(optionsProcessingComboBox);
 		processingComboBox.addActionListener(outputActionListener);
 		verticalBox_2.add(processingComboBox);
@@ -134,6 +162,12 @@ public class MainFrame extends JFrame implements Serializable{
 		
 		JLabel lblNewLabel = new JLabel("Output");
 		verticalBox_2.add(lblNewLabel);
+		
+		String[] optionsOutputComboBox = new String[outputComboBoxOptions.size()];
+		
+		for (int i = 0; i < outputComboBoxOptions.size(); i++){
+			optionsOutputComboBox[i] = outputComboBoxOptions.get(i).getFunctionName();}
+		
 		
 		outputComboBox = new JComboBox(optionsOutputComboBox);
 		outputComboBox.addActionListener(outputActionListener);
@@ -324,7 +358,7 @@ public class MainFrame extends JFrame implements Serializable{
 		horizontalBox.add(optionPanel);
 		
 	}
-	
+		
 	public static DataFlavor getDragAndDropPanelDataFlavor() throws Exception {
         // Lazy load/create the flavor
         if (dragAndDropPanelDataFlavor == null) {
@@ -369,51 +403,24 @@ public class MainFrame extends JFrame implements Serializable{
 	public JComboBox getProcessingComboBox() {
 		return processingComboBox;
 	}
+	
+	
 	public void moduleAdded(ActionEvent e){
 		JComboBox thisBox = (JComboBox)e.getSource();
 		ProcessingStepsPanel panelToAdd = null;
+		
 		if (thisBox == outputComboBox){
-			switch (thisBox.getSelectedIndex()){
-				case 0:
-					panelToAdd =new RenderImage2DGUI(mf);
-					break;
-				case 1:
-					panelToAdd = new RenderImage3DGUI(mf);
-					break;
-				case 2:
-					break;
+//			System.out.println(outputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunctionName());
+			panelToAdd = outputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunction(mf);
 			}
-					
-		}
 		if (thisBox == inputComboBox){
-			switch (thisBox.getSelectedIndex()){
-				case 0:
-					panelToAdd = new SingleFileInputGUI(mf);
-					break;
-				case 1:
-					panelToAdd = new MultipleFileInputGUI(mf);
-					break;
-				case 2:
-					panelToAdd = new DualChannelSingleFileInputGUI(mf);
-					break;
-				case 3:
-					panelToAdd = new DualColorMultipleFileInputGUI(mf);
-					break;
+//			System.out.println(inputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunctionName());
+			panelToAdd = inputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunction(mf);
 			}
-		}
 		if (thisBox == processingComboBox){
-			switch (thisBox.getSelectedIndex()){
-				case 0:
-					panelToAdd = new DriftcorrectionGUI(mf);
-					break;
-				case 1:
-					panelToAdd = new MergePointsGUI(mf);
-					break;
-				case 2:
-					panelToAdd = new DemixingGUI(mf);
-					break;
+//			System.out.println(processingComboBoxOptions.get(thisBox.getSelectedIndex()).getFunctionName());
+			panelToAdd = processingComboBoxOptions.get(thisBox.getSelectedIndex()).getFunction(mf);
 			}
-		}		
 		
 		if (thisBox == preselectionComboBox){
 			File[] listOfFiles = folder.listFiles();
@@ -426,14 +433,12 @@ public class MainFrame extends JFrame implements Serializable{
 			    }			
 			ArrayList<ProcessingStepsPanel> tempOrderListSettings = new ArrayList<ProcessingStepsPanel>();
 			String settingsPath = folder + "\\"+ preselectionComboBoxSelection[thisBox.getSelectedIndex()];
-//			System.out.println(settingsPath);
 			try {
 				FileInputStream fileInDefault = new FileInputStream(settingsPath);
 				ObjectInputStream inPreselection = new ObjectInputStream(fileInDefault);
 				tempOrderListSettings = (ArrayList<ProcessingStepsPanel>) inPreselection.readObject();
 				inPreselection.close();
 				fileInDefault.close();
-				System.out.println("loaded default");
 				listProcessingStepPanels.clear();
 				panel.removeAll();
 				optionPanel.removeAll();				
@@ -478,6 +483,8 @@ public class MainFrame extends JFrame implements Serializable{
 			psp.setVisibilityOptionPanel(false);
 		}
 	}
+	
+	
 }
 
 

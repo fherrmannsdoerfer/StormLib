@@ -22,6 +22,7 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 	JTextField file1 = new JTextField();
 	JTextField path2 = new JTextField();
 	JTextField file2 = new JTextField();
+	private static String name = "DualChannelSingleFileInput";
 	private final Box horizontalBox = Box.createHorizontalBox();
 	private final Box verticalBox_1 = Box.createVerticalBox();
 	private final JButton loadFile1Button = new JButton("Load File1");
@@ -32,10 +33,12 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 	
 	public DualChannelSingleFileInputGUI(MainFrame mf) {
 		super(mf);
-		this.setParameterButtonsName("Dual Color Singe File Input");
+		this.setParameterButtonsName(name);
 		this.setColor(Color.WHITE);
 		this.setOptionPanel(createOptionPanel());
 	}
+	
+	public DualChannelSingleFileInputGUI(){}
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
@@ -118,5 +121,11 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 			return returnObject;
 		}
 		return null;
+	}
+	public ProcessingStepsPanel getFunction(MainFrame mf){
+		return new DualChannelSingleFileInputGUI(mf);
+	}
+	public String getFunctionName(){
+		return name;
 	}
 }
