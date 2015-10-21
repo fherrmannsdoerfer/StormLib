@@ -1,3 +1,4 @@
+
 package functions;
 
 import java.util.ArrayList;
@@ -167,7 +168,7 @@ public class TransformationControl {
 	
 	static boolean isThisTrafoUsable(double[][] currTrafo){
 		boolean usable = false;
-		if (Math.abs((Math.pow(currTrafo[0][0],2)+Math.pow(currTrafo[0][1],2))-1)<0.2 &&Math.abs((Math.pow(currTrafo[1][0],2)+Math.pow(currTrafo[1][1],2))-1)<0.2&&Math.abs(currTrafo[1][2])<1000&&Math.abs(currTrafo[0][2])<1000){
+		if (Math.abs((Math.pow(currTrafo[0][0],2)+Math.pow(currTrafo[0][1],2))-1)<0.2 &&Math.abs((Math.pow(currTrafo[1][0],2)+Math.pow(currTrafo[1][1],2))-1)<0.2){
 			usable = true;
 		}
 		if (currTrafo[0][0] == 1 && currTrafo[0][1] == 0 && currTrafo[0][2] == 0 && currTrafo[1][0] == 0 && currTrafo[1][1] == 1 && currTrafo[1][2] == 0){

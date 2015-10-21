@@ -70,4 +70,8 @@ public class StormLocalization {
 		String tmp = this.x+" "+this.y+" "+this.z+" "+this.intensity+" "+this.frame;
 		return tmp;
 	}
+	public String toPlainFRCString(){
+		String tmp = this.x/106.66+" "+this.y/106.66+" "+this.frame;
+		return tmp;
+	}
 }

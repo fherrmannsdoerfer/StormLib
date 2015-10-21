@@ -2,6 +2,8 @@ package StormLib;
 
 import ij.ImagePlus;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +18,49 @@ import dataStructure.StormLocalization;
 import Jama.Matrix;
 
 public class Utilities {
+	private static PropertyChangeSupport propertyChangeSupport =
+		       new PropertyChangeSupport(Utilities.class);
+	private static int lastVal;
+	
+	public static void addPropertyChangeListener(PropertyChangeListener listener) {
+	       propertyChangeSupport.addPropertyChangeListener(listener);
+	   }
+
+	   public static void setProgress(String messageName, int val) {
+		  propertyChangeSupport.firePropertyChange(messageName, lastVal, val);
+		  lastVal = val;
+	   }
+	   public static StormData openSeries(String path1, String pattern1){
+			File folder = new File(path1);
+			File[] files = folder.listFiles();
+			
+			try {
+				OutputClass.createOutputFolder(path1);
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			StormData sd1 = new StormData();
+		
+			try{
+				Arrays.sort(files);
+				for (int i = 0; i<files.length; i++ ){
+					if(files[i].isFile() && files[i].getAbsolutePath().contains(pattern1)&& files[i].getAbsolutePath().contains(".txt")&&!files[i].getAbsolutePath().contains("-settings")){
+						StormData tmp = new StormData(files[i].getAbsolutePath());
+						sd1.addStormData(tmp);
+						setProgress("MultipleInput",(int)(100.*i/(files.length)));
+					}
+				}
+				sd1.setPath(path1);
+				sd1.setFname(pattern1+"mergedFile"+".txt");
+			}
+			catch(NullPointerException e){
+				System.out.println(e.getMessage());
+			}
+			return sd1;
+		}
 	public static ArrayList<StormData> openSeries(String path1, String pattern1, String path2, String pattern2){
 		File folder = new File(path1);
 		File[] files = folder.listFiles();
@@ -36,9 +81,10 @@ public class Utilities {
 			sd1.setPath(path1);
 			sd1.setFname(pattern1+"mergedFile"+".txt");
 			for (int i = 0; i<files.length; i++ ){
-				if(files[i].isFile() && files[i].getAbsolutePath().contains(pattern1)&& (files[i].getAbsolutePath().contains(".txt")|| files[i].getAbsolutePath().contains(".csv"))&&!files[i].getAbsolutePath().contains("-settings")){
+				if(files[i].isFile() && files[i].getAbsolutePath().contains(pattern1)&& files[i].getAbsolutePath().contains(".txt")&&!files[i].getAbsolutePath().contains("-settings")){
 					StormData tmp = new StormData(files[i].getParent(),files[i].getName());
 					sd1.addStormData(tmp);
+					setProgress("MultipleInputDC",(int)(100.*i/(files.length+files2.length)));
 				}
 			}
 			
@@ -54,6 +100,7 @@ public class Utilities {
 				if(files2[i].isFile() && files2[i].getAbsolutePath().contains(pattern2)&& files2[i].getAbsolutePath().contains(".txt")&&!files2[i].getAbsolutePath().contains("-settings")){
 					StormData tmp = new StormData(files2[i].getAbsolutePath());
 					sd2.addStormData(tmp);
+					setProgress("MultipleInput",(int)(100.*i/(files.length+files2.length)+100*files.length/(files.length+files2.length)));
 				}
 			}
 		}
