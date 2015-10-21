@@ -44,7 +44,7 @@ public class Demixing {
 	
 	static StormData doUnmixingMultiThreaded(StormData untransformedCh1, StormData ch2, double[][] trafo, boolean useAll,String tag){
 		StormData ch1 = TransformationControl.applyTrafo(trafo, untransformedCh1);
-		double dist = 40; //in nm //this variable determines within which distance for matching points are searched
+		double dist = 100; //in nm //this variable determines within which distance for matching points are searched
 		double minInt = 500; // minimal intensity of at least one channel
 		if (verbose) {
 			System.out.println("start unmixing...");
@@ -87,14 +87,14 @@ public class Demixing {
 	}
 	
 	static double[][] findGlobalTransformationMultithreaded(StormData ch1, StormData ch2){
-		int nbrIter = 500;
-		double toleratedError = 50;
+		int nbrIter = 1500;
+		double toleratedError = 100;
 		ArrayList<ArrayList<ArrayList<StormLocalization>>> collectionOfGoodPoints = new ArrayList<ArrayList<ArrayList<StormLocalization>>>();
 		ArrayList<Integer> listOfMatchingPoints = new ArrayList<Integer>();
 		ArrayList<Double> listOfErrors = new ArrayList<Double>();
 		ArrayList<Integer> frames = new ArrayList<Integer>();//(Arrays.asList(1,10,15,20,25,30,35,50));//,75,100,200,300,1000,10000,15000,20000,25000));//,3,4,5,6,7,8,9,10,20,90,1000,4000));
 		ArrayList<Double>dims = ch1.getDimensions();
-		for (int i = 1; i<10;i++){
+		for (int i = 1; i<8;i++){
 			frames.add((int)Math.floor((dims.get(7)+dims.get(6))/2)+i);
 		}
 		Progressbar pb = new Progressbar(0,nbrIter * frames.size(),0,"Finding transformation.");

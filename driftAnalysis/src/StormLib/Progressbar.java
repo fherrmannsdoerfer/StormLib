@@ -29,7 +29,7 @@ public class Progressbar {
 				i = i +1;
 			}
 			if (i == parts -4){
-				System.out.print("100");
+				System.out.print("100]");
 			}
 			else{
 				System.out.print(" ");

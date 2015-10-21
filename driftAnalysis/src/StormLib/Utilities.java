@@ -36,7 +36,7 @@ public class Utilities {
 			sd1.setPath(path1);
 			sd1.setFname(pattern1+"mergedFile"+".txt");
 			for (int i = 0; i<files.length; i++ ){
-				if(files[i].isFile() && files[i].getAbsolutePath().contains(pattern1)&& files[i].getAbsolutePath().contains(".txt")&&!files[i].getAbsolutePath().contains("-settings")){
+				if(files[i].isFile() && files[i].getAbsolutePath().contains(pattern1)&& (files[i].getAbsolutePath().contains(".txt")|| files[i].getAbsolutePath().contains(".csv"))&&!files[i].getAbsolutePath().contains("-settings")){
 					StormData tmp = new StormData(files[i].getParent(),files[i].getName());
 					sd1.addStormData(tmp);
 				}
