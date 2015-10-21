@@ -893,6 +893,22 @@ public class StormData {
 		}
 	}
 	
+	public void writeArrayListForFRC(){
+		writeArrayListForFRC(processingLog);
+	}
+	
+	public void writeArrayListForFRC(String tag) {
+		OutputClass.writeArrayListForFRC(path, getBasename(), locs, tag);
+	}
+	
+	public void writeArrayListForFRC(DemixingParameters demixingParams){
+		OutputClass.writeArrayListForFRC(path,getBasename(), locs,processingLog, demixingParams);
+	}
+	
+	public void writeArrayListForFRC(DemixingParameters demixingParams, String tag){
+		OutputClass.writeArrayListForFRC(path,getBasename(), locs,tag, demixingParams);
+	}
+	
 	public void writeArrayListForVisp(DemixingParameters demixingParams){
 		OutputClass.writeArrayListForVisp(path,getBasename(), locs,processingLog, demixingParams);
 	}

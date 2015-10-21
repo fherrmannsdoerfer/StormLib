@@ -52,7 +52,7 @@ import StormLib.HelperClasses.DriftCorrectionLog;
 
 public class FeatureBasedDriftCorrection {
 	private static PropertyChangeSupport propertyChangeSupport =
-		       new PropertyChangeSupport(Utilities.class);
+		       new PropertyChangeSupport(FeatureBasedDriftCorrection.class);
 	
 	public static void addPropertyChangeListener(PropertyChangeListener listener) {
 	       propertyChangeSupport.addPropertyChangeListener(listener);

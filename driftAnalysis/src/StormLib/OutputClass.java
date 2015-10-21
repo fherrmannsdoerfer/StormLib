@@ -160,6 +160,42 @@ public class OutputClass {
 		} catch (IOException e) {e.printStackTrace();}
 	}
 
+	public static void writeArrayListForFRC(String path, String basename, ArrayList<StormLocalization> locs, String tag) {
+		try {
+			FileWriter writer = new FileWriter(path+"forFRC_"+basename+tag+".txt");
+			for (int i = 0; i<locs.size(); i++){
+				writer.append(locs.get(i).toPlainFRCString()+"\n");
+			}
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {e.printStackTrace();}
+	}
+	
+	public static void writeArrayListForFRC(String path, String basename, ArrayList<StormLocalization> locs, 
+			String tag,DemixingParameters demixingParams) {
+		double minAngle1 = demixingParams.getAngle1() - demixingParams.getWidth1()/2;
+		double maxAngle1 = demixingParams.getAngle1() + demixingParams.getWidth1()/2;
+		double minAngle2 = demixingParams.getAngle2() - demixingParams.getWidth2()/2;
+		double maxAngle2 = demixingParams.getAngle2() + demixingParams.getWidth2()/2;
+		try {
+			FileWriter writer1 = new FileWriter(path+"forFRCCH1_"+basename+tag+".txt");
+			FileWriter writer2 = new FileWriter(path+"forFRCCH2_"+basename+tag+".txt");
+			for (int i = 0; i<locs.size(); i++){
+				StormLocalization sl = locs.get(i);
+				if (((sl.getAngle()> minAngle1 && sl.getAngle()< maxAngle1))|| sl.getAngle() == 0){
+					writer1.append(sl.toPlainFRCString()+"\n");
+				}
+				else if ((sl.getAngle()> minAngle2 && sl.getAngle()< maxAngle2) || sl.getAngle() == Math.PI/2){
+					writer2.append(sl.toPlainFRCString()+"\n");
+				}
+			}
+			writer1.flush();
+			writer1.close();
+			writer2.flush();
+			writer2.close();
+		} catch (IOException e) {e.printStackTrace();}
+	}
+	
 	public static void writeLocs(String path, String basename,
 			ArrayList<StormLocalization> locs, String tag) {
 		try{
