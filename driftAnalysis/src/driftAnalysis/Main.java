@@ -23,11 +23,11 @@ public class Main {
 		
 		//
 		
-		String tag = "151021CosCBFixedPhalA647TimmMessung2";
-		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
+		String tag = "151030CosPfa4MTA647Sek1to50000TimmMessung2";
+		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
 		
 //		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\ThunderStorm\\";
-		String path1 = "\\\\129.206.158.175\\FN-Praktikant\\Timm\\OwnDemixings\\"+tag+"\\Auswertung\\ThunderStorm\\";
+//		String path1 = "\\\\129.206.158.175\\FN-Praktikant\\Timm\\OwnDemixings\\"+tag+"\\Auswertung\\ThunderStorm\\";
 //String path1 = "D:\\141219-RapidStorm-SynPhys-Phalloidin\\";
 //	String path1 = "D:\\ErythrocytesNearestneighbor-Test\\";
 		
