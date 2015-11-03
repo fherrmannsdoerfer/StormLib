@@ -47,7 +47,7 @@ public class Utilities {
 			try{
 				Arrays.sort(files);
 				for (int i = 0; i<files.length; i++ ){
-					if(files[i].isFile() && files[i].getAbsolutePath().contains(pattern1)&& files[i].getAbsolutePath().contains(".txt")&&!files[i].getAbsolutePath().contains("-settings")){
+					if(isValidInputFile(files[i], pattern1)){
 						StormData tmp = new StormData(files[i].getAbsolutePath());
 						sd1.addStormData(tmp);
 						setProgress("MultipleInput",(int)(100.*i/(files.length)));
@@ -81,7 +81,7 @@ public class Utilities {
 			sd1.setPath(path1);
 			sd1.setFname(pattern1+"mergedFile"+".txt");
 			for (int i = 0; i<files.length; i++ ){
-				if(files[i].isFile() && files[i].getAbsolutePath().contains(pattern1)&& files[i].getAbsolutePath().contains(".txt")&&!files[i].getAbsolutePath().contains("-settings")){
+				if(isValidInputFile(files[i], pattern1)){
 					StormData tmp = new StormData(files[i].getParent(),files[i].getName());
 					sd1.addStormData(tmp);
 					setProgress("MultipleInputDC",(int)(100.*i/(files.length+files2.length)));
@@ -97,7 +97,7 @@ public class Utilities {
 	
 			
 			for (int i = 0; i<files2.length; i++ ){
-				if(files2[i].isFile() && files2[i].getAbsolutePath().contains(pattern2)&& files2[i].getAbsolutePath().contains(".txt")&&!files2[i].getAbsolutePath().contains("-settings")){
+				if(isValidInputFile(files2[i], pattern2)){
 					StormData tmp = new StormData(files2[i].getAbsolutePath());
 					sd2.addStormData(tmp);
 					setProgress("MultipleInput",(int)(100.*i/(files.length+files2.length)+100*files.length/(files.length+files2.length)));
@@ -906,6 +906,18 @@ public class Utilities {
 			res.add(x0);
 			res.add(y0);
 			return res;
+		}
+		
+		static boolean isValidInputFile(File file, String pattern){
+			String absPath = file.getAbsolutePath();
+			if (file.isFile() && absPath.contains(pattern)&& (absPath.contains(".txt") || absPath.contains(".csv"))){//RapidStorm or Thunderstorm input
+				if (!(absPath.contains("-settings.")||absPath.contains("-protocol."))){
+					return true;
+				}
+				else{return false;}
+			}
+			else{return false;}
+			
 		}
 		
 }

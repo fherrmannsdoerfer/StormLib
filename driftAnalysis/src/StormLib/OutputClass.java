@@ -1,8 +1,10 @@
 package StormLib;
 
+
 import functions.CreateScatterPlot;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.plugin.RGBStackMerge;
 import ij.process.ShortProcessor;
 import ij.process.StackConverter;
 
@@ -99,11 +101,20 @@ public class OutputClass {
 		is.addSlice(colImg.get(0).getProcessor());
 		is.addSlice(colImg.get(1).getProcessor());
 		is.addSlice(colImg.get(2).getProcessor());
+		
+		// Timm Addition
+		ImagePlus[] imPlusStack = new ImagePlus[3];
+		imPlusStack[0] = colImg.get(0);
+		imPlusStack[1] = colImg.get(1);
+		imPlusStack[2] = colImg.get(2);
+		ImagePlus imgRGB = RGBStackMerge.mergeChannels(imPlusStack, true);
+		ij.IJ.saveAs(imgRGB, "png", fullFilename);
+		
 		ImagePlus coloredImage = new ImagePlus("", is);
 		coloredImage.setDimensions(3, 1, 1);
 		ij.IJ.save(coloredImage, fullFilenameTif);
-		coloredImage.getProcessor().convertToRGB();
-		ij.IJ.saveAs(coloredImage, "png", fullFilename);
+//		coloredImage.getProcessor().convertToRGB();
+//		ij.IJ.saveAs(coloredImage, "png", fullFilename);
 		return fullFilename;
 	}
 	
@@ -118,6 +129,12 @@ public class OutputClass {
 		is.addSlice(colImg.get(0).getProcessor());
 		is.addSlice(colImg.get(1).getProcessor());
 		is.addSlice(colImg.get(2).getProcessor());
+		ImagePlus[] imPlusStack = new ImagePlus[3];
+		imPlusStack[0] = colImg.get(0);
+		imPlusStack[1] = colImg.get(1);
+		imPlusStack[2] = colImg.get(2);
+		ImagePlus imgRGB = RGBStackMerge.mergeChannels(imPlusStack, true);
+		ij.IJ.saveAs(imgRGB, "png", fullFilename);
 		ImagePlus coloredImage = new ImagePlus("", is);
 		coloredImage.setDimensions(3, 1, 1);
 		ij.IJ.save(coloredImage, fullFilename);
@@ -553,3 +570,4 @@ public class OutputClass {
 		}
 	}
 }
+

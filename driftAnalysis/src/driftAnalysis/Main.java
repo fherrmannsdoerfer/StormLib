@@ -21,27 +21,36 @@ public class Main {
 
 	public static void main(String[] args) {
 		
-		//String tag = "150818PhaloidinAlexa647MitochondriaCF680Messung2";
+		//
+		
+		String tag = "151021CosCBFixedPhalA647TimmMessung2";
 		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
-		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
-		String tag2 = "LeftChannel141107MicrotubuliAlexa647Cos3dMessung2ThunderSTROM2std.csv";
-		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\141107MicrotubuliAlexa647Cos3dMessung2\\" ;
+		
+//		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\ThunderStorm\\";
+		String path1 = "\\\\129.206.158.175\\FN-Praktikant\\Timm\\OwnDemixings\\"+tag+"\\Auswertung\\ThunderStorm\\";
+//String path1 = "D:\\141219-RapidStorm-SynPhys-Phalloidin\\";
+//	String path1 = "D:\\ErythrocytesNearestneighbor-Test\\";
+		
+		String tag2 = "pt001";
+//		String path1 = "D:\\ery-exp\\";
 		//String tag2 ="Nup133colony12-int2500.txt";
 		//twoColorRegistration(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
-		//demixingMultipleInputFiles(path1,"LeftChannel",path1,"RightChannel");
+//		singleColor3dMultipleInput(path1, "LeftChannel");
+		demixingMultipleInputFiles(path1,"LeftChannel",path1,"RightChannel");
 
 		//dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
 		//dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
-		singleColor3dImage(path1,tag2);
-	//singleColor3dImage(path1,tag);
+		//singleColor3dImage(path1,tag+tag2+".txt");
+//singleColor3dImage(path1,tag);
 		//createVispOutput(path1,"LeftChannel"+tag+".txt");
 		//singleColor3dImage(path1,"LeftChannel"+tag+tag2+".txt");
 		//singleColor3dMultipleInput(path1,"LeftChannel");
-		//singleColor3dImage(path1,"1Localizations.txt");
-		//dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
+//		singleColor3dImage(path1,"7StandardDeviations.txt");
+// dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
 		//String fname = "SelfMeassuredloa15.00aoa1.57bspnm1.65pabs0.10abpf14.00rof12.00sxy8.00sz35.00bspsnm0.01_MalkOutput.txt";
 		//createVispOutput("D:\\MessungenTemp\\150705Phalloidin647-NativeErythrocytesMessung7\\Messung1\\Auswertung\\ThunderStorm\\","LeftChannel150705Phalloidin647-NativeErythrocytesMessung7.txt");
 		//singleColor3dImage(path1,tag2);
+//		singleColor3dImage(path1,"LeftChannel150512ErythrocytesPhalloidinAlexa647Messung1Thunderstorm.txt");
 		//singleColor2dImage(path1,tag2);
 	}
 	
@@ -62,13 +71,14 @@ public class Main {
 		ArrayList<StormData> list = Utilities.openSeries(path, pattern, "lol", "undso");
 		StormData sd = list.get(0);
 		sd.renderImage3D(10);
-		sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/7 ));
-		sd.connectPoints(100, 100, 150, 3);
-		sd.estimateLocalizationPrecision(100, 100);
+		//sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/7 ));
+		//sd.connectPoints(100, 100, 150, 3);
+		//sd.estimateLocalizationPrecision(100, 100);
 		
 		sd.writeArrayListForVisp("");
 		//sd.correctDrift(4000);
 		sd.renderImage3D(10);
+		sd.writeLocs();
 		sd.createPdf();
 	}
 	
@@ -145,22 +155,22 @@ public class Main {
 		
 		//sd2.createPdf();
 		//StormData unmixedSd = Demixing.spectralUnmixing(sd1, sd2,false);
-		System.out.println("total number of partwise demixed localizations: "+unmixedFromParts.getSize());
+		System.out.println("total number of partwise demixed localizations: "+unmixedFromParts.getSize()+" of "+Math.min(sd1.getSize(),sd2.getSize()));
+		System.out.println("total number of partwise demixed localizations in %: "+100*unmixedFromParts.getSize()/Math.min(sd1.getSize(),sd2.getSize()));
 		StormData unmixedSd = unmixedFromParts;
 		unmixedSd.estimateLocalizationPrecision(50, 900);
 		//unmixedSd.correctDrift((int)Math.ceil((double)unmixedSd.getDimensions().get(7)/5));
 
-		//unmixedSd.connectPoints(20, 20, 120, 2);
+		unmixedSd.connectPoints(50, 50, 100, 2);
 		unmixedSd.estimateLocalizationPrecision(50, 300);
-		DemixingParameters demixingParams= new DemixingParameters((40)/180. * Math.PI,
-				(67)/180.*Math.PI, 20/180.*Math.PI, 20/180.*Math.PI);
+		DemixingParameters demixingParams= new DemixingParameters((42)/180. * Math.PI,
+				(70)/180.*Math.PI, 20/180.*Math.PI, 20/180.*Math.PI);
 		ArrayList<ImagePlus> colImg = unmixedSd.renderDemixingImage(10, demixingParams);
 		unmixedSd.writeArrayListForVisp(demixingParams);
 		unmixedSd.correctDrift((int)Math.ceil((double)unmixedSd.getDimensions().get(7)/5));
-		unmixedSd.cropCoords(16880,19788,8120, 10689, 0,9000, 0, 10000);
+		//unmixedSd.cropCoords(0, 100000, 0, 100000, 380, 680, 0, 10000);
 		colImg = unmixedSd.renderDemixingImage(10, demixingParams);
 		unmixedSd.writeArrayListForVisp(demixingParams);
-		unmixedSd.writeArrayListForFRC(demixingParams);
 		unmixedSd.createPdf();
 	}
 	
@@ -219,31 +229,37 @@ public class Main {
 	static void singleColor3dImage(String path, String fname){
 		StormData sd = new StormData(path, fname);
 		sd.renderImage3D(10);
-		sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/5 ));
-		//sd.cropCoords(8780, 9420, 11360, 12000, -999, 99999, 00, 18000);
-		//sd.estimateLocalizationPrecision(100, 100);
-		sd.connectPoints(50, 50, 150, 3);
-		sd.writeArrayListForFRC();
-		sd.writeArrayListForVisp();
-		sd.cropCoords(8874, 9514, 11300, 11940);
-		
+		sd.estimateLocalizationPrecision(200, 200);
+		//sd.writeArrayListForFRC();
+		//sd.connectPoints(100, 100, 150, 3);
+		//sd.writeArrayListForFRC("connected");
+
+		//sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/5 ));
+		//sd.writeArrayListForFRC("connectedanddrift");
+		//sd.connectPoints(100, 100, 150, 3);
+	//	sd.writeArrayListForFRC("connected");
+	//	sd.estimateLocalizationPrecision(100, 100);
+		//sd.cropCoords(-1580, -940, -200, 440);
 		//sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/3 ));8
 		//sd.connectPoints(100, 100, 150, 3);
-		sd.renderImage3D(10);
+	//sd.renderImage3D(10);
+	//sd.writeArrayListForFRC("ConDC");
 		
-		
-		
-		//sd.writeArrayListForVisp("");
+	//	sd.writeArrayListForVisp("ConDC");
 		//sd.correctDrift(4000);
-		//sd.cropCoords(1000, 8000, 15500, 23000, 140, 450);
+	//	sd.writeArrayListForFRC("drift");
+		//sd.cropCoords(0, 100000, 0, 100000, 300, 600, 0, 10000);
 		
-		sd.writeArrayListForVisp("cropped");
-		sd.writeArrayListForFRC("cropped");
-		sd.cropCoords(0, 100000, 0, 100000, -99990, 5500, 0, 10000);
-		sd.writeArrayListForVisp("croppedxyandframes");
-		sd.writeArrayListForFRC("croppedxyandframes");
-		sd.renderImage3D(10,"croppedzandframes");
+	//	sd.writeArrayListForVisp("conDCcropped300-600-0-10000");
+	
+		//sd.cropCoords(4960, 5600, 8660, 9300, 200, 550, 0, 60000);
+		
+		//sd.writeArrayListForFRC("driftandcropped10000frames");
+		//sd.writeArrayListForVisp();
+		//sd.renderImage3D(10,"cropped200-500NewColor");
 		//sd.createPdf();
+		//sd.writeArrayListForFRC("conDCcropped300-600-0-10000");
+		//sd.renderImage3D(10);
 	}
 	
 	static void singleColor2dImage(String path, String fname){
@@ -349,6 +365,14 @@ public class Main {
 		//unmixedSd.cropCoords(0, 100000, 0, 100000, 380, 680, 0, 10000);
 		colImg = unmixedSd.renderDemixingImage(10, demixingParams);
 		unmixedSd.writeArrayListForVisp(demixingParams);
-		unmixedSd.createPdf();
+		unmixedSd.writeArrayListForFRC(demixingParams);
+	
+		unmixedSd.cropCoords(0, 100000, 0, 100000, 0, 900, 0, 10000);
+		unmixedSd.writeArrayListForVisp("cropped0-10000frames");
+		unmixedSd.writeArrayListForFRC("cropped0-10000frames");
+		unmixedSd.cropCoords(0, 100000, 0, 100000, 300, 600, 0, 10000);
+		unmixedSd.writeArrayListForVisp("cropped0-10000frames-0-300z");
+		unmixedSd.writeArrayListForFRC("cropped0-10000frames0-300z");
+	
 	}
 }

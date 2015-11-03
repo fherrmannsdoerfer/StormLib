@@ -410,5 +410,6 @@ class DemixingData{
 	public ArrayList<StormLocalization> getUntransformedCh1(){
 		return listUntransformedCh2;
 	}
+
 }
  
