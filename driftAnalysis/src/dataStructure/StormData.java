@@ -894,19 +894,35 @@ public class StormData {
 	}
 	
 	public void writeArrayListForFRC(){
-		writeArrayListForFRC(processingLog);
+		writeArrayListForFRC(processingLog,1);
 	}
 	
-	public void writeArrayListForFRC(String tag) {
-		OutputClass.writeArrayListForFRC(path, getBasename(), locs, tag);
+	public void writeArrayListForFRC(String tag){
+		writeArrayListForFRC(tag,1);
+	}
+	
+	public void writeArrayListForFRC(int mode){
+		writeArrayListForFRC(processingLog,mode);
+	}
+	
+	public void writeArrayListForFRC(String tag, int mode) {
+		OutputClass.writeArrayListForFRC(path, getBasename(), locs, tag, mode);
 	}
 	
 	public void writeArrayListForFRC(DemixingParameters demixingParams){
-		OutputClass.writeArrayListForFRC(path,getBasename(), locs,processingLog, demixingParams);
+		OutputClass.writeArrayListForFRC(path,getBasename(), locs,processingLog, demixingParams,1);
 	}
 	
-	public void writeArrayListForFRC(DemixingParameters demixingParams, String tag){
-		OutputClass.writeArrayListForFRC(path,getBasename(), locs,tag, demixingParams);
+	public void writeArrayListForFRC(DemixingParameters demixingParams,String tag){
+		OutputClass.writeArrayListForFRC(path,getBasename(), locs,tag, demixingParams,1);
+	}
+	
+	public void writeArrayListForFRC(DemixingParameters demixingParams, int mode){
+		OutputClass.writeArrayListForFRC(path,getBasename(), locs,processingLog, demixingParams,mode);
+	}
+	
+	public void writeArrayListForFRC(DemixingParameters demixingParams, String tag, int mode){
+		OutputClass.writeArrayListForFRC(path,getBasename(), locs,tag, demixingParams, mode);
 	}
 	
 	public void writeArrayListForVisp(DemixingParameters demixingParams){
