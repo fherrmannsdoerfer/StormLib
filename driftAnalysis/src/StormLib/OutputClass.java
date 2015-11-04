@@ -148,8 +148,8 @@ public class OutputClass {
 		double minAngle2 = demixingParams.getAngle2() - demixingParams.getWidth2()/2;
 		double maxAngle2 = demixingParams.getAngle2() + demixingParams.getWidth2()/2;
 		try {
-			FileWriter writer1 = new FileWriter(path+"forVispCH1_"+basename+tag+".txt");
-			FileWriter writer2 = new FileWriter(path+"forVispCH2_"+basename+tag+".txt");
+			FileWriter writer1 = new FileWriter(path+"Statistics\\Texts\\"+"forVispCH1_"+basename+tag+".txt");
+			FileWriter writer2 = new FileWriter(path+"Statistics\\Texts\\"+"forVispCH2_"+basename+tag+".txt");
 			for (int i = 0; i<locs.size(); i++){
 				StormLocalization sl = locs.get(i);
 				if (((sl.getAngle()> minAngle1 && sl.getAngle()< maxAngle1))|| sl.getAngle() == 0){
@@ -168,7 +168,7 @@ public class OutputClass {
 
 	public static void writeArrayListForVisp(String path, String basename, ArrayList<StormLocalization> locs, String tag) {
 		try {
-			FileWriter writer = new FileWriter(path+"forVisp_"+basename+tag+".txt");
+			FileWriter writer = new FileWriter(path+"Statistics\\Texts\\"+"forVisp_"+basename+tag+".txt");
 			for (int i = 0; i<locs.size(); i++){
 				writer.append(locs.get(i).toPlainVispString()+"\n");
 			}
@@ -179,7 +179,7 @@ public class OutputClass {
 
 	public static void writeArrayListForFRC(String path, String basename, ArrayList<StormLocalization> locs, String tag, int mode) {
 		try {
-			FileWriter writer = new FileWriter(path+"forFRC_"+basename+tag+".txt");
+			FileWriter writer = new FileWriter(path+"Statistics\\Texts\\"+"forFRC_"+basename+tag+".txt");
 			for (int i = 0; i<locs.size(); i++){
 				writer.append(locs.get(i).toPlainFRCString(mode)+"\n");
 			}
@@ -195,8 +195,8 @@ public class OutputClass {
 		double minAngle2 = demixingParams.getAngle2() - demixingParams.getWidth2()/2;
 		double maxAngle2 = demixingParams.getAngle2() + demixingParams.getWidth2()/2;
 		try {
-			FileWriter writer1 = new FileWriter(path+"forFRCCH1_"+basename+tag+".txt");
-			FileWriter writer2 = new FileWriter(path+"forFRCCH2_"+basename+tag+".txt");
+			FileWriter writer1 = new FileWriter(path+"Statistics\\Texts\\"+"forFRCCH1_"+basename+tag+".txt");
+			FileWriter writer2 = new FileWriter(path+"Statistics\\Texts\\"+"forFRCCH2_"+basename+tag+".txt");
 			for (int i = 0; i<locs.size(); i++){
 				StormLocalization sl = locs.get(i);
 				if (((sl.getAngle()> minAngle1 && sl.getAngle()< maxAngle1))|| sl.getAngle() == 0){

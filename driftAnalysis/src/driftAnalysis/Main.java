@@ -27,7 +27,7 @@ public class Main {
 		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
 		
 //		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\ThunderStorm\\";
-		String path1 = "\\\\129.206.158.175\\FN-Praktikant\\Timm\\OwnDemixings\\"+tag+"\\Auswertung\\ThunderStorm\\";
+		String path1 = "Y:\\Users_shared\\Varun\\V16-3beads\\Auswertung\\Thunderstorm\\";
 //String path1 = "D:\\141219-RapidStorm-SynPhys-Phalloidin\\";
 //	String path1 = "D:\\ErythrocytesNearestneighbor-Test\\";
 		
@@ -36,7 +36,7 @@ public class Main {
 		//String tag2 ="Nup133colony12-int2500.txt";
 		//twoColorRegistration(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
 //		singleColor3dMultipleInput(path1, "LeftChannel");
-		demixingMultipleInputFiles(path1,"LeftChannel",path1,"RightChannel");
+		//demixingMultipleInputFiles(path1,"LeftChannel",path1,"RightChannel");
 
 		//dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
 		//dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
@@ -44,7 +44,7 @@ public class Main {
 //singleColor3dImage(path1,tag);
 		//createVispOutput(path1,"LeftChannel"+tag+".txt");
 		//singleColor3dImage(path1,"LeftChannel"+tag+tag2+".txt");
-		//singleColor3dMultipleInput(path1,"LeftChannel");
+		singleColor3dMultipleInput(path1,"ms");
 //		singleColor3dImage(path1,"7StandardDeviations.txt");
 // dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
 		//String fname = "SelfMeassuredloa15.00aoa1.57bspnm1.65pabs0.10abpf14.00rof12.00sxy8.00sz35.00bspsnm0.01_MalkOutput.txt";
@@ -68,10 +68,9 @@ public class Main {
 	}
 	
 	static void singleColor3dMultipleInput(String path, String pattern){
-		ArrayList<StormData> list = Utilities.openSeries(path, pattern, "lol", "undso");
-		StormData sd = list.get(0);
+		StormData sd = Utilities.openSeries(path, pattern);
 		sd.renderImage3D(10);
-		//sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/7 ));
+		sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/7 ));
 		//sd.connectPoints(100, 100, 150, 3);
 		//sd.estimateLocalizationPrecision(100, 100);
 		
@@ -80,6 +79,7 @@ public class Main {
 		sd.renderImage3D(10);
 		sd.writeLocs();
 		sd.createPdf();
+		sd.writeArrayListForFRC();
 	}
 	
 	static void demixingMultipleInputFiles(String path1, String pattern1, String path2, String pattern2){
