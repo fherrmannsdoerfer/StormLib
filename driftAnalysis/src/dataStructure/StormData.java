@@ -1157,7 +1157,7 @@ public class StormData {
 		int firstFrame = (int) ((double)tmp.getDimensions().get(6));
 		for (int i = 0; i< tmp.getSize(); i++){
 			StormLocalization sl = tmp.getElement(i);
-			sl.setFrame(sl.getFrame()+lastFrame-firstFrame);
+			sl.setFrame(sl.getFrame()+lastFrame);
 			getLocs().add(sl);
 		}
 		
