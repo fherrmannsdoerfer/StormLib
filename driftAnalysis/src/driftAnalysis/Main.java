@@ -27,7 +27,9 @@ public class Main {
 		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
 		
 //		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\ThunderStorm\\";
+
 		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\ordner\\F-Actin-TiffStack\\sigmas12_40labelingEff10PercentKOFF2000ver0\\";
+
 //String path1 = "D:\\141219-RapidStorm-SynPhys-Phalloidin\\";
 //	String path1 = "D:\\ErythrocytesNearestneighbor-Test\\";
 		
@@ -38,7 +40,7 @@ public class Main {
 //		singleColor3dMultipleInput(path1, "LeftChannel");
 		//demixingMultipleInputFiles(path1,"LeftChannel",path1,"RightChannel");
 
-		//dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
+		dualColor(path1, "LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
 		//dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
 		//singleColor3dImage(path1,tag+tag2+".txt");
 //singleColor3dImage(path1,tag);
@@ -174,6 +176,9 @@ public class Main {
 		unmixedSd.estimateLocalizationPrecision(50, 300);
 		DemixingParameters demixingParams= new DemixingParameters((42)/180. * Math.PI,
 				(70)/180.*Math.PI, 20/180.*Math.PI, 20/180.*Math.PI);
+		unmixedSd.estimateLocalizationPrecision(50, 300,demixingParams);
+		unmixedSd.estimateLocalizationPrecision(50, 300,"testTag",demixingParams);
+		
 		ArrayList<ImagePlus> colImg = unmixedSd.renderDemixingImage(10, demixingParams);
 		unmixedSd.writeArrayListForVisp(demixingParams);
 		unmixedSd.correctDrift((int)Math.ceil((double)unmixedSd.getDimensions().get(7)/5));
@@ -370,6 +375,8 @@ public class Main {
 		unmixedSd.estimateLocalizationPrecision(50, 300);
 		DemixingParameters demixingParams= new DemixingParameters((40)/180. * Math.PI,
 				(67)/180.*Math.PI, 20/180.*Math.PI, 20/180.*Math.PI);
+		unmixedSd.estimateLocalizationPrecision(50, 300,demixingParams);
+		unmixedSd.estimateLocalizationPrecision(50, 300,"testTag",demixingParams);
 		ArrayList<ImagePlus> colImg = unmixedSd.renderDemixingImage(10, demixingParams);
 		unmixedSd.writeArrayListForVisp(demixingParams);
 		unmixedSd.correctDrift((int)Math.ceil((double)unmixedSd.getDimensions().get(7)/5));
