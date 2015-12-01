@@ -894,19 +894,35 @@ public class StormData {
 	}
 	
 	public void writeArrayListForFRC(){
-		writeArrayListForFRC(processingLog);
+		writeArrayListForFRC(processingLog,1);
 	}
 	
-	public void writeArrayListForFRC(String tag) {
-		OutputClass.writeArrayListForFRC(path, getBasename(), locs, tag);
+	public void writeArrayListForFRC(String tag){
+		writeArrayListForFRC(tag,1);
+	}
+	
+	public void writeArrayListForFRC(int mode){
+		writeArrayListForFRC(processingLog,mode);
+	}
+	
+	public void writeArrayListForFRC(String tag, int mode) {
+		OutputClass.writeArrayListForFRC(path, getBasename(), locs, tag, mode);
 	}
 	
 	public void writeArrayListForFRC(DemixingParameters demixingParams){
-		OutputClass.writeArrayListForFRC(path,getBasename(), locs,processingLog, demixingParams);
+		OutputClass.writeArrayListForFRC(path,getBasename(), locs,processingLog, demixingParams,1);
 	}
 	
-	public void writeArrayListForFRC(DemixingParameters demixingParams, String tag){
-		OutputClass.writeArrayListForFRC(path,getBasename(), locs,tag, demixingParams);
+	public void writeArrayListForFRC(DemixingParameters demixingParams,String tag){
+		OutputClass.writeArrayListForFRC(path,getBasename(), locs,tag, demixingParams,1);
+	}
+	
+	public void writeArrayListForFRC(DemixingParameters demixingParams, int mode){
+		OutputClass.writeArrayListForFRC(path,getBasename(), locs,processingLog, demixingParams,mode);
+	}
+	
+	public void writeArrayListForFRC(DemixingParameters demixingParams, String tag, int mode){
+		OutputClass.writeArrayListForFRC(path,getBasename(), locs,tag, demixingParams, mode);
 	}
 	
 	public void writeArrayListForVisp(DemixingParameters demixingParams){
@@ -1018,8 +1034,8 @@ public class StormData {
 		return sigmaXY;
 	}
 	
-	public void estimateLocalizationPrecision(double dxy, double dz){
-		ArrayList<ArrayList<StormLocalization>> traces = Utilities.findTraces(locs, dxy, dxy, dz, 2);
+	public void estimateLocalizationPrecision(ArrayList<StormLocalization> localizations, double dxy, double dz,String tag){
+		ArrayList<ArrayList<StormLocalization>> traces = Utilities.findTraces(localizations, dxy, dxy, dz, 2);
 		ArrayList<ArrayList<Double>> distances = Utilities.getDistancesWithinTraces(traces);
 		double binwidth = 1;
 		ArrayList<ArrayList<Double>> histZ = Utilities.getHistogram(distances.get(1),binwidth);
@@ -1029,7 +1045,7 @@ public class StormData {
 		h.add(histXY.get(0));
 		h.add(y);
 		OutputClass.writeLocalizationEstimationHistogram(path, getBasename(),
-				histXY, histZ, binwidth, processingLog);
+				histXY, histZ, binwidth, processingLog + tag);
 		double sigmaXY, sigmaZ;
 		try {
 			//ArrayList<Double> params = Utilities.fitLocalizationPrecissionDistribution(h.get(0), h.get(1), 5,10,1,1,1);
@@ -1057,6 +1073,41 @@ public class StormData {
 		//System.out.println("sigmaXY: "+params.get(0)+ " omega: "+params.get(1)+ " dc: "+params.get(2)+" A1: "+params.get(3)+ " A2: "+params.get(4));
 		
 	}
+	
+	
+	public void estimateLocalizationPrecision(double dxy, double dz){
+		estimateLocalizationPrecision(locs,dxy, dz,"");
+	}
+	
+	public void estimateLocalizationPrecision(double dxy, double dz, String tag){
+		estimateLocalizationPrecision(locs,dxy, dz,tag);
+	}
+	
+	public void estimateLocalizationPrecision(double dxy, double dz, DemixingParameters demixingParams){
+		estimateLocalizationPrecision(dxy, dz, "", demixingParams);
+	}
+	
+	public void estimateLocalizationPrecision(double dxy, double dz, String tag, DemixingParameters demixingParams){
+		ArrayList<StormLocalization> ch1 = new ArrayList<StormLocalization>();
+		ArrayList<StormLocalization> ch2 = new ArrayList<StormLocalization>();
+		double minAngle1 = demixingParams.getAngle1() - demixingParams.getWidth1()/2;
+		double maxAngle1 = demixingParams.getAngle1() + demixingParams.getWidth1()/2;
+		double minAngle2 = demixingParams.getAngle2() - demixingParams.getWidth2()/2;
+		double maxAngle2 = demixingParams.getAngle2() + demixingParams.getWidth2()/2;
+		for (int i = 0; i<locs.size(); i++){
+			StormLocalization sl = locs.get(i);
+			if (((sl.getAngle()> minAngle1 && sl.getAngle()< maxAngle1))|| sl.getAngle() == 0){
+				ch1.add(sl);
+			}
+			else if ((sl.getAngle()> minAngle2 && sl.getAngle()< maxAngle2) || sl.getAngle() == Math.PI/2){
+				ch2.add(sl);
+			}
+		}
+		
+		estimateLocalizationPrecision(ch1,dxy, dz,tag+"Ch1");
+		estimateLocalizationPrecision(ch2,dxy, dz,tag+"Ch2");
+	}
+	
 		
 	ArrayList partitionData(int nbrIntervals, double maxDriftX, ArrayList<StormLocalization> locs) {
 		ArrayList<ArrayList> subsets= new ArrayList<ArrayList>(nbrIntervals);
@@ -1141,7 +1192,7 @@ public class StormData {
 		int firstFrame = (int) ((double)tmp.getDimensions().get(6));
 		for (int i = 0; i< tmp.getSize(); i++){
 			StormLocalization sl = tmp.getElement(i);
-			sl.setFrame(sl.getFrame()+lastFrame-firstFrame);
+			sl.setFrame(sl.getFrame()+lastFrame);
 			getLocs().add(sl);
 		}
 		

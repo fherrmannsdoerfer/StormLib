@@ -66,12 +66,27 @@ public class StormLocalization {
 		String tmp = this.x+" "+this.y+" "+this.z+" "+this.frame+" "+this.intensity+" "+this.angle;
 		return tmp;
 	}
+	
 	public String toPlainVispString() {
 		String tmp = this.x+" "+this.y+" "+this.z+" "+this.intensity+" "+this.frame;
 		return tmp;
 	}
-	public String toPlainFRCString(){
-		String tmp = this.x/106.66+" "+this.y/106.66+" "+this.frame;
+	
+	public String toPlainFRCString(int mode){
+		String tmp;
+		switch (mode){
+			case 1:
+				tmp = this.x/106.66+" "+this.y/106.66+" "+this.frame;
+				break;
+			case 2:
+				tmp = this.x/106.66+" "+this.z/106.66+" "+this.frame;
+				break;
+			case 3:
+				tmp = this.y/106.66+" "+this.z/106.66+" "+this.frame;
+				break;
+			default :
+				tmp = this.x/106.66+" "+this.y/106.66+" "+this.frame;
+		}
 		return tmp;
 	}
 }

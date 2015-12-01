@@ -1,5 +1,6 @@
 package StormLib;
 
+
 import functions.CreateScatterPlot;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -128,6 +129,12 @@ public class OutputClass {
 		is.addSlice(colImg.get(0).getProcessor());
 		is.addSlice(colImg.get(1).getProcessor());
 		is.addSlice(colImg.get(2).getProcessor());
+		ImagePlus[] imPlusStack = new ImagePlus[3];
+		imPlusStack[0] = colImg.get(0);
+		imPlusStack[1] = colImg.get(1);
+		imPlusStack[2] = colImg.get(2);
+		ImagePlus imgRGB = RGBStackMerge.mergeChannels(imPlusStack, true);
+		ij.IJ.saveAs(imgRGB, "png", fullFilename);
 		ImagePlus coloredImage = new ImagePlus("", is);
 		coloredImage.setDimensions(3, 1, 1);
 		ij.IJ.save(coloredImage, fullFilename);
@@ -169,11 +176,12 @@ public class OutputClass {
 			writer.close();
 		} catch (IOException e) {e.printStackTrace();}
 	}
-	public static void writeArrayListForFRC(String path, String basename, ArrayList<StormLocalization> locs, String tag) {
+
+	public static void writeArrayListForFRC(String path, String basename, ArrayList<StormLocalization> locs, String tag, int mode) {
 		try {
 			FileWriter writer = new FileWriter(path+"Statistics\\Texts\\"+"forFRC_"+basename+tag+".txt");
 			for (int i = 0; i<locs.size(); i++){
-				writer.append(locs.get(i).toPlainFRCString()+"\n");
+				writer.append(locs.get(i).toPlainFRCString(mode)+"\n");
 			}
 			writer.flush();
 			writer.close();
@@ -181,7 +189,7 @@ public class OutputClass {
 	}
 	
 	public static void writeArrayListForFRC(String path, String basename, ArrayList<StormLocalization> locs, 
-			String tag,DemixingParameters demixingParams) {
+			String tag,DemixingParameters demixingParams, int mode) {
 		double minAngle1 = demixingParams.getAngle1() - demixingParams.getWidth1()/2;
 		double maxAngle1 = demixingParams.getAngle1() + demixingParams.getWidth1()/2;
 		double minAngle2 = demixingParams.getAngle2() - demixingParams.getWidth2()/2;
@@ -192,10 +200,10 @@ public class OutputClass {
 			for (int i = 0; i<locs.size(); i++){
 				StormLocalization sl = locs.get(i);
 				if (((sl.getAngle()> minAngle1 && sl.getAngle()< maxAngle1))|| sl.getAngle() == 0){
-					writer1.append(sl.toPlainFRCString()+"\n");
+					writer1.append(sl.toPlainFRCString(mode)+"\n");
 				}
 				else if ((sl.getAngle()> minAngle2 && sl.getAngle()< maxAngle2) || sl.getAngle() == Math.PI/2){
-					writer2.append(sl.toPlainFRCString()+"\n");
+					writer2.append(sl.toPlainFRCString(mode)+"\n");
 				}
 			}
 			writer1.flush();
@@ -204,10 +212,11 @@ public class OutputClass {
 			writer2.close();
 		} catch (IOException e) {e.printStackTrace();}
 	}
+	
 	public static void writeLocs(String path, String basename,
 			ArrayList<StormLocalization> locs, String tag) {
 		try{
-			FileWriter writer = new FileWriter(path+"Statistics\\Texts\\"+basename+tag+".txt");
+			FileWriter writer = new FileWriter(path+basename+tag+".txt");
 			for (int i = 0; i<locs.size(); i++){
 				writer.append(locs.get(i).toPlainString()+"\n");
 			}
@@ -560,5 +569,5 @@ public class OutputClass {
 			e.printStackTrace();
 		}
 	}
-
 }
+
