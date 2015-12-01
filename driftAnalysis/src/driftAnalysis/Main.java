@@ -23,20 +23,22 @@ public class Main {
 		
 		//
 		
-		String tag = "151030CosPfa4MTA647Sek1to50000TimmMessung2";
-		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
+//		String tag = "64ms_1.txt";
+		//String tag = "151021CosCBFixedPhalA647TimmMessung2";
+	//	String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
+		String path1 = "D:\\MessungenTemp\\ZnT\\Auswertung\\Thunderstorm\\";
 		
-//		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\ThunderStorm\\";
-//		String path1 = "\\\\129.206.158.175\\FN-Praktikant\\Timm\\OwnDemixings\\"+tag+"\\Auswertung\\ThunderStorm\\";
-//String path1 = "D:\\141219-RapidStorm-SynPhys-Phalloidin\\";
+	//	String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\ThunderStorm\\";
+//	String path1 = "D:\\MessungenTemp\\V13-AndorAcquisition-1\\Auswertung\\Thunderstorm\\";
+//String path1 = "D:\\V14-2-32ms-Thunderstorm\\Auswertung\\Thunderstorm\\";
 //	String path1 = "D:\\ErythrocytesNearestneighbor-Test\\";
-		
-		String tag2 = "pt001";
-//		String path1 = "D:\\ery-exp\\";
-		//String tag2 ="Nup133colony12-int2500.txt";
+	//	String tag = "sig6_15labEff70duty0AngDev1000LabLen8ver0TiffStack.csv";
+//		String tag = "2std.txt";
+//String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\F-Actin1000Photonen\\sig12_40labEff10KOFF2000AngDev0LabLen16ver0\\Auswertung\\Thunderstorm\\";
+		//String tag2 ="pt001";
 		//twoColorRegistration(path1,"LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
-//		singleColor3dMultipleInput(path1, "LeftChannel");
-		demixingMultipleInputFiles(path1,"LeftChannel",path1,"RightChannel");
+singleColor3dMultipleInput(path1,"");
+	//	demixingMultipleInputFiles(path1,"LeftChannel",path1,"RightChannel");
 
 		//dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
 		//dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
@@ -44,9 +46,9 @@ public class Main {
 //singleColor3dImage(path1,tag);
 		//createVispOutput(path1,"LeftChannel"+tag+".txt");
 		//singleColor3dImage(path1,"LeftChannel"+tag+tag2+".txt");
-		//singleColor3dMultipleInput(path1,"LeftChannel");
-//		singleColor3dImage(path1,"7StandardDeviations.txt");
-// dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
+//singleColor3dMultipleInput(path1,"16-4nachgezeichnetkokoff1_10000");
+		//singleColor3dImage(path1,tag);
+	//	 dualColor(path1, "LeftChannel"+tag+tag2+".csv", path1, "RightChannel"+tag+tag2+".csv");
 		//String fname = "SelfMeassuredloa15.00aoa1.57bspnm1.65pabs0.10abpf14.00rof12.00sxy8.00sz35.00bspsnm0.01_MalkOutput.txt";
 		//createVispOutput("D:\\MessungenTemp\\150705Phalloidin647-NativeErythrocytesMessung7\\Messung1\\Auswertung\\ThunderStorm\\","LeftChannel150705Phalloidin647-NativeErythrocytesMessung7.txt");
 		//singleColor3dImage(path1,tag2);
@@ -68,16 +70,29 @@ public class Main {
 	}
 	
 	static void singleColor3dMultipleInput(String path, String pattern){
-		ArrayList<StormData> list = Utilities.openSeries(path, pattern, "lol", "undso");
-		StormData sd = list.get(0);
+		StormData sd = Utilities.openSeries(path, pattern);
 		sd.renderImage3D(10);
-		//sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/7 ));
-		//sd.connectPoints(100, 100, 150, 3);
+		sd.estimateLocalizationPrecision(200, 200);
+		sd.writeArrayListForFRC();
+		sd.writeArrayListForVisp();
+		sd.connectPoints(100, 100, 150, 3);
+		sd.writeArrayListForFRC("connected");
+		sd.writeArrayListForVisp("connected");
+		sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/7 ));
+		sd.writeArrayListForFRC("connectedanddriftcorrected");
+		sd.renderImage3D(10) ;
+		sd.writeArrayListForVisp("connectedanddriftcorrected");
+	sd.cropCoords(0, 100000, 0, 100000, -3000, 2000, 20000, 25000) ;
 		//sd.estimateLocalizationPrecision(100, 100);
-		
-		sd.writeArrayListForVisp("");
-		//sd.correctDrift(4000);
+		sd.writeArrayListForFRC("20000-25000");
+		sd.writeArrayListForVisp("20000-25000");
 		sd.renderImage3D(10);
+		//sd.correctDrift(4000);
+		//sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/7 ));
+		//sd.writeArrayListForFRC("connectedanddrift");
+		//sd.writeArrayListForVisp("connectedanddrift");
+		//sd.correctDrift(4000);
+		//sd.renderImage3D(10);
 		sd.writeLocs();
 		sd.createPdf();
 	}
@@ -230,6 +245,16 @@ public class Main {
 		StormData sd = new StormData(path, fname);
 		sd.renderImage3D(10);
 		sd.estimateLocalizationPrecision(200, 200);
+		sd.writeArrayListForFRC();
+		sd.writeArrayListForVisp();
+		sd.connectPoints(100, 100, 150, 3);
+		sd.writeArrayListForFRC("connected");
+		sd.writeArrayListForVisp("connected");
+		//sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/7 ));
+		//sd.writeArrayListForFRC("connectedanddriftcorrected");
+		//sd.writeArrayListForVisp("connectedanddriftcorrected");
+		//sd.renderImage3D(10);
+		//sd.estimateLocalizationPrecision(200, 200);
 		//sd.writeArrayListForFRC();
 		//sd.connectPoints(100, 100, 150, 3);
 		//sd.writeArrayListForFRC("connected");
