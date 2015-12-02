@@ -303,22 +303,25 @@ public class StormData {
 		return ret;
 	}
 	public ImagePlus renderImage2D(double pixelsize){
-		return renderImage2D(pixelsize, true, processingLog,0,-1); // function is also used to create images for the fourier transformation for the drift correction
+		return renderImage2D(pixelsize, true, processingLog,0,-1,10); // function is also used to create images for the fourier transformation for the drift correction
 	}
 	public ImagePlus renderImage2D(double pixelsize, String tag) {
-		return renderImage2D(pixelsize, true, tag,0,-1);
+		return renderImage2D(pixelsize, true, tag,0,-1,10);
 	}
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage){
-		return renderImage2D(pixelsize, saveImage, "",0,-1);
+		return renderImage2D(pixelsize, saveImage, "",0,-1,10);
 	}
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag){
-		return renderImage2D(pixelsize, saveImage,tag,0,-1);
+		return renderImage2D(pixelsize, saveImage,tag,0,-1,10);
 	}
-	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize){ 
+	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize){
+		return renderImage2D(pixelsize,saveImage,tag,mode,maxPixelsize,10);
+	}
+	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize, double sigma){ 
 		//render localizations from Stormdata to Image Plus Object
 		//mode specifies which projection is rendered 0:xy plane, 1: xz, 2:yz
-		double sigma = 5/pixelsize; //in nm sigma to blur localizations
-		int filterwidth = 3; // must be odd
+		sigma = sigma/pixelsize; //in nm sigma to blur localizations
+		int filterwidth = (int) ( 2*Math.floor(2*(int)sigma)+1); // must be odd
 		ArrayList<Double> dims = getDimensions();
 		int pixelX = 0;
 		int pixelY = 0;
@@ -1330,6 +1333,35 @@ public class StormData {
 
 	public void setOutputPath(String outputPath) {
 		this.outputPath = outputPath;
+	}
+	
+	//add value specified in shift to the coordinate of the coordDim th dimension
+	//order is x,y,z,frame,int,angle
+	public void shift(int coordDim, double shift) {
+		for (StormLocalization sl:locs){
+			switch (coordDim) {
+				case 0:
+					sl.setX(sl.getX()+shift);
+					break;
+				case 1:
+					sl.setY(sl.getY()+shift);
+					break;
+				case 2:
+					sl.setZ(sl.getZ()+shift);
+					break;
+				case 3:
+					sl.setFrame((int) (sl.getFrame()+shift));
+					break;
+				case 4:
+					sl.setIntensity(sl.getIntensity()+shift);
+					break;
+				case 5:
+					sl.setAngle(sl.getAngle()+shift);
+					break;
+				default:
+					System.out.println("no valid coordinat to shift");
+			}
+		}
 	}
 }
 	

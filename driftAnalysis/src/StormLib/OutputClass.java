@@ -83,10 +83,16 @@ public class OutputClass {
 		String picnameTif = basename+"_2Dreconstruction_"+tag+".tif";
 		String fullFilename = path+"Statistics\\Pictures\\"+picname;
 		String fullFilenameTif = path+"Statistics\\Pictures\\"+picnameTif;
-		ij.IJ.save(new ImagePlus("",imgP.getProcessor().convertToByte(false)), fullFilename);
-		ij.IJ.save(imgP, fullFilenameTif);
+		save2DImage(fullFilename,imgP);
+		//ij.IJ.save(new ImagePlus("",imgP.getProcessor().convertToByte(false)), fullFilename);
+		save2DImage(fullFilenameTif,imgP);
+		//ij.IJ.save(imgP, fullFilenameTif);
 		writeImageSaveStatistics(path, basename, pixelsize, imgP, picname);
 		return fullFilename;
+	}
+	
+	public static void save2DImage(String fullFilename,ImagePlus imgP){
+		ij.IJ.save(imgP,fullFilename);
 	}
 
 	public static String saveDemixingImage(String path, String basename, String tag,

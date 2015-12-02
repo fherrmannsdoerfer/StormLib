@@ -2,6 +2,8 @@ package dataStructure;
 
 public class StormLocalization {
 	private double x;
+	
+
 	private double y;
 	private double z;
 	private int frame;
@@ -57,6 +59,10 @@ public class StormLocalization {
 	void setFrame(int frame){this.frame = frame;}
 	public double getAngle(){return this.angle;}
 	public double getIntensity(){return this.intensity;}
+	public void setX(double x) {this.x = x;}
+	public void setY(double y) {this.y = y;}
+	public void setIntensity(double intensity) {this.intensity = intensity;}
+	public void setAngle(double angle) {this.angle = angle;}
 	@Override public String toString(){
 		String tmp = "X: "+this.x+" Y: "+this.y+" Z: "+this.z+" frame: "+this.frame+" intensity: "+this.intensity+" angle: "+this.angle;
 		return tmp;
