@@ -41,6 +41,7 @@ import StormLib.HelperClasses.SaveDemixingImageLog;
 
 
 public class StormData {
+	boolean verbose = true;
 	boolean isSortedByFrame = false;
 	private ArrayList<StormLocalization> locs = new ArrayList<StormLocalization>();
 	private String path;
@@ -147,7 +148,9 @@ public class StormData {
 			FileImportLog fl = new FileImportLog(errorLines,locs.size(),path,getBasename());
 			logs.add(fl);
 			OutputClass.writeLoadingStatistics(path, getBasename(), errorLines, locs.size());
-			System.out.println("File contains "+getLocs().size()+" localizations.");
+			if (verbose){
+				System.out.println("File contains "+getLocs().size()+" localizations.");
+			}
 		} 
 		catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -196,7 +199,9 @@ public class StormData {
 				return i;
 			}
 		}
-		System.out.println("Given frame "+frame+"is larger than any contained localization!");
+		if(verbose){
+			System.out.println("Given frame "+frame+"is larger than any contained localization!");
+		}
 		return getLocs().size()-1; //if the given frame is larger than any frame the last index is reported
 	}
 	
@@ -236,7 +241,9 @@ public class StormData {
 				return Math.max(0, i-1); //if the given frame is lower than any frame the first index is reported
 			}
 		}
-		System.out.println("Given frame "+frame+"is larger than any contained localization!");
+		if (verbose){
+			System.out.println("Given frame "+frame+"is larger than any contained localization!");
+		}
 		return getLocs().size()-1;
 	}
 	
@@ -372,10 +379,13 @@ public class StormData {
 		
 		float [][] image = new float[pixelX][pixelY];
 		image = addFilteredPoints(image, sigma, filterwidth, pixelsize, getLocs(),mode);
+		image = normalizeChannel(image);
 		ImageProcessor ip = new FloatProcessor(pixelX,pixelY);
 		ip.setFloatArray(image);
 		ImagePlus imgP = new ImagePlus("", ip);
-		//System.out.println("Image rendered ("+imgP.getWidth()+"*"+imgP.getHeight()+")");
+		if (verbose){	
+			System.out.println("Image rendered ("+imgP.getWidth()+"*"+imgP.getHeight()+")");
+		}
 		if (saveImage){
 			Save2DImage si = new Save2DImage(path, getBasename(), tag,imgP, pixelsize);
 			logs.add(si);
@@ -432,7 +442,9 @@ public class StormData {
 		ImagePlus imgPRed = new ImagePlus("", ipRed);
 		ImagePlus imgPGreen = new ImagePlus("", ipGreen);
 		ImagePlus imgPBlue = new ImagePlus("", ipBlue);
-		System.out.println("3D Image rendered ("+imgPRed.getWidth()+"*"+imgPRed.getHeight()+")");
+		if (verbose){
+			System.out.println("3D Image rendered ("+imgPRed.getWidth()+"*"+imgPRed.getHeight()+")");
+		}
 		ArrayList<ImagePlus> colImg = new ArrayList<ImagePlus>();
 		colImg.add(imgPRed);
 		colImg.add(imgPGreen);
@@ -456,7 +468,9 @@ public class StormData {
 		ArrayList<Double> dims = getDimensions();
 		double zMin = 400 ; //dims.get(4);
 		double zMax = 800; //dims.get(5);
-		System.out.println("zMax: "+zMax);
+		if (verbose){
+			System.out.println("zMax: "+zMax);
+		}
 		float[][] redChannel = coloredImage.get(0);
 		float[][] greenChannel = coloredImage.get(1);
 		float[][] blueChannel = coloredImage.get(2);
@@ -527,7 +541,9 @@ public class StormData {
 		ImagePlus imgPRed = new ImagePlus("", ipRed);
 		ImagePlus imgPGreen = new ImagePlus("", ipGreen);
 		ImagePlus imgPBlue = new ImagePlus("", ipBlue);
-		System.out.println("3D Image rendered ("+imgPRed.getWidth()+"*"+imgPRed.getHeight()+")");
+		if (verbose){
+			System.out.println("3D Image rendered ("+imgPRed.getWidth()+"*"+imgPRed.getHeight()+")");
+		}
 		ArrayList<ImagePlus> colImg = new ArrayList<ImagePlus>();
 		colImg.add(imgPRed);
 		colImg.add(imgPGreen);
@@ -584,7 +600,9 @@ public class StormData {
 		double zMin = dims.get(4);
 		double zMax = dims.get(5);
 		zMax = zMax - zMin;//all z should lie between 0 and a certain maximum for the rendering
-		System.out.println("zMax: "+zMax);
+		if (verbose){
+			System.out.println("zMax: "+zMax);
+		}
 		float[][] redChannel = coloredImage.get(0);
 		float[][] greenChannel = coloredImage.get(1);
 		float[][] blueChannel = coloredImage.get(2);
@@ -665,7 +683,7 @@ public class StormData {
 						}*/
 					} catch(Exception e){
 						//System.out.println(e.toString());
-						}
+					}
 				}
 			}
 		}
@@ -727,6 +745,51 @@ public class StormData {
 		return 0;
 	}
 
+	float[][] normalizeChannel(float[][] image){
+		double max = 0;
+		double min = Double.MAX_VALUE;
+		for (int i = 0; i<image.length;i++){
+			for(int j = 0; j<image[0].length; j++){
+				max = Math.max(image[i][j],max);
+				min = Math.min(image[i][j],min);
+			}
+		}
+		int[] hist = new int[65536];
+		int nbrEntries = 0;
+		for (int i=0;i<65536;i++){
+			hist[i] = 0;
+		}
+		for (int i = 0; i<image.length;i++){
+			for(int j = 0; j<image[0].length; j++){
+				image[i][j] = (float) Math.ceil((image[i][j] - min)/(max - min) * 65535);
+				hist[(int)image[i][j]] += 1;
+				nbrEntries +=1;
+				//System.out.println(hist[0]+ " "+ (int)redChannel[i][j]+ "nbrEntries "+ nbrEntries);
+			}
+		}
+		double percentile = 0.99;
+		int sum = 0;
+		double counts = nbrEntries - hist[0];//counts is the number of intensities above 0
+		double newMaximum = 0;
+		for (int i=1;i<65536;i++){
+			//System.out.println("sum: "+sum+" counts: "+ counts+"nbrEntries "+nbrEntries+"hist[0] "+hist[0]);
+			sum = sum +hist[i];
+			if (sum>percentile * counts){
+				newMaximum = i;
+				break;
+			}
+		}
+		if (verbose){
+			System.out.println("Normalization:  Max: "+max+" newMax: "+newMaximum);
+		}
+		for (int i = 0; i<image.length;i++){
+			for(int j = 0; j<image[0].length; j++){
+				image[i][j] = (float)Math.min((image[i][j] )/(newMaximum)*65535,65535);
+			}
+		}
+		return image;		
+	}
+	
 	ArrayList<float[][]> normalizeChannels(float[][] redChannel, float[][] greenChannel, float[][] blueChannel){
 		double max = 0;
 		double min = Double.MAX_VALUE;
@@ -769,7 +832,9 @@ public class StormData {
 				break;
 			}
 		}
-		System.out.println("Max: "+max+" newMax: "+newMaximum);
+		if (verbose){
+			System.out.println("Normalization:  Max: "+max+" newMax: "+newMaximum);
+		}
 		for (int i = 0; i<redChannel.length;i++){
 			for(int j = 0; j<redChannel[0].length; j++){
 				redChannel[i][j] = (float)Math.min((redChannel[i][j] )/(newMaximum)*65535,65535);
@@ -777,17 +842,7 @@ public class StormData {
 				blueChannel[i][j] = (float)Math.min((blueChannel[i][j] )/(newMaximum)*65535,65535);
 			}
 		}
-		max = 0;
-		for (int i = 0; i<redChannel.length;i++){
-			for(int j = 0; j<redChannel[0].length; j++){
-				max = Math.max(redChannel[i][j],max);
-				max = Math.max(greenChannel[i][j],max);
-				max = Math.max(blueChannel[i][j],max);
-				min = Math.min(redChannel[i][j],min);
-				min = Math.min(greenChannel[i][j],min);
-				min = Math.min(blueChannel[i][j],min);
-			}
-		}
+		
 		ArrayList<float[][]> ret = new ArrayList<float[][]>();
 		ret.add(redChannel);
 		ret.add(greenChannel);
@@ -980,7 +1035,9 @@ public class StormData {
 		double[][] localSigma = new double[nbrWindowsX][nbrWindowsY];
 		ExecutorService executor2 = Executors.newFixedThreadPool(8);
 		for (int i = 0; i<nbrWindowsX; i++){
-			System.out.println(i+" "+nbrWindowsX);
+			if (verbose){
+				System.out.println(i+" "+nbrWindowsX);
+			}
 			ulcX = i * shiftX;
 			ArrayList<StormLocalization> sl = this.cropCoords(ulcX, ulcX+widthWindow,ymin, ymax);
 			System.out.println("sl.size() "+sl.size());
@@ -1007,7 +1064,9 @@ public class StormData {
 		for (int i = 0; i<nbrWindowsX; i++){
 			
 			for (int j = 0; j<nbrWindowsY; j++){
-				System.out.println(i+"/"+nbrWindowsX+" "+j+"/"+nbrWindowsY);
+				if (verbose){
+					System.out.println(i+"/"+nbrWindowsX+" "+j+"/"+nbrWindowsY);
+				}
 				ulcX = i * shiftX;
 				ulcY = j * shiftY;
 				StormData tsd = new StormData(this.cropCoords(ulcX, ulcX+widthWindow, 
@@ -1068,7 +1127,9 @@ public class StormData {
 		}
 		//ArrayList<Double> params = Utilities.fitLocalizationPrecissionDistribution(histXY.get(0), histXY.get(1), 10,5,1,10,1);
 		//ArrayList<Double> params = Utilities.fitLocalizationPrecissionDistribution2(histXY.get(0), histXY.get(1), 10,1);
-		System.out.println("sigmaXY: "+sigmaXY);
+		if (verbose){	
+			System.out.println("sigmaXY: "+sigmaXY);
+		}
 		LocalizationPrecissionEstimationHistogramLog pehl = new LocalizationPrecissionEstimationHistogramLog(path, getBasename(),
 				histXY, histZ, binwidth, sigmaXY, sigmaZ, processingLog);
 		logs.add(pehl);

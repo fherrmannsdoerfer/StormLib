@@ -22,13 +22,14 @@ public class Main {
 	public static void main(String[] args) {
 
 		//settingsMaja();
-		//settingsFrank();
+		settingsFrank();
 		//settingsVarun();
 		
 	}
 	
 	public static void settingsMaja(){
-
+		String path1 = "Y:\\Users_shared\\Maja\\151105__Rab3a-m-Al647_Synapsin12-r-CF680_STORMFr\\r6-x_P11_MNTB\\02a\\Auswertung\\RapidStorm\\";
+		demixingMultipleInputFiles(path1, "Left", path1, "Right");
 	}
 	public static void settingsVarun(){
 		String tag = "sigmas12_40labelingEff10PercentKOFF2000ver02000Photonen.txt";
@@ -40,9 +41,9 @@ public class Main {
 	public static void settingsFrank(){
 		String tag = "150111MtBla";
 		String tag2 = "_2";
-		String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\RapidStorm\\";
+		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\141107MicrotubuliAlexa647Cos3dMessung2\\";
 		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\ThunderStorm\\";
-		dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
+		singleColor3dImage(path1, "LeftChannel141107MicrotubuliAlexa647Cos3dMessung2.txt");
 	}
 	
 	static void createVispOutput(String path, String fname){
@@ -93,38 +94,10 @@ public class Main {
 		for (int i = 0; i < numberChunks; i++){
 			chunksChannel1.add(sd1.findSubset(chunkSize*i,chunkSize*(i+1),false));
 		}
-		//StormData sd11 = sd1.findSubset(0,5000,false);
-		//StormData sd12 = sd1.findSubset(5001,10000,false);
-		//StormData sd13 = sd1.findSubset(10001,15000,false);
-		//StormData sd14 = sd1.findSubset(15001,20000,false);
-		
-		
-		//sd1.getLocsPerFrame();
-		//sd1.cropCoords(5000, 6000, 5000, 6000);
-		//System.out.println("maxFrame ch1"+sd1.getDimensions().get(7));
-		//sd1.correctDrift(5000);
-		//sd1.connectPoints(50., 50., 150, 3);
-		//sd1.renderImage2D(10);
-		//sd1.estimateLocalizationPrecision(50, 900);
-		//sd1.createPdf();
-
 		ArrayList<StormData> chunksChannel2 = new ArrayList<StormData>();
 		for (int i = 0; i < numberChunks; i++){
 			chunksChannel2.add(sd2.findSubset(chunkSize*i,chunkSize*(i+1),false));
 		}
-		/*
-		StormData sd21 = sd2.findSubset(0,5000,false);
-		StormData sd22 = sd2.findSubset(5001,10000,false);
-		StormData sd23 = sd2.findSubset(10001,15000,false);
-		StormData sd24 = sd2.findSubset(15001,20000,false);
-		*/
-		
-		//sd2.cropCoords(10000, 15000, 10000, 15000);
-		//System.out.println("maxFrame ch2"+sd2.getDimensions().get(7));
-		//sd2.estimateLocalizationPrecision(50, 900);
-		//sd2.correctDrift(5000);
-		//sd2.connectPoints(50., 50., 150, 3);
-		//sd2.renderImage2D(10);
 		
 		ArrayList<StormData> unmixedChannels = new ArrayList<StormData>();
 		for (int i = 0; i < numberChunks; i++){
@@ -139,41 +112,26 @@ public class Main {
 		for (int i = 0; i < numberChunks; i++){
 			unmixedFromParts.addStormData(unmixedChannels.get(i));
 		}
-		/*
-		StormData unmixedSd1 = Demixing.spectralUnmixing(sd11, sd21,false);
-		StormData unmixedSd2 = Demixing.spectralUnmixing(sd12, sd22,false);
-		StormData unmixedSd3 = Demixing.spectralUnmixing(sd13, sd23,false);
-		StormData unmixedSd4 = Demixing.spectralUnmixing(sd14, sd24,false);
-		
-		
-		StormData unmixedFromParts = new StormData();
-		unmixedFromParts.addStormData(unmixedSd1);
-		unmixedFromParts.addStormData(unmixedSd2);
-		unmixedFromParts.addStormData(unmixedSd3);
-		unmixedFromParts.addStormData(unmixedSd4);
-		System.out.println("total number of partwise demixed localizations: "+unmixedFromParts.getSize());
-		*/
-		
+	
 		//sd2.createPdf();
 		//StormData unmixedSd = Demixing.spectralUnmixing(sd1, sd2,false);
 		System.out.println("total number of partwise demixed localizations: "+unmixedFromParts.getSize()+" of "+Math.min(sd1.getSize(),sd2.getSize()));
 		System.out.println("total number of partwise demixed localizations in %: "+100*unmixedFromParts.getSize()/Math.min(sd1.getSize(),sd2.getSize()));
 		StormData unmixedSd = unmixedFromParts;
-		unmixedSd.estimateLocalizationPrecision(50, 900);
+		//unmixedSd.estimateLocalizationPrecision(50, 900);
 		//unmixedSd.correctDrift((int)Math.ceil((double)unmixedSd.getDimensions().get(7)/5));
 
 		unmixedSd.connectPoints(50, 50, 100, 2);
 		unmixedSd.estimateLocalizationPrecision(50, 300);
 		DemixingParameters demixingParams= new DemixingParameters((42)/180. * Math.PI,
 				(70)/180.*Math.PI, 20/180.*Math.PI, 20/180.*Math.PI);
-		unmixedSd.estimateLocalizationPrecision(50, 300,demixingParams);
-		unmixedSd.estimateLocalizationPrecision(50, 300,"testTag",demixingParams);
-		
-		ArrayList<ImagePlus> colImg = unmixedSd.renderDemixingImage(10, demixingParams);
+		//unmixedSd.estimateLocalizationPrecision(50, 300,demixingParams);
+				
+		unmixedSd.renderDemixingImage(10, demixingParams);
 		unmixedSd.writeArrayListForVisp(demixingParams);
 		unmixedSd.correctDrift((int)Math.ceil((double)unmixedSd.getDimensions().get(7)/5));
 		//unmixedSd.cropCoords(0, 100000, 0, 100000, 380, 680, 0, 10000);
-		colImg = unmixedSd.renderDemixingImage(10, demixingParams);
+		unmixedSd.renderDemixingImage(10, demixingParams);
 		unmixedSd.writeArrayListForVisp(demixingParams);
 		unmixedSd.createPdf();
 	}
@@ -233,12 +191,12 @@ public class Main {
 	static void singleColor3dImage(String path, String fname){
 		StormData sd = new StormData(path, fname);
 		sd.renderImage3D(10);
-		sd.estimateLocalizationPrecision(200, 200);
+		//sd.estimateLocalizationPrecision(200, 200);
 		//sd.writeArrayListForFRC();
 		sd.connectPoints(100, 100, 150, 3);
 		sd.writeArrayListForFRC("connected");
 
-		//sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/5 ));
+		sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/5 ));
 		//sd.writeArrayListForFRC("connectedanddrift");
 		//sd.connectPoints(100, 100, 150, 3);
 	//	sd.writeArrayListForFRC("connected");
@@ -248,7 +206,7 @@ public class Main {
 		//sd.connectPoints(100, 100, 150, 3);
 	//sd.renderImage3D(10);
 	//sd.writeArrayListForFRC("ConDC");
-		
+		sd.renderImage3D(10);
 		sd.writeArrayListForVisp("connected");
 		//sd.correctDrift(4000);
 	//	sd.writeArrayListForFRC("drift");
@@ -274,17 +232,17 @@ public class Main {
 		//sd.cropCoords(0, 100000, 0, 100000, 0, 900, 0, 10000);
 		//sd.createPdf();
 		//sd.connectPoints(50, 50, 150, 3);
-		//sd.renderImage2D(10);
-		//sd.getLocsPerFrame();
-		//sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/3));
-		//sd.writeArrayListForVisp();
-		//sd.renderImage2D(10);
-		//sd.cropCoords(0, 100000, 0, 100000, -500, 900, 0, 10000);
-		sd.estimateLocalizationPrecision(100, 150);
 		sd.renderImage2D(10);
-		sd.writeArrayListForFRC();
+		//sd.getLocsPerFrame();
+		sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/3));
+		//sd.writeArrayListForVisp();
+		sd.renderImage2D(10);
+		//sd.cropCoords(0, 100000, 0, 100000, -500, 900, 0, 10000);
+		//sd.estimateLocalizationPrecision(100, 150);
+		//sd.renderImage2D(10);
+		//sd.writeArrayListForFRC();
 	//sd.getLocsPerFrame();
-		//sd.createPdf();
+		sd.createPdf();
 		
 	}
 	

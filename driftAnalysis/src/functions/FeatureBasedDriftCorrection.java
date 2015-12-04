@@ -51,6 +51,7 @@ import StormLib.Utilities;
 import StormLib.HelperClasses.DriftCorrectionLog;
 
 public class FeatureBasedDriftCorrection {
+	static boolean useXYOnly = true; // only use xy projection for drift correction and not xy, xz, yz
 	private static PropertyChangeSupport propertyChangeSupport =
 		       new PropertyChangeSupport(FeatureBasedDriftCorrection.class);
 	
@@ -66,8 +67,8 @@ public class FeatureBasedDriftCorrection {
 	{
 		//int chunksize = 5000;  //number frames that are summed up to calculate drift between this frame and the next
 		int pixelsize = 20; //pixelsize of intermediate reconstructed images used for fouriertransformations
-		ArrayList<double[][]> dds = finddisplacements2(sd, chunksize, pixelsize); //dds contains the displacement matrices for x and y. the displacement beteween each chunk is calculated
-		StormData sdTrans = correctLocalizations(sd,dds,chunksize, pixelsize); //uses the displacement to perform a spline interpolation and correct the data accordingly
+		ArrayList<double[][]> dds = finddisplacements2(sd, chunksize, pixelsize,useXYOnly); //dds contains the displacement matrices for x and y. the displacement beteween each chunk is calculated
+		StormData sdTrans = correctLocalizations(sd,dds,chunksize, pixelsize,useXYOnly); //uses the displacement to perform a spline interpolation and correct the data accordingly
 		return sdTrans;
 	}
 	
@@ -143,75 +144,101 @@ public class FeatureBasedDriftCorrection {
 		return retList;
 	}
 	
-	static StormData correctLocalizations(StormData sd, ArrayList<double[][]> dds, int chunksize, int pixelsize){//corrects the data for drift an returns an StormData set
-		/*
-		int nbrChunks = dds.get(0)[0].length; //the idea is that also the information about the shift
-												//for example from the first to the third and fourth chunk is considered and not only the shift of consecutive chunks
-		double frames[] = new double[nbrChunks+2];
-		frames[0] = 0;
-		frames[1] = chunksize / 2;
-		double dx[] = new double[nbrChunks+2];
-		double dy[] = new double[nbrChunks+2];
-		for (int i = 1;i<nbrChunks;i++){
-			double tmpx = 0;
-			double tmpy = 0;
-			for (int j = 0;j<i;j++){
-				tmpx = tmpx + dds.get(0)[i][j]- dds.get(0)[i-1][j];
-				tmpy = tmpy + dds.get(1)[i][j]- dds.get(1)[i-1][j];
+	static StormData correctLocalizations(StormData sd, ArrayList<double[][]> dds, int chunksize, int pixelsize, boolean xYOnly){//corrects the data for drift an returns an StormData set
+		if (xYOnly){
+			int nbrChunks = dds.get(0)[0].length; //the idea is that also the information about the shift
+													//for example from the first to the third and fourth chunk is considered and not only the shift of consecutive chunks
+			double frames[] = new double[nbrChunks+2];
+			frames[0] = 0;
+			frames[1] = chunksize / 2;
+			double dx[] = new double[nbrChunks+2];
+			double dy[] = new double[nbrChunks+2];
+			for (int i = 1;i<nbrChunks;i++){
+				double tmpx = 0;
+				double tmpy = 0;
+				for (int j = 0;j<i;j++){
+					tmpx = tmpx + dds.get(0)[i][j]- dds.get(0)[i-1][j];
+					tmpy = tmpy + dds.get(1)[i][j]- dds.get(1)[i-1][j];
+				}
+				dx[i+1] = -tmpx / i; //dy and dx contain the difference between the chunks
+				dy[i+1] = -tmpy / i; //mean of all differences that describe the shift between
+								//the i th and the previous chunk
+				frames[i+1] = frames[i]+chunksize;
 			}
-			dx[i+1] = -tmpx / i; //dy and dx contain the difference between the chunks
-			dy[i+1] = -tmpy / i; //mean of all differences that describe the shift between
-							//the i th and the previous chunk
-			frames[i+1] = frames[i]+chunksize;
-		}
-		dx[0] = 0;				//the first frame has no drift
-		dy[0] = 0;
-		dx[1] = (dx[2])/2; //the middle of the first block gets an back interpolated value
-		dy[1] = (dy[2])/2; //based on the difference between the middle of the first chunk and the middle of the second chunk
-		dx[nbrChunks+1] = (dx[nbrChunks]) ;// the end of the last chunk has to be interpolated also
-		dy[nbrChunks+1] = (dy[nbrChunks]) ;// 
-		frames[nbrChunks+1] = frames[nbrChunks]+chunksize;//this is the last frame of the last chunk
-		for (int i = 0;i<nbrChunks;i++){
-			dx[i+1] = dx[i] + dx[i+1]; //sum the shift up so that dx now holds the displacement relative to the first frame
-			dy[i+1] = dy[i] + dy[i+1];
-		}
-		UnivariateInterpolator i = new SplineInterpolator(); //for the interpolation dx and dy must contain the shift relative to the first frame
-		UnivariateFunction fx = i.interpolate(frames, dx);
-		UnivariateFunction fy = i.interpolate(frames, dy); */
-		int nbrChunks = dds.get(0)[0].length;
-		ArrayList<UnivariateFunction> aluf = getInterpolation(dds, chunksize);
-		UnivariateFunction fx = aluf.get(0);
-		UnivariateFunction fy = aluf.get(1);
-		UnivariateFunction fz = aluf.get(2);
-		boolean safeMode = true; //savemode skips localizations from the first and last chunk
-		StormData sdTrans = new StormData();
-		sdTrans.setPath(sd.getPath());
-		sdTrans.setFname(sd.getFname());
-		sdTrans.setProcessingLog(sd.getProcessingLog()+"DC");
-		int counter = 0;
-		for (int j = 0; j<sd.getSize();j++){
-			int frame = sd.getElement(j).getFrame();
-			/*if (safeMode&&frame>chunksize && frame<(nbrChunks-1)*chunksize){	
+			dx[0] = 0;				//the first frame has no drift
+			dy[0] = 0;
+			dx[1] = (dx[2])/2; //the middle of the first block gets an back interpolated value
+			dy[1] = (dy[2])/2; //based on the difference between the middle of the first chunk and the middle of the second chunk
+			dx[nbrChunks+1] = (dx[nbrChunks]) ;// the end of the last chunk has to be interpolated also
+			dy[nbrChunks+1] = (dy[nbrChunks]) ;// 
+			frames[nbrChunks+1] = frames[nbrChunks]+chunksize;//this is the last frame of the last chunk
+			for (int i = 0;i<nbrChunks;i++){
+				dx[i+1] = dx[i] + dx[i+1]; //sum the shift up so that dx now holds the displacement relative to the first frame
+				dy[i+1] = dy[i] + dy[i+1];
+			}
+			UnivariateInterpolator i = new SplineInterpolator(); //for the interpolation dx and dy must contain the shift relative to the first frame
+			UnivariateFunction fx = i.interpolate(frames, dx);
+			UnivariateFunction fy = i.interpolate(frames, dy); 
+			StormData sdTrans = new StormData();
+			sdTrans.setPath(sd.getPath());
+			sdTrans.setFname(sd.getFname());
+			sdTrans.setProcessingLog(sd.getProcessingLog()+"DCXY");
+			for (int j = 0; j<sd.getSize(); j++){
+				int frame = sd.getElement(j).getFrame();
+				/*if (safeMode&&frame>chunksize && frame<(nbrChunks-1)*chunksize){	
+					double x = sd.getElement(j).getX()+fx.value(frame)*pixelsize;
+					double y = sd.getElement(j).getY()+fy.value(frame)*pixelsize;
+					sdTrans.addElement(new StormLocalization(x, y, sd.getElement(j).getZ(), frame, sd.getElement(j).getIntensity()));
+				}
+				else{
+					counter = counter + 1;
+				}*/
 				double x = sd.getElement(j).getX()+fx.value(frame)*pixelsize;
 				double y = sd.getElement(j).getY()+fy.value(frame)*pixelsize;
-				sdTrans.addElement(new StormLocalization(x, y, sd.getElement(j).getZ(), frame, sd.getElement(j).getIntensity()));
+			
+				sdTrans.addElement(new StormLocalization(x, y, sd.getElement(j).getZ(), frame, sd.getElement(j).getIntensity(), sd.getElement(j).getAngle()));
 			}
-			else{
-				counter = counter + 1;
-			}*/
-			double x = sd.getElement(j).getX()+fx.value(frame)*pixelsize;
-			double y = sd.getElement(j).getY()+fy.value(frame)*pixelsize;
-			double z = sd.getElement(j).getZ()+fz.value(frame)*pixelsize;
-			sdTrans.addElement(new StormLocalization(x, y, z, frame, sd.getElement(j).getIntensity(), sd.getElement(j).getAngle()));
+			Double frameMax2 = (double)sd.getDimensions().get(7);
+			int frameMax = frameMax2.intValue()-chunksize;
+			OutputClass.writeDriftLog(dds, fx, fy,sd.getPath(), sd.getBasename(), frameMax, sd.getProcessingLog(), pixelsize);
+			return sdTrans;
 		}
-		System.out.println(counter+" Localizations were skipped.");
-		Double frameMax2 = (double)sd.getDimensions().get(7);
-		int frameMax = frameMax2.intValue()-chunksize;
-		OutputClass.writeDriftLogFile(dds,fx,fy,fz,sd.getPath(), sd.getBasename(), frameMax,sd.getProcessingLog());
-		DriftCorrectionLog cl = new DriftCorrectionLog(dds,fx,fy,fz,sd.getPath(), sd.getBasename(), frameMax, chunksize, nbrChunks, sd.getProcessingLog());
-		sd.addToLog(cl);
-		
-		return sdTrans;
+		else{
+			int nbrChunks = dds.get(0)[0].length;
+			ArrayList<UnivariateFunction> aluf = getInterpolation(dds, chunksize);
+			UnivariateFunction fx = aluf.get(0);
+			UnivariateFunction fy = aluf.get(1);
+			UnivariateFunction fz = aluf.get(2);
+			boolean safeMode = true; //savemode skips localizations from the first and last chunk
+			StormData sdTrans = new StormData();
+			sdTrans.setPath(sd.getPath());
+			sdTrans.setFname(sd.getFname());
+			sdTrans.setProcessingLog(sd.getProcessingLog()+"DCXYZ");
+			int counter = 0;
+			for (int j = 0; j<sd.getSize();j++){
+				int frame = sd.getElement(j).getFrame();
+				/*if (safeMode&&frame>chunksize && frame<(nbrChunks-1)*chunksize){	
+					double x = sd.getElement(j).getX()+fx.value(frame)*pixelsize;
+					double y = sd.getElement(j).getY()+fy.value(frame)*pixelsize;
+					sdTrans.addElement(new StormLocalization(x, y, sd.getElement(j).getZ(), frame, sd.getElement(j).getIntensity()));
+				}
+				else{
+					counter = counter + 1;
+				}*/
+				double x = sd.getElement(j).getX()+fx.value(frame)*pixelsize;
+				double y = sd.getElement(j).getY()+fy.value(frame)*pixelsize;
+				double z = sd.getElement(j).getZ()+fz.value(frame)*pixelsize;
+				sdTrans.addElement(new StormLocalization(x, y, z, frame, sd.getElement(j).getIntensity(), sd.getElement(j).getAngle()));
+			}
+			System.out.println(counter+" Localizations were skipped.");
+			Double frameMax2 = (double)sd.getDimensions().get(7);
+			int frameMax = frameMax2.intValue()-chunksize;
+			OutputClass.writeDriftLogFile(dds,fx,fy,fz,sd.getPath(), sd.getBasename(), frameMax,sd.getProcessingLog());
+			DriftCorrectionLog cl = new DriftCorrectionLog(dds,fx,fy,fz,sd.getPath(), sd.getBasename(), frameMax, chunksize, nbrChunks, sd.getProcessingLog());
+			sd.addToLog(cl);
+			
+			return sdTrans;
+		}
 	}
 	
 	static ArrayList<Double> findmaximumgauss(ImagePlus img, int window){
@@ -268,7 +295,7 @@ public class FeatureBasedDriftCorrection {
 		return retList;
 	}
 		
-	static ArrayList<double[][]> finddisplacements2(StormData sd, int chunksize, int pixelsize){
+	static ArrayList<double[][]> finddisplacements2(StormData sd, int chunksize, int pixelsize, boolean xYOnly){
 		ArrayList<ArrayList<ImagePlus>> movie = makemovie(sd, chunksize, pixelsize);
 		int window = 90;
 		int numFrames = movie.get(0).size();
@@ -291,20 +318,21 @@ public class FeatureBasedDriftCorrection {
 					ddyXY[k][l] = displacements.get(1);
 					ddxXY[l][k] = -displacements.get(0);
 					ddyXY[l][k] = -displacements.get(1);
-					
-					displacements = findDisplacementBetweenFrames(movie.get(1).get(k).getProcessor(),
-							movie.get(1).get(l).getProcessor(), window);
-					ddxXZ[k][l] = displacements.get(0);
-					ddzXZ[k][l] = displacements.get(1);
-					ddxXZ[l][k] = -displacements.get(0);
-					ddzXZ[l][k] = -displacements.get(1);
-					
-					displacements = findDisplacementBetweenFrames(movie.get(2).get(k).getProcessor(),
-							movie.get(2).get(l).getProcessor(), window);
-					ddyYZ[k][l] = displacements.get(0);
-					ddzYZ[k][l] = displacements.get(1);
-					ddyYZ[l][k] = -displacements.get(0);
-					ddzYZ[l][k] = -displacements.get(1);
+					if (!xYOnly){
+						displacements = findDisplacementBetweenFrames(movie.get(1).get(k).getProcessor(),
+								movie.get(1).get(l).getProcessor(), window);
+						ddxXZ[k][l] = displacements.get(0);
+						ddzXZ[k][l] = displacements.get(1);
+						ddxXZ[l][k] = -displacements.get(0);
+						ddzXZ[l][k] = -displacements.get(1);
+						
+						displacements = findDisplacementBetweenFrames(movie.get(2).get(k).getProcessor(),
+								movie.get(2).get(l).getProcessor(), window);
+						ddyYZ[k][l] = displacements.get(0);
+						ddzYZ[k][l] = displacements.get(1);
+						ddyYZ[l][k] = -displacements.get(0);
+						ddzYZ[l][k] = -displacements.get(1);
+					}
 					/*FHT fftk = new FHT(movie.get(0).get(k).getProcessor());
 					FHT fftl = new FHT(movie.get(0).get(l).getProcessor());
 					FHT fftCM = fftk.conjugateMultiply(fftl);

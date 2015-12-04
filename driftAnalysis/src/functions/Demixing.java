@@ -19,6 +19,7 @@ public class Demixing {
 	static boolean verbose = false;
 	static ExecutorService executor;
 	static ExecutorService executor2;
+	static double[][] noTransMat = {{1, 0, 0},{0, 1, 0}};
 	
 	
 	public static StormData spectralUnmixing(StormData ch1, StormData ch2, boolean useAll){
@@ -38,13 +39,15 @@ public class Demixing {
 		
 		//double[][] trafo = {{0.9988,-0.0013,65.9763},{-0.0004,0.9988,-7.46}};
 		StormData combinedSet = doUnmixingMultiThreaded(ch1,ch2,trafo, useAll,tag);
+		combinedSet.setFname(ch1.getFname());
+		combinedSet.setPath(ch1.getPath());
 		//StormData combinedSet = doUnmixing(ch1, ch2, trafo);
 		return combinedSet;
 	}
 	
 	static StormData doUnmixingMultiThreaded(StormData untransformedCh1, StormData ch2, double[][] trafo, boolean useAll,String tag){
 		StormData ch1 = TransformationControl.applyTrafo(trafo, untransformedCh1);
-		double dist = 40; //in nm //this variable determines within which distance for matching points are searched
+		double dist = 60; //in nm //this variable determines within which distance for matching points are searched
 		double minInt = 500; // minimal intensity of at least one channel
 		if (verbose) {
 			System.out.println("start unmixing...");
@@ -87,8 +90,8 @@ public class Demixing {
 	}
 	
 	static double[][] findGlobalTransformationMultithreaded(StormData ch1, StormData ch2){
-		int nbrIter = 500;
-		double toleratedError = 50;
+		int nbrIter = 5000;
+		double toleratedError = 60;
 		ArrayList<ArrayList<ArrayList<StormLocalization>>> collectionOfGoodPoints = new ArrayList<ArrayList<ArrayList<StormLocalization>>>();
 		ArrayList<Integer> listOfMatchingPoints = new ArrayList<Integer>();
 		ArrayList<Double> listOfErrors = new ArrayList<Double>();
@@ -123,17 +126,22 @@ public class Demixing {
 		if (verbose) {
 			System.out.println("searching for final transformation based on " + collectionOfGoodPoints.size()+" subsets.");
 		}
-		OutputClass.writeDemixingParameters(ch1.getPath(), ch1.getBasename(), ch1.getProcessingLog(), nbrIter, toleratedError, frames, listOfMatchingPoints, listOfErrors);
-		double[][] finalTrafo = TransformationControl.findFinalTrafo(collectionOfGoodPoints);
-		DemixingTransformationLog tl = new DemixingTransformationLog(nbrIter, toleratedError, frames,listOfMatchingPoints, listOfErrors, finalTrafo);
-		ch1.addToLog(tl);
-		if (true) {
-			System.out.println("final transformation found:");
-			System.out.println(finalTrafo[0][0]+ " "+finalTrafo[0][1]+" "+finalTrafo[0][2]);
-			System.out.println(finalTrafo[1][0]+ " "+finalTrafo[1][1]+" "+finalTrafo[1][2]);
+		if (collectionOfGoodPoints.size()>4){
+			OutputClass.writeDemixingParameters(ch1.getPath(), ch1.getBasename(), ch1.getProcessingLog(), nbrIter, toleratedError, frames, listOfMatchingPoints, listOfErrors);
+			double[][] finalTrafo = TransformationControl.findFinalTrafo(collectionOfGoodPoints);
+			DemixingTransformationLog tl = new DemixingTransformationLog(nbrIter, toleratedError, frames,listOfMatchingPoints, listOfErrors, finalTrafo);
+			ch1.addToLog(tl);
+			if (true) {
+				System.out.println("final transformation found:");
+				System.out.println(finalTrafo[0][0]+ " "+finalTrafo[0][1]+" "+finalTrafo[0][2]);
+				System.out.println(finalTrafo[1][0]+ " "+finalTrafo[1][1]+" "+finalTrafo[1][2]);
+			}
+			
+			return finalTrafo;
 		}
-		
-		return finalTrafo;
+		else{
+			return noTransMat;
+		}
 	}
 	
 	static ArrayList<ArrayList<StormLocalization>> findCandidatesForTransformation(double[][] distMat, StormData subset1, StormData subset2){
