@@ -49,6 +49,7 @@ import Jama.*;
 import StormLib.OutputClass;
 import StormLib.Utilities;
 import StormLib.HelperClasses.DriftCorrectionLog;
+import StormLib.HelperClasses.DriftCorrectionLogXYOnly;
 
 public class FeatureBasedDriftCorrection {
 	static boolean useXYOnly = true; // only use xy projection for drift correction and not xy, xz, yz
@@ -201,6 +202,7 @@ public class FeatureBasedDriftCorrection {
 			Double frameMax2 = (double)sd.getDimensions().get(7);
 			int frameMax = frameMax2.intValue()-chunksize;
 			OutputClass.writeDriftLog(dds, fx, fy,sd.getPath(), sd.getBasename(), frameMax, sd.getProcessingLog(), pixelsize);
+			DriftCorrectionLogXYOnly cl = new DriftCorrectionLogXYOnly(dds,fx,fy,sd.getPath(), sd.getBasename(), frameMax, chunksize, nbrChunks, sd.getProcessingLog());
 			return sdTrans;
 		}
 		else{

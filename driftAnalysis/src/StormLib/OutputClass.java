@@ -477,6 +477,36 @@ public class OutputClass {
 
 	public static String saveDriftGraph(String path, String basename, String tag,
 			ArrayList<Integer> frames, UnivariateFunction fx,
+			UnivariateFunction fy) {
+		String picname = basename+"_DriftData_"+tag+".png";
+		String fullFilename = path+"Statistics\\Pictures\\"+picname;
+		ArrayList<ArrayList<ArrayList<Double>>> data = new ArrayList<ArrayList<ArrayList<Double>>>();
+		data.add(new ArrayList<ArrayList<Double>>());
+		data.add(new ArrayList<ArrayList<Double>>());
+		ArrayList<Double> dFrames = new ArrayList<Double>();
+		ArrayList<Double> xdrift = new ArrayList<Double>();
+		ArrayList<Double> ydrift = new ArrayList<Double>();
+		for (int i = 0;i<frames.size(); ++i){
+			dFrames.add((double)frames.get(i));
+			xdrift.add(fx.value(frames.get(i)));
+			ydrift.add(fy.value(frames.get(i)));
+		}
+		data.get(0).add(dFrames);
+		data.get(0).add(xdrift);
+		data.get(1).add(dFrames);
+		data.get(1).add(ydrift);
+		ArrayList<String> datalabels = new ArrayList<String>();
+		datalabels.add("x");
+		datalabels.add("y");
+		
+		CreateScatterPlot.createScatterPlot2(data, datalabels, "frame", "drift in ", "Overview drift x\\y over frames", fullFilename);
+		
+		return fullFilename;
+		// TODO Auto-generated method stub
+	}
+	
+	public static String saveDriftGraph(String path, String basename, String tag,
+			ArrayList<Integer> frames, UnivariateFunction fx,
 			UnivariateFunction fy, UnivariateFunction fz) {
 		String picname = basename+"_DriftData_"+tag+".png";
 		String fullFilename = path+"Statistics\\Pictures\\"+picname;
