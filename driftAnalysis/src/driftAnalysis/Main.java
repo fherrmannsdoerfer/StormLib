@@ -21,14 +21,14 @@ public class Main {
 //
 	public static void main(String[] args) {
 
-		//settingsMaja();
-		settingsFrank();
+		settingsMaja();
+		//settingsFrank();
 		//settingsVarun();
 		
 	}
 	
 	public static void settingsMaja(){
-		String path1 = "Y:\\Users_shared\\Maja\\151105__Rab3a-m-Al647_Synapsin12-r-CF680_STORMFr\\r6-x_P11_MNTB\\02a\\Auswertung\\RapidStorm\\";
+		String path1 = "Y:\\Users_shared\\Herrmannsdoerfer\\151208__m4_r7_MNTB_JRD32_Syp_Giantin\\JRD32-m-Al647_Giantin-r-680\\m4_3nm_noGA__JRD32-m-Al647_Giantin-r-680_04\\ThunderStorm\\";
 		demixingMultipleInputFiles(path1, "Left", path1, "Right");
 	}
 	public static void settingsVarun(){
@@ -41,9 +41,9 @@ public class Main {
 	public static void settingsFrank(){
 		String tag = "150111MtBla";
 		String tag2 = "_2";
-		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\141107MicrotubuliAlexa647Cos3dMessung2\\";
+		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\151105__Rab3a-m-Al647_Synapsin12-r-CF680_STORMFr\\";
 		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\ThunderStorm\\";
-		singleColor3dImage(path1, "LeftChannel141107MicrotubuliAlexa647Cos3dMessung2.txt");
+		demixingMultipleInputFiles(path1, "Left", path1, "Right");
 	}
 	
 	static void createVispOutput(String path, String fname){
@@ -109,8 +109,11 @@ public class Main {
 			}
 		}
 		StormData unmixedFromParts = new StormData();
+		unmixedFromParts.copyAttributes(unmixedChannels.get(0));
 		for (int i = 0; i < numberChunks; i++){
-			unmixedFromParts.addStormData(unmixedChannels.get(i));
+			for (int j = 0; j<unmixedChannels.get(i).getSize(); j++){
+				unmixedFromParts.addElement(unmixedChannels.get(i).getElement(j));
+			}
 		}
 	
 		//sd2.createPdf();
@@ -119,7 +122,7 @@ public class Main {
 		System.out.println("total number of partwise demixed localizations in %: "+100*unmixedFromParts.getSize()/Math.min(sd1.getSize(),sd2.getSize()));
 		StormData unmixedSd = unmixedFromParts;
 		//unmixedSd.estimateLocalizationPrecision(50, 900);
-		//unmixedSd.correctDrift((int)Math.ceil((double)unmixedSd.getDimensions().get(7)/5));
+		unmixedSd.correctDrift((int)Math.ceil((double)unmixedSd.getDimensions().get(7)/5));
 
 		unmixedSd.connectPoints(50, 50, 100, 2);
 		unmixedSd.estimateLocalizationPrecision(50, 300);
@@ -129,7 +132,6 @@ public class Main {
 				
 		unmixedSd.renderDemixingImage(10, demixingParams);
 		unmixedSd.writeArrayListForVisp(demixingParams);
-		unmixedSd.correctDrift((int)Math.ceil((double)unmixedSd.getDimensions().get(7)/5));
 		//unmixedSd.cropCoords(0, 100000, 0, 100000, 380, 680, 0, 10000);
 		unmixedSd.renderDemixingImage(10, demixingParams);
 		unmixedSd.writeArrayListForVisp(demixingParams);
