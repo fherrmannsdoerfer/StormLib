@@ -59,18 +59,16 @@ public class MainFrame extends JFrame implements Serializable{
 //	String[] optionsInputComboBox = {"SingleFileInput", "MultipleFileInput", "DualChannelSingleFileInput", "DualChannelMultipleFileInput"}; // moved to inputComboBoxOptions
 //	String[] optionsProcessingComboBox = {"Driftcorrection", "MergePoints", "Demixing", "Crop", "Multi Channel Alignment"}; // moved to processingComboBoxOptions
 //	String[] optionsOutputComboBox = {"Render 2D Image", "RenderImage3D", "Processing Log File", "Visp File", "Localization File "}; // moved to outputComboBoxOptions
-	File folder = new File("C:\\Users\\bwpc\\git\\StormLib\\driftAnalysis\\preSetSettings"); //Folder of savedPresettings
+	File folder = new File(System.getProperty("user.home")+"//PostProcessingSoftware"); //Folder of savedPresettings
 	private final ArrayList<ProcessingStepsPanel> outputComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
 	private final ArrayList<ProcessingStepsPanel> inputComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
 	private final ArrayList<ProcessingStepsPanel> processingComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
 
-
-	final JFileChooser settingsFileChooserLoad = new JFileChooser();
-	final JFileChooser settingsFileChooserSave = new JFileChooser();
-	
 	public MainFrame(final Controler controler) {
-		
-
+		final JFileChooser settingsFileChooserLoad = new JFileChooser(folder);
+		final JFileChooser settingsFileChooserSave = new JFileChooser(folder);
+	
+		folder.mkdir();
 		this.controlerReference = controler;
 		outputActionListener = new OutputActionListener();
 		this.setBounds(0,0,1200,800);
@@ -115,13 +113,12 @@ public class MainFrame extends JFrame implements Serializable{
 		Component horizontalGlue_4 = Box.createHorizontalGlue();
 		horizontalBox_5.add(horizontalGlue_4);
 		
-
 		File[] listOfFiles = folder.listFiles();		
-		    for (int i = 0; i < listOfFiles.length; i++) {
-		      if (listOfFiles[i].isFile()) {
-		    	optionsPreselectedTasksComboBoxAuto.add(listOfFiles[i].getName());
-		      } 
-		    }
+	    for (int i = 0; i < listOfFiles.length; i++) {
+		if (listOfFiles[i].isFile()) {
+			optionsPreselectedTasksComboBoxAuto.add(listOfFiles[i].getName());
+			} 
+	    }
 		
 		preselectionComboBox = new JComboBox(optionsPreselectedTasksComboBoxAuto.toArray());
 		preselectionComboBox.addActionListener(outputActionListener);
@@ -325,7 +322,8 @@ public class MainFrame extends JFrame implements Serializable{
 								out.writeObject(listProcessingStepPanels);
 								out.close();
 								fileOut.close();
-								System.out.println("saved");					
+								System.out.println("saved");	
+								setupPreselectedTasks();
 							} catch (FileNotFoundException e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
@@ -394,6 +392,17 @@ public class MainFrame extends JFrame implements Serializable{
 		
 	}
 		
+	private void setupPreselectedTasks() {
+		File[] listOfFiles = folder.listFiles();	
+		preselectionComboBox.removeAllItems();
+	    for (int i = 0; i < listOfFiles.length; i++) {
+		if (listOfFiles[i].isFile()) {
+				optionsPreselectedTasksComboBoxAuto.add(listOfFiles[i].getName());
+				preselectionComboBox.addItem(listOfFiles[i].getName());
+			} 
+	    }
+	}
+
 	public static DataFlavor getDragAndDropPanelDataFlavor() throws Exception {
         // Lazy load/create the flavor
         if (dragAndDropPanelDataFlavor == null) {
@@ -445,19 +454,19 @@ public class MainFrame extends JFrame implements Serializable{
 		ProcessingStepsPanel panelToAdd = null;
 		
 		if (thisBox == outputComboBox){
-//			System.out.println(outputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunctionName());
-			panelToAdd = outputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunction(mf);
+	//			System.out.println(outputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunctionName());
+				panelToAdd = outputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunction(mf);
 			}
 		if (thisBox == inputComboBox){
-//			System.out.println(inputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunctionName());
-			panelToAdd = inputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunction(mf);
+	//			System.out.println(inputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunctionName());
+				panelToAdd = inputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunction(mf);
 			}
 		if (thisBox == processingComboBox){
-//			System.out.println(processingComboBoxOptions.get(thisBox.getSelectedIndex()).getFunctionName());
-			panelToAdd = processingComboBoxOptions.get(thisBox.getSelectedIndex()).getFunction(mf);
+	//			System.out.println(processingComboBoxOptions.get(thisBox.getSelectedIndex()).getFunctionName());
+				panelToAdd = processingComboBoxOptions.get(thisBox.getSelectedIndex()).getFunction(mf);
 			}
 		
-		if (thisBox == preselectionComboBox){			
+		if (thisBox == preselectionComboBox&&thisBox.getSelectedIndex()>0){			
 			ArrayList<ProcessingStepsPanel> tempOrderListSettings = new ArrayList<ProcessingStepsPanel>();
 			String settingsPath = folder + "\\"+ optionsPreselectedTasksComboBoxAuto.toArray()[thisBox.getSelectedIndex()];
 			try {
