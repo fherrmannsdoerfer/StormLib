@@ -65,10 +65,10 @@ public class MainFrame extends JFrame implements Serializable{
 	private final ArrayList<ProcessingStepsPanel> processingComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
 
 	public MainFrame(final Controler controler) {
+		folder.mkdir();
+		
 		final JFileChooser settingsFileChooserLoad = new JFileChooser(folder);
 		final JFileChooser settingsFileChooserSave = new JFileChooser(folder);
-	
-		folder.mkdir();
 		this.controlerReference = controler;
 		outputActionListener = new OutputActionListener();
 		this.setBounds(0,0,1200,800);
