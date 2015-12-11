@@ -1,13 +1,20 @@
 package functionDefinitions;
 
 import java.awt.Color;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import StormLib.Utilities;
+import dataStructure.StormData;
+import functions.FeatureBasedDriftCorrection;
+import gui.Controler;
 import gui.MainFrame;
+import gui.MyPropertyChangeListener;
 import gui.ProcessingStepsPanel;
 
 public class MergePointsGUI extends ProcessingStepsPanel{
@@ -15,12 +22,15 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 	JTextField disty = new JTextField();
 	JTextField distz = new JTextField();
 	JTextField distframe = new JTextField();
+	private static String name = "MergePoints";
 	public MergePointsGUI(MainFrame mf) {
 		super(mf);
-		this.setParameterButtonsName("Merge Consecutive Localizations");
+		this.setParameterButtonsName(name);
 		this.setColor(Color.RED);
 		this.setOptionPanel(createOptionPanel());
 	}
+	
+	public MergePointsGUI(){}
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
@@ -74,6 +84,38 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 		catch(Exception e){
 			return Integer.valueOf("3");
 		}
+		
+	}
+	public String[] getSettings(){
+		String[] tempString = {distx.getText(), disty.getText(), distz.getText(), distframe.getText()};
+		return tempString;
+	}
+	public void setSettings(String[] tempString){
+		distx.setText(tempString[0]);
+		disty.setText(tempString[1]);
+		distz.setText(tempString[2]);
+		distframe.setText(tempString[3]);
+	}
+	public MergePointsGUI getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
+		if (processingStepsPanelObject instanceof MergePointsGUI){
+			MergePointsGUI returnObject = new MergePointsGUI(mf);
+			return returnObject;
+		}
+		return null;
+	}
+	public ProcessingStepsPanel getFunction(MainFrame mf){
+		return new MergePointsGUI(mf);
+	}
+	public String getFunctionName(){
+		return name;
+	}
+
+	@Override
+	public void process(StormData sd1, StormData sd2) {
+		PropertyChangeListener pcl = new MyPropertyChangeListener(this);
+		Utilities.addPropertyChangeListener(pcl);
+		sd1.connectPoints(getDistX(), getDistY(), getDistZ(), getDistFrames());
+		setProgressbarValue(100);
 		
 	}
 }

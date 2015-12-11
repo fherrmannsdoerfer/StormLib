@@ -8,6 +8,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import dataStructure.StormData;
 import gui.MainFrame;
 import gui.ProcessingStepsPanel;
 
@@ -16,13 +17,16 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 	JTextField pattern1 = new JTextField();
 	JTextField path2 = new JTextField();
 	JTextField pattern2 = new JTextField();
+	private static String name = "DualColorMultipleFileInput";
 	
 	public DualColorMultipleFileInputGUI(MainFrame mf) {
 		super(mf);
-		this.setParameterButtonsName("Multiple File Input");
+		this.setParameterButtonsName(name);
 		this.setColor(Color.WHITE);
 		this.setOptionPanel(createOptionPanel());
 	}
+	
+	public DualColorMultipleFileInputGUI(){}
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
@@ -58,5 +62,34 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 	}
 	public String getPattern2(){
 		return pattern2.getText();
+	}
+	public String[] getSettings(){
+		String[] tempString = {path1.getText(), pattern1.getText(), path2.getText(), pattern2.getText()};
+		return tempString;
+	}
+	public void setSettings(String[] tempString){
+		path1.setText(tempString[0]);
+		pattern1.setText(tempString[1]);
+		path2.setText(tempString[2]);
+		pattern2.setText(tempString[3]);
+	}
+	public DualColorMultipleFileInputGUI getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
+		if (processingStepsPanelObject instanceof DualColorMultipleFileInputGUI){
+			DualColorMultipleFileInputGUI returnObject = new DualColorMultipleFileInputGUI(mf);
+			return returnObject;
+		}
+		return null;
+	}
+	public ProcessingStepsPanel getFunction(MainFrame mf){
+		return new DualColorMultipleFileInputGUI(mf);
+	}
+	public String getFunctionName(){
+		return name;
+	}
+
+	@Override
+	public void process(StormData sd1, StormData sd2) {
+		// TODO Auto-generated method stub
+		
 	}
 }

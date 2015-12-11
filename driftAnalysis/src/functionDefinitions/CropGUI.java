@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import dataStructure.StormData;
 import gui.MainFrame;
 import gui.ProcessingStepsPanel;
 
@@ -24,12 +25,16 @@ public class CropGUI extends ProcessingStepsPanel{
 	String[] listLabelTexts = {"minimal x-value:", "maximal x-value:","minimal y-value:", "maximal y-value:","minimal z-value:", "maximal z-value:","minimal frame:", "maximal frame:"};
 	JTextField[] listTextFields = {minX, maxX,minY,maxY,minZ,maxZ,minFrame,maxFrame};
 	String[] listTextFieldTexts = {"xmin", "xmax", "ymin", "ymax", "zmin", "zmax", "framemin", "framemax"};
+	private static String name = "Crop";
+	
 	public CropGUI(MainFrame mf) {
 		super(mf);
-		this.setParameterButtonsName("Cropping");
-		this.setColor(Color.RED);
+		this.setParameterButtonsName(name);
+		this.setColor(Color.WHITE);
 		this.setOptionPanel(createOptionPanel());
 	}
+	
+	public CropGUI(){}
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
@@ -126,5 +131,10 @@ public class CropGUI extends ProcessingStepsPanel{
 		catch(Exception e){
 			return Integer.valueOf("10000000");
 		}
+
+	@Override
+	public void process(StormData sd1, StormData sd2) {
+		// TODO Auto-generated method stub
+		
 	}
 }

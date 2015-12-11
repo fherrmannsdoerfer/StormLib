@@ -87,7 +87,7 @@ public class StormData {
 		importData(fullpath);
 	}
 	
-	private void importData(String fullpath){
+	public ArrayList<StormLocalization> importData(String fullpath){
 		BufferedReader br = null;
 		String line = "";
 		String delimiter = " ";
@@ -157,6 +157,7 @@ public class StormData {
 			System.out.println(path+fname);
 		}
 		catch (IOException e) {e.printStackTrace();}
+		return locs;
 	}
 	
 	public synchronized void sortFrame(){

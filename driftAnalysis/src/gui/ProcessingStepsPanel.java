@@ -9,6 +9,8 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -16,13 +18,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-public class ProcessingStepsPanel extends JPanel implements Transferable{
+import dataStructure.StormData;
+
+public abstract class ProcessingStepsPanel extends JPanel implements Transferable, Serializable{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private int id = 0;
 	public JButton parameterButton;
+	public JButton removeButton;
 	private MainFrame mf;
 	private ProcessingStepsPanel thisPanel;
 	private Color color;
@@ -77,6 +82,8 @@ public class ProcessingStepsPanel extends JPanel implements Transferable{
 		progressbar.setPreferredSize(new Dimension(d.width,20));
 		verticalBox.add(progressbar);
 	}
+	
+	public ProcessingStepsPanel(){}
 	
 	public void setParameterButtonsName(String name){
 		parameterButton.setText(name);
@@ -164,5 +171,12 @@ public class ProcessingStepsPanel extends JPanel implements Transferable{
 	public void setProgressbarValue(int val){
 		progressbar.setValue(val);
 	}
-
+	
+	abstract public ProcessingStepsPanel getFunction(MainFrame mf);
+	abstract public String[] getSettings();
+	abstract public void setSettings(String[] tempString);
+	abstract public ProcessingStepsPanel getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf);
+	abstract public String getFunctionName();
+	abstract public void process(StormData sd1, StormData sd2);
+	
 }

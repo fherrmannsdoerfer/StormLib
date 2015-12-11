@@ -10,11 +10,20 @@ import java.awt.FlowLayout;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -33,23 +42,35 @@ import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.border.TitledBorder;
 
-public class MainFrame extends JFrame{
+public class MainFrame extends JFrame implements Serializable{
 	private final ArrayList<ProcessingStepsPanel> listProcessingStepPanels = new ArrayList<ProcessingStepsPanel>();
 	Controler controlerReference;
 	JPanel panel;
 	JPanel optionPanel;
-	MainFrame mf;
+	static MainFrame mf;
 	private static DataFlavor dragAndDropPanelDataFlavor = null;
 	private JComboBox preselectionComboBox;
 	private JComboBox inputComboBox;
 	private JComboBox outputComboBox;
 	private JComboBox processingComboBox;
-	ActionListener outputActionListener;
-	String[] optionsPreselectedTasksComboBox = {"Single Channel Input", "Demixing"};
-	String[] optionsInputComboBox = {"Single File Input", "Multiple File Input", "Dual Channel Single File Input", "Dual Channel Multiple File Input"};
-	String[] optionsProcessingComboBox = {"Drift Correction", "Merging", "Demixing", "Cropping", "Multi Channel Alignment"};
-	String[] optionsOutputComboBox = {"Render 2D Image", "Render 3D Image", "Processing Log File", "Visp File", "Localization File "};
+	transient ActionListener outputActionListener;
+	private final ArrayList<String> optionsPreselectedTasksComboBoxAuto = new ArrayList<String>();
+//	String[] optionsPreselectedTasksComboBox = {"Single Channel Input", "Demixing"}; //is taken care of automatically (File folder = new ...)
+//	String[] optionsInputComboBox = {"SingleFileInput", "MultipleFileInput", "DualChannelSingleFileInput", "DualChannelMultipleFileInput"}; // moved to inputComboBoxOptions
+//	String[] optionsProcessingComboBox = {"Driftcorrection", "MergePoints", "Demixing", "Crop", "Multi Channel Alignment"}; // moved to processingComboBoxOptions
+//	String[] optionsOutputComboBox = {"Render 2D Image", "RenderImage3D", "Processing Log File", "Visp File", "Localization File "}; // moved to outputComboBoxOptions
+	File folder = new File("C:\\Users\\bwpc\\git\\StormLib\\driftAnalysis\\preSetSettings"); //Folder of savedPresettings
+	private final ArrayList<ProcessingStepsPanel> outputComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
+	private final ArrayList<ProcessingStepsPanel> inputComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
+	private final ArrayList<ProcessingStepsPanel> processingComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
+
+
+	final JFileChooser settingsFileChooserLoad = new JFileChooser();
+	final JFileChooser settingsFileChooserSave = new JFileChooser();
+	
 	public MainFrame(final Controler controler) {
+		
+
 		this.controlerReference = controler;
 		outputActionListener = new OutputActionListener();
 		this.setBounds(0,0,1200,800);
@@ -61,6 +82,24 @@ public class MainFrame extends JFrame{
 		getContentPane().add(horizontalBox, BorderLayout.CENTER);
 		panel = new RootPanel(this);
 		panel.setMinimumSize(new Dimension(4, 2));
+		
+		//////////////////////////////////////////////////////////////////// set options to choose from for drop-down menus; creates empty GUI class objects with member name
+
+		outputComboBoxOptions.add(new RenderImage2DGUI());
+		outputComboBoxOptions.add(new RenderImage3DGUI());
+		
+		inputComboBoxOptions.add(new SingleFileInputGUI());
+		inputComboBoxOptions.add(new DualChannelSingleFileInputGUI());
+		inputComboBoxOptions.add(new MultipleFileInputGUI());
+		inputComboBoxOptions.add(new DualColorMultipleFileInputGUI());
+		
+		processingComboBoxOptions.add(new DriftcorrectionGUI());
+		processingComboBoxOptions.add(new MergePointsGUI());
+		processingComboBoxOptions.add(new DemixingGUI());
+//		processingComboBoxOptions.add(new CropGUI());
+		
+		///////////////////////////////////////////////////////////////////
+		
 		
 		Box verticalBox = Box.createVerticalBox();
 			
@@ -76,9 +115,18 @@ public class MainFrame extends JFrame{
 		Component horizontalGlue_4 = Box.createHorizontalGlue();
 		horizontalBox_5.add(horizontalGlue_4);
 		
-		preselectionComboBox = new JComboBox(optionsPreselectedTasksComboBox);
+
+		File[] listOfFiles = folder.listFiles();		
+		    for (int i = 0; i < listOfFiles.length; i++) {
+		      if (listOfFiles[i].isFile()) {
+		    	optionsPreselectedTasksComboBoxAuto.add(listOfFiles[i].getName());
+		      } 
+		    }
+		
+		preselectionComboBox = new JComboBox(optionsPreselectedTasksComboBoxAuto.toArray());
+		preselectionComboBox.addActionListener(outputActionListener);
 		preselectionComboBox.setMaximumSize(new Dimension(32767, 22));
-		verticalBox_1.add(preselectionComboBox);
+		verticalBox_1.add(preselectionComboBox);		
 		
 		Component verticalStrut_2 = Box.createVerticalStrut(20);
 		verticalBox_1.add(verticalStrut_2);
@@ -87,15 +135,20 @@ public class MainFrame extends JFrame{
 		verticalBox_2.setBorder(new TitledBorder(null, "Modules", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		verticalBox_1.add(verticalBox_2);
 		
-		inputComboBox = new JComboBox(optionsInputComboBox);
-		inputComboBox.addActionListener(outputActionListener);
-		
+				
 		Box horizontalBox_3 = Box.createHorizontalBox();
 		verticalBox_2.add(horizontalBox_3);
 		
 		JLabel lblNewLabel_2 = new JLabel("Input");
 		horizontalBox_3.add(lblNewLabel_2);
 		lblNewLabel_2.setAlignmentY(Component.TOP_ALIGNMENT);
+		
+		
+		String[] optionsInputComboBox = new String[inputComboBoxOptions.size()];		
+		for (int i = 0; i < inputComboBoxOptions.size(); i++){
+			optionsInputComboBox[i] = inputComboBoxOptions.get(i).getFunctionName();}	
+		inputComboBox = new JComboBox(optionsInputComboBox);
+		inputComboBox.addActionListener(outputActionListener);
 		
 		Component horizontalGlue_2 = Box.createHorizontalGlue();
 		horizontalBox_3.add(horizontalGlue_2);
@@ -114,6 +167,10 @@ public class MainFrame extends JFrame{
 		Component horizontalGlue_1 = Box.createHorizontalGlue();
 		horizontalBox_2.add(horizontalGlue_1);
 		
+		String[] optionsProcessingComboBox = new String[processingComboBoxOptions.size()];		
+		for (int i = 0; i < processingComboBoxOptions.size(); i++){
+			optionsProcessingComboBox[i] = processingComboBoxOptions.get(i).getFunctionName();}		
+		
 		processingComboBox = new JComboBox(optionsProcessingComboBox);
 		processingComboBox.addActionListener(outputActionListener);
 		verticalBox_2.add(processingComboBox);
@@ -123,7 +180,7 @@ public class MainFrame extends JFrame{
 		verticalBox_2.add(verticalStrut_1);
 		
 		Box horizontalBox_1 = Box.createHorizontalBox();
-		verticalBox_2.add(horizontalBox_1);
+		
 		
 		JLabel lblNewLabel = new JLabel("Output");
 		lblNewLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -131,6 +188,12 @@ public class MainFrame extends JFrame{
 		
 		Component horizontalGlue = Box.createHorizontalGlue();
 		horizontalBox_1.add(horizontalGlue);
+		verticalBox_2.add(horizontalBox_1);
+		String[] optionsOutputComboBox = new String[outputComboBoxOptions.size()];
+		
+		for (int i = 0; i < outputComboBoxOptions.size(); i++){
+			optionsOutputComboBox[i] = outputComboBoxOptions.get(i).getFunctionName();}
+		
 		
 		outputComboBox = new JComboBox(optionsOutputComboBox);
 		outputComboBox.addActionListener(outputActionListener);
@@ -143,27 +206,181 @@ public class MainFrame extends JFrame{
 		Box horizontalBox_4 = Box.createHorizontalBox();
 		verticalBox_1.add(horizontalBox_4);
 		
-		JButton runButton = new JButton("Start Processing");
-		horizontalBox_4.add(runButton);
+//		Box horizontalBox_4 = Box.createHorizontalBox();
+//		verticalBox_1.add(horizontalBox_4);
+//		
+//		Box horizontalBox_1 = Box.createHorizontalBox();
+//		verticalBox_1.add(horizontalBox_1);
 		
-		Component horizontalGlue_3 = Box.createHorizontalGlue();
-		horizontalBox_4.add(horizontalGlue_3);
-		runButton.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Thread t = new Thread(){
+		Box verticalBox_3 = Box.createVerticalBox();
+		horizontalBox_4.add(verticalBox_3);
+		
+		JButton loadSettingsButton = new JButton("Load Settings");
+		verticalBox_3.add(loadSettingsButton);
+		
+		
+		JButton saveSettingsButton = new JButton("Save Settings");
+		verticalBox_3.add(saveSettingsButton);
+		
+		JButton runButton = new JButton("Start Processing");
+		//		horizontalBox_4.add(runButton);
+		//		
+		//		Component horizontalGlue_3 = Box.createHorizontalGlue();
+		//		horizontalBox_4.add(horizontalGlue_3);
+				verticalBox_3.add(runButton);
+				
+				Box verticalBox_4 = Box.createVerticalBox();
+				horizontalBox_4.add(verticalBox_4);
+				
+				JButton loadDefaultSettingsButton = new JButton("Load Default Settings");
+				verticalBox_4.add(loadDefaultSettingsButton);
+				
+				JButton saveDefaultSettingsButton = new JButton("Save Default Settings");
+				verticalBox_4.add(saveDefaultSettingsButton);
+				
+				saveDefaultSettingsButton.addActionListener(new ActionListener(){
 					@Override
-					public 
-					void run(){
-						controler.resetProgressBar(getListProcessingStepPanels());
-						controler.startProcessing(getListProcessingStepPanels());
+					public void actionPerformed(ActionEvent e) {
+						try {
+							FileOutputStream fileOutDefault = new FileOutputStream("settings.default");
+							ObjectOutputStream outDefault = new ObjectOutputStream(fileOutDefault);
+							outDefault.writeObject(listProcessingStepPanels);
+							outDefault.close();
+							fileOutDefault.close();
+							System.out.println("saved default");					
+						} catch (FileNotFoundException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 					}
-				};
-				t.start();
-			}
-			
-		});
+				});
+				
+				loadDefaultSettingsButton.addActionListener(new ActionListener(){
+					@Override
+					public void actionPerformed(ActionEvent e) {				
+						ArrayList<ProcessingStepsPanel> tempOrderList = new ArrayList<ProcessingStepsPanel>();
+						String settingsPath = "settings.default";
+						try {
+							FileInputStream fileInDefault = new FileInputStream(settingsPath);
+							ObjectInputStream inDefault = new ObjectInputStream(fileInDefault);
+							tempOrderList = (ArrayList<ProcessingStepsPanel>) inDefault.readObject();
+							inDefault.close();
+							fileInDefault.close();
+							System.out.println("loaded default");
+							listProcessingStepPanels.clear();
+							panel.removeAll();
+							optionPanel.removeAll();				
+							for (int i = 0; i < tempOrderList.size(); i++){						
+								ProcessingStepsPanel tempObject = tempOrderList.get(i);
+								listProcessingStepPanels.add(tempObject.getProcessingStepsPanelObject(tempObject, mf));
+								listProcessingStepPanels.get(i).setSettings(tempOrderList.get(i).getSettings());
+							}				
+							updatePanels();
+							revalidate();
+							repaint();					
+						} catch (FileNotFoundException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (ClassNotFoundException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}			
+				});
+				
+				runButton.addActionListener(new ActionListener(){
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						Thread t = new Thread(){
+							@Override
+							public 
+							void run(){
+								controler.resetProgressBar(getListProcessingStepPanels());
+								controler.startProcessing(getListProcessingStepPanels());
+							}
+						};
+						t.start();
+					}			
+				});
+				
+				saveSettingsButton.addActionListener(new ActionListener(){
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						System.out.println("before saved");
+						int saveVal = settingsFileChooserSave.showSaveDialog(null);
+						System.out.println("saveSettingsButton");
+						if (saveVal == JFileChooser.APPROVE_OPTION){
+							File file = settingsFileChooserSave.getSelectedFile();
+							String settingsPath = file.getAbsolutePath();
+							try {
+//						if (!settingsPath.endsWith(".ser")){return;}
+								FileOutputStream fileOut = new FileOutputStream(settingsPath);
+								ObjectOutputStream out = new ObjectOutputStream(fileOut);
+								out.writeObject(listProcessingStepPanels);
+								out.close();
+								fileOut.close();
+								System.out.println("saved");					
+							} catch (FileNotFoundException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}				
+					}
+				});
+				
+				loadSettingsButton.addActionListener(new ActionListener(){
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						System.out.println("before loaded");
+						int returnVal = settingsFileChooserLoad.showOpenDialog(null);
+						System.out.println("loadSettingsButton");
+						if (returnVal == JFileChooser.APPROVE_OPTION){
+							ArrayList<ProcessingStepsPanel> tempOrderList = new ArrayList<ProcessingStepsPanel>();
+							String settingsPath = null;
+							File file = settingsFileChooserLoad.getSelectedFile();
+							settingsPath = file.getAbsolutePath();
+							try {
+								FileInputStream fileIn = new FileInputStream(settingsPath);
+								ObjectInputStream in = new ObjectInputStream(fileIn);
+								tempOrderList = (ArrayList<ProcessingStepsPanel>) in.readObject();
+								in.close();
+								fileIn.close();
+								System.out.println("loaded");	
+								listProcessingStepPanels.clear();
+								panel.removeAll();
+								optionPanel.removeAll();				
+								for (int i = 0; i < tempOrderList.size(); i++){						
+									ProcessingStepsPanel tempObject = tempOrderList.get(i);
+									listProcessingStepPanels.add(tempObject.getProcessingStepsPanelObject(tempObject, mf));
+									listProcessingStepPanels.get(i).setSettings(tempOrderList.get(i).getSettings());
+								}
+							} catch (FileNotFoundException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							} catch (ClassNotFoundException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							updatePanels();
+							revalidate();
+							repaint();
+						}
+					}
+				});
+		
+		
 		
 		
 		horizontalBox.add(panel);
@@ -176,7 +393,7 @@ public class MainFrame extends JFrame{
 		horizontalBox.add(optionPanel);
 		
 	}
-	
+		
 	public static DataFlavor getDragAndDropPanelDataFlavor() throws Exception {
         // Lazy load/create the flavor
         if (dragAndDropPanelDataFlavor == null) {
@@ -221,54 +438,62 @@ public class MainFrame extends JFrame{
 	public JComboBox getProcessingComboBox() {
 		return processingComboBox;
 	}
+	
+	
 	public void moduleAdded(ActionEvent e){
 		JComboBox thisBox = (JComboBox)e.getSource();
 		ProcessingStepsPanel panelToAdd = null;
+		
 		if (thisBox == outputComboBox){
-			switch (thisBox.getSelectedIndex()){
-				case 0:
-					panelToAdd =new RenderImage2DGUI(mf);
-					break;
-				case 1:
-					panelToAdd = new RenderImage3DGUI(mf);
-					break;
-				case 2:
-					break;
+//			System.out.println(outputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunctionName());
+			panelToAdd = outputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunction(mf);
 			}
-					
-		}
 		if (thisBox == inputComboBox){
-			switch (thisBox.getSelectedIndex()){
-				case 0:
-					panelToAdd = new SingleFileInputGUI(mf);
-					break;
-				case 1:
-					panelToAdd = new MultipleFileInputGUI(mf);
-					break;
-				case 2:
-					panelToAdd = new DualChannelSingleFileInputGUI(mf);
-					break;
-				case 3:
-					panelToAdd = new DualColorMultipleFileInputGUI(mf);
-					break;
+//			System.out.println(inputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunctionName());
+			panelToAdd = inputComboBoxOptions.get(thisBox.getSelectedIndex()).getFunction(mf);
 			}
-		}
 		if (thisBox == processingComboBox){
-			switch (thisBox.getSelectedIndex()){
-				case 0:
-					panelToAdd = new DriftcorrectionGUI(mf);
-					break;
-				case 1:
-					panelToAdd = new MergePointsGUI(mf);
-					break;
-				case 2:
-					panelToAdd = new DemixingGUI(mf);
-					break;
-				case 3:
-					panelToAdd = new CropGUI(mf);
-					break;
+//			System.out.println(processingComboBoxOptions.get(thisBox.getSelectedIndex()).getFunctionName());
+			panelToAdd = processingComboBoxOptions.get(thisBox.getSelectedIndex()).getFunction(mf);
+			}
+		
+		if (thisBox == preselectionComboBox){			
+			ArrayList<ProcessingStepsPanel> tempOrderListSettings = new ArrayList<ProcessingStepsPanel>();
+			String settingsPath = folder + "\\"+ optionsPreselectedTasksComboBoxAuto.toArray()[thisBox.getSelectedIndex()];
+			try {
+				FileInputStream fileInDefault = new FileInputStream(settingsPath);
+				ObjectInputStream inPreselection = new ObjectInputStream(fileInDefault);
+				tempOrderListSettings = (ArrayList<ProcessingStepsPanel>) inPreselection.readObject();
+				inPreselection.close();
+				fileInDefault.close();
+				listProcessingStepPanels.clear();
+				panel.removeAll();
+				optionPanel.removeAll();				
+				for (int i = 0; i < tempOrderListSettings.size(); i++){						
+					ProcessingStepsPanel tempObject = tempOrderListSettings.get(i);
+					listProcessingStepPanels.add(tempObject.getProcessingStepsPanelObject(tempObject, mf));
+					listProcessingStepPanels.get(i).setSettings(tempOrderListSettings.get(i).getSettings());
+				}				
+				updatePanels();
+				revalidate();
+				repaint();					
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+//				case 3:
+//					panelToAdd = new CropGUI(mf);
+//					break;
 			}
 		}
+		
+		
+		
 		if (panelToAdd !=null){
 			listProcessingStepPanels.add(panelToAdd);
 		}
@@ -288,6 +513,8 @@ public class MainFrame extends JFrame{
 			psp.setVisibilityOptionPanel(false);
 		}
 	}
+	
+	
 }
 
 
