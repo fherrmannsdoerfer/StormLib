@@ -131,10 +131,41 @@ public class CropGUI extends ProcessingStepsPanel{
 		catch(Exception e){
 			return Integer.valueOf("10000000");
 		}
-
+	}
 	@Override
 	public void process(StormData sd1, StormData sd2) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public ProcessingStepsPanel getFunction(MainFrame mf) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String[] getSettings() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setSettings(String[] tempString) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ProcessingStepsPanel getProcessingStepsPanelObject(
+			ProcessingStepsPanel processingStepsPanelObject, MainFrame mf) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getFunctionName() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
