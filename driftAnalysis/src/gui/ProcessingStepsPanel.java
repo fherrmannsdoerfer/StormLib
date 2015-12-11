@@ -18,6 +18,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import dataStructure.StormData;
+
 public abstract class ProcessingStepsPanel extends JPanel implements Transferable, Serializable{
 	/**
 	 * 
@@ -175,5 +177,6 @@ public abstract class ProcessingStepsPanel extends JPanel implements Transferabl
 	abstract public void setSettings(String[] tempString);
 	abstract public ProcessingStepsPanel getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf);
 	abstract public String getFunctionName();
+	abstract public void process(StormData sd1, StormData sd2);
 	
 }

@@ -53,6 +53,7 @@ public class MainFrame extends JFrame implements Serializable{
 	private JComboBox outputComboBox;
 	private JComboBox processingComboBox;
 	transient ActionListener outputActionListener;
+	private final ArrayList<String> optionsPreselectedTasksComboBoxAuto = new ArrayList<String>();
 //	String[] optionsPreselectedTasksComboBox = {"Single Channel Input", "Demixing"}; //is taken care of automatically (File folder = new ...)
 //	String[] optionsInputComboBox = {"SingleFileInput", "MultipleFileInput", "DualChannelSingleFileInput", "DualChannelMultipleFileInput"}; // moved to inputComboBoxOptions
 //	String[] optionsProcessingComboBox = {"Driftcorrection", "MergePoints", "Demixing", "Crop", "Multi Channel Alignment"}; // moved to processingComboBoxOptions
@@ -107,16 +108,14 @@ public class MainFrame extends JFrame implements Serializable{
 		verticalBox_1.add(lblNewLabel_3);
 		
 
-		File[] listOfFiles = folder.listFiles();
-		String[] optionsPreselectedTasksComboBoxAuto = new String[listOfFiles.length];
-		
+		File[] listOfFiles = folder.listFiles();		
 		    for (int i = 0; i < listOfFiles.length; i++) {
 		      if (listOfFiles[i].isFile()) {
-		        optionsPreselectedTasksComboBoxAuto[i] = (listOfFiles[i].getName());
+		    	optionsPreselectedTasksComboBoxAuto.add(listOfFiles[i].getName());
 		      } 
 		    }
 		
-		preselectionComboBox = new JComboBox(optionsPreselectedTasksComboBoxAuto);
+		preselectionComboBox = new JComboBox(optionsPreselectedTasksComboBoxAuto.toArray());
 		preselectionComboBox.addActionListener(outputActionListener);
 		preselectionComboBox.setMaximumSize(new Dimension(32767, 22));
 		verticalBox_1.add(preselectionComboBox);		
@@ -422,17 +421,9 @@ public class MainFrame extends JFrame implements Serializable{
 			panelToAdd = processingComboBoxOptions.get(thisBox.getSelectedIndex()).getFunction(mf);
 			}
 		
-		if (thisBox == preselectionComboBox){
-			File[] listOfFiles = folder.listFiles();
-			String[] preselectionComboBoxSelection = new String[listOfFiles.length];
-			
-			    for (int i = 0; i < listOfFiles.length; i++) {
-			      if (listOfFiles[i].isFile()) {
-			    	  preselectionComboBoxSelection[i] = (listOfFiles[i].getName());
-			      } 
-			    }			
+		if (thisBox == preselectionComboBox){			
 			ArrayList<ProcessingStepsPanel> tempOrderListSettings = new ArrayList<ProcessingStepsPanel>();
-			String settingsPath = folder + "\\"+ preselectionComboBoxSelection[thisBox.getSelectedIndex()];
+			String settingsPath = folder + "\\"+ optionsPreselectedTasksComboBoxAuto.toArray()[thisBox.getSelectedIndex()];
 			try {
 				FileInputStream fileInDefault = new FileInputStream(settingsPath);
 				ObjectInputStream inPreselection = new ObjectInputStream(fileInDefault);

@@ -7,6 +7,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import dataStructure.StormData;
 import gui.MainFrame;
 import gui.ProcessingStepsPanel;
 
@@ -61,5 +62,11 @@ public class RenderImage3DGUI extends ProcessingStepsPanel{
 	}
 	public String getFunctionName(){
 		return name;
+	}
+
+	@Override
+	public void process(StormData sd1, StormData sd2) {
+		sd1.renderImage2D(getPixelsize(), getTag());
+		setProgressbarValue(100);		
 	}
 }

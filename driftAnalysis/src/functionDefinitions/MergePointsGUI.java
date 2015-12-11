@@ -1,13 +1,20 @@
 package functionDefinitions;
 
 import java.awt.Color;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import StormLib.Utilities;
+import dataStructure.StormData;
+import functions.FeatureBasedDriftCorrection;
+import gui.Controler;
 import gui.MainFrame;
+import gui.MyPropertyChangeListener;
 import gui.ProcessingStepsPanel;
 
 public class MergePointsGUI extends ProcessingStepsPanel{
@@ -101,5 +108,14 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 	}
 	public String getFunctionName(){
 		return name;
+	}
+
+	@Override
+	public void process(StormData sd1, StormData sd2) {
+		PropertyChangeListener pcl = new MyPropertyChangeListener(this);
+		Utilities.addPropertyChangeListener(pcl);
+		sd1.connectPoints(getDistX(), getDistY(), getDistZ(), getDistFrames());
+		setProgressbarValue(100);
+		
 	}
 }

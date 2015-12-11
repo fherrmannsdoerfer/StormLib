@@ -17,11 +17,13 @@ import gui.ProcessingStepsPanel;
 
 import javax.swing.JButton;
 
+import dataStructure.StormData;
+
 public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
-	JTextField path1 = new JTextField();
-	JTextField file1 = new JTextField();
-	JTextField path2 = new JTextField();
-	JTextField file2 = new JTextField();
+	JTextField path1 = new JTextField("C:\\Uni\\STORM-Test-Data\\");
+	JTextField file1 = new JTextField("Left.txt");
+	JTextField path2 = new JTextField("C:\\Uni\\STORM-Test-Data\\");
+	JTextField file2 = new JTextField("Right.txt");
 	private static String name = "DualChannelSingleFileInput";
 	private final Box horizontalBox = Box.createHorizontalBox();
 	private final Box verticalBox_1 = Box.createVerticalBox();
@@ -127,5 +129,18 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 	}
 	public String getFunctionName(){
 		return name;
+	}
+
+	@Override
+	public void process(StormData sd1, StormData sd2) {
+		sd1.setFname(getFile1());
+		sd1.setPath(getPath1());
+		sd1.setLocs(sd1.importData(getPath1()+getFile1()));
+		setProgressbarValue(50);
+		sd2.setFname(getFile2());
+		sd2.setPath(getPath2());
+		sd2.setLocs(sd2.importData(getPath2()+getFile2()));
+		setProgressbarValue(100);
+		
 	}
 }

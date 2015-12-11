@@ -7,6 +7,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import dataStructure.StormData;
 import gui.MainFrame;
 import gui.ProcessingStepsPanel;
 
@@ -66,5 +67,11 @@ public class CropGUI extends ProcessingStepsPanel{
 	}
 	public String getFunctionName(){
 		return name;
+	}
+
+	@Override
+	public void process(StormData sd1, StormData sd2) {
+		// TODO Auto-generated method stub
+		
 	}
 }

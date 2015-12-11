@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Paths;
 
 import javax.swing.Box;
 import javax.swing.JFileChooser;
@@ -17,9 +18,11 @@ import gui.ProcessingStepsPanel;
 
 import javax.swing.JButton;
 
+import dataStructure.StormData;
+
 public class SingleFileInputGUI extends ProcessingStepsPanel{
 	JTextField path = new JTextField();
-	JTextField foldername = new JTextField();
+	JTextField filename = new JTextField();
 	final JFileChooser singleFileChooser = new JFileChooser();
 	JButton loadFileButton;
 	private static String name ="SingleFileInput";
@@ -30,7 +33,7 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 		settings[0] = "C:\\Uni\\STORM-Test-Data\\";
 		settings[1] = "Daten.txt";
 		path.setText(settings[0]);
-		foldername.setText(settings[1]);
+		filename.setText(settings[1]);
 		setSettings(settings);
 		this.setParameterButtonsName(name);
 		this.setColor(Color.WHITE);
@@ -46,7 +49,7 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 		verticalBox.add(new JLabel("Path:"));
 		verticalBox.add(path);
 		verticalBox.add(new JLabel("Foldername:"));
-		verticalBox.add(foldername);
+		verticalBox.add(filename);
 		retPanel.add(verticalBox);
 
 		loadFileButton = new JButton("Load File...");
@@ -58,7 +61,7 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 				if (returnVal == JFileChooser.APPROVE_OPTION){
 					File file = singleFileChooser.getSelectedFile();
 					path.setText(file.getParent()+"\\");
-					foldername.setText(file.getName());
+					filename.setText(file.getName());
 				}
 			}
 		});
@@ -69,16 +72,16 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 	public String getPath(){
 		return path.getText();
 	}
-	public String getFoldername(){
-		return foldername.getText();
+	public String getFilename(){
+		return filename.getText();
 	}
 	public String[] getSettings(){
-		String[] tempString = {path.getText(), foldername.getText()};
+		String[] tempString = {path.getText(), filename.getText()};
 		return tempString;
 	}
 	public void setSettings(String[] tempString){
 		path.setText(tempString[0]);
-		foldername.setText(tempString[1]);
+		filename.setText(tempString[1]);
 	}
 	public ProcessingStepsPanel getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
 		if (processingStepsPanelObject instanceof SingleFileInputGUI){
@@ -98,5 +101,13 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 	}
 	public String getFunctionName(){
 		return name;
+	}
+
+	@Override
+	public void process(StormData sd1, StormData sd2) {
+		sd1.setFname(getFilename());
+		sd1.setPath(getPath());
+		sd1.setLocs(sd1.importData(getPath()+getFilename()));
+		setProgressbarValue(100);
 	}
 }
