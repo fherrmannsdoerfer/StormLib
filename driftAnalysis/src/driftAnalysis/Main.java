@@ -21,7 +21,7 @@ public class Main {
 //
 	public static void main(String[] args) {
 
-		settingsMaja();
+//		settingsMaja();
 		//settingsFrank();
 		//settingsVarun();
 		
