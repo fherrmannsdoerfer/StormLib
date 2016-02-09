@@ -23,7 +23,6 @@ public class Main {
 
 		//settingsMaja();
 		settingsFrank();
-		//settingsVarun();
 		
 	}
 	

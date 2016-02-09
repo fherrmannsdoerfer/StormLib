@@ -10,6 +10,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import functionDefinitions.DualColorMultipleFileInputGUI;
 import StormLib.StormData;
 import StormLib.Utilities;
+import gui.MainFrame;
 
 public class StartGui {
 	static Controler controler;

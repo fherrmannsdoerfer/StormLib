@@ -66,6 +66,8 @@ public class MainFrame extends JFrame implements Serializable{
 	private final ArrayList<ProcessingStepsPanel> processingComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
 
 	public MainFrame(final Controler controler) {
+		folder.mkdir();
+		optionPanel = new JPanel();
 		final JFileChooser settingsFileChooserLoad = new JFileChooser(folder);
 		final JFileChooser settingsFileChooserSave = new JFileChooser(folder);
 	

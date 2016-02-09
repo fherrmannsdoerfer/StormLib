@@ -45,6 +45,7 @@ public class Controler implements Serializable{
 		for (ProcessingStepsPanel psp: functions){
 			psp.process(ch1, ch2);
 		}
+		System.out.println("fertig");
 		
 		
 	}
