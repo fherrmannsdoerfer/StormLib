@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 
 import javax.swing.Box;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -22,6 +23,8 @@ public class CropGUI extends ProcessingStepsPanel{
 	JTextField maxZ = new JTextField();
 	JTextField minFrame = new JTextField();
 	JTextField maxFrame = new JTextField();
+	JCheckBox ch1Chkbox = new JCheckBox();
+	JCheckBox ch2Chkbox = new JCheckBox();
 	String[] listLabelTexts = {"minimal x-value:", "maximal x-value:","minimal y-value:", "maximal y-value:","minimal z-value:", "maximal z-value:","minimal frame:", "maximal frame:"};
 	JTextField[] listTextFields = {minX, maxX,minY,maxY,minZ,maxZ,minFrame,maxFrame};
 	String[] listTextFieldTexts = {"xmin", "xmax", "ymin", "ymax", "zmin", "zmax", "framemin", "framemax"};
@@ -30,7 +33,7 @@ public class CropGUI extends ProcessingStepsPanel{
 	public CropGUI(MainFrame mf) {
 		super(mf);
 		this.setParameterButtonsName(name);
-		this.setColor(Color.WHITE);
+		this.setColor(Color.RED);
 		this.setOptionPanel(createOptionPanel());
 	}
 	
@@ -62,7 +65,17 @@ public class CropGUI extends ProcessingStepsPanel{
 			tf.setMaximumSize(new Dimension(150,22));
 		}
 		
+		ch1Chkbox.setText("Crop Channel 1");
+		ch1Chkbox.setSelected(true);
+		ch2Chkbox.setText("Crop Channel 2");
+		ch2Chkbox.setSelected(false);
+		Box hb = Box.createHorizontalBox();
+		hb.add(ch1Chkbox);
+		hb.add(Box.createHorizontalStrut(20));
+		hb.add(ch2Chkbox);
+		verticalBox.add(hb);
 		retPanel.add(verticalBox);
+		
 		return retPanel;
 	}
 	
@@ -116,7 +129,7 @@ public class CropGUI extends ProcessingStepsPanel{
 			return Double.valueOf("1e20");
 		}
 	}
-	public Integer getFrameMin(){
+	public Integer getMinFrame(){
 		try{
 			return Integer.valueOf(minFrame.getText());
 		}
@@ -124,7 +137,7 @@ public class CropGUI extends ProcessingStepsPanel{
 			return Integer.valueOf("0");
 		}
 	}
-	public Integer getFrameMax(){
+	public Integer getMaxFrame(){
 		try{
 			return Integer.valueOf(maxFrame.getText());
 		}
@@ -134,38 +147,69 @@ public class CropGUI extends ProcessingStepsPanel{
 	}
 	@Override
 	public void process(StormData sd1, StormData sd2) {
-		// TODO Auto-generated method stub
-		
+		if (ch1Chkbox.isSelected()){
+			sd1.cropCoords(getMinX(), getMaxX(), getMinY(), getMaxY(), getMinZ(), getMaxZ(), getMinFrame(), getMaxFrame());
+		}
+		if (ch2Chkbox.isSelected()){
+			sd2.cropCoords(getMinX(), getMaxX(), getMinY(), getMaxY(), getMinZ(), getMaxZ(), getMinFrame(), getMaxFrame());
+		}
+		setProgressbarValue(100);
 	}
 
 	@Override
 	public ProcessingStepsPanel getFunction(MainFrame mf) {
-		// TODO Auto-generated method stub
-		return null;
+		return new CropGUI(mf);
 	}
 
-	@Override
-	public String[] getSettings() {
-		// TODO Auto-generated method stub
-		return null;
+	public String[] getSettings(){
+		String statusChkBox = "";
+		String statusChkBox2 = "";
+		if (ch1Chkbox.isSelected()){
+			statusChkBox = "selected";
+		}
+		else{
+			statusChkBox = "notSelected";
+		}
+		if (ch2Chkbox.isSelected()){
+			statusChkBox2 = "selected";
+		}
+		else{
+			statusChkBox2 = "notSelected";
+		}
+		String[] tempString = new String[listTextFields.length+2];
+		tempString[0] = statusChkBox;
+		tempString[1] = statusChkBox2;
+		setTextFieldTexts(listTextFields, 2, tempString);
+		return tempString;
 	}
-
-	@Override
-	public void setSettings(String[] tempString) {
-		// TODO Auto-generated method stub
-		
+	public void setSettings(String[] tempString){
+		if (tempString[0].equals("selected")){
+			ch1Chkbox.setSelected(true);
+		}
+		else{
+			ch1Chkbox.setSelected(false);
+		}
+		if (tempString[1].equals("selected")){
+			ch2Chkbox.setSelected(true);
+		}
+		else{
+			ch2Chkbox.setSelected(false);
+		}
+		getTextFieldTexts(listTextFields, 2, tempString);
 	}
 
 	@Override
 	public ProcessingStepsPanel getProcessingStepsPanelObject(
 			ProcessingStepsPanel processingStepsPanelObject, MainFrame mf) {
-		// TODO Auto-generated method stub
+		if (processingStepsPanelObject instanceof CropGUI){
+			CropGUI returnObject = new CropGUI(mf);
+			return returnObject;
+		}
 		return null;
 	}
 
 	@Override
 	public String getFunctionName() {
-		// TODO Auto-generated method stub
-		return null;
+		return name;
 	}
 }

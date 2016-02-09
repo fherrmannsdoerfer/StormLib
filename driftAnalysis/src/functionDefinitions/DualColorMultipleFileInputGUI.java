@@ -2,12 +2,15 @@ package functionDefinitions;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import StormLib.Utilities;
 import dataStructure.StormData;
 import gui.MainFrame;
 import gui.ProcessingStepsPanel;
@@ -17,7 +20,8 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 	JTextField pattern1 = new JTextField();
 	JTextField path2 = new JTextField();
 	JTextField pattern2 = new JTextField();
-	private static String name = "DualColorMultipleFileInput";
+
+	private static String name = "Dual-Color Multiple File Input";
 	
 	public DualColorMultipleFileInputGUI(MainFrame mf) {
 		super(mf);
@@ -48,6 +52,7 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 		verticalBox.add(new JLabel("Pattern 2:"));
 		verticalBox.add(pattern2);
 		retPanel.add(verticalBox);
+		
 		return retPanel;
 	}
 	
@@ -63,6 +68,8 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 	public String getPattern2(){
 		return pattern2.getText();
 	}
+	
+
 	public String[] getSettings(){
 		String[] tempString = {path1.getText(), pattern1.getText(), path2.getText(), pattern2.getText()};
 		return tempString;
@@ -89,7 +96,11 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 
 	@Override
 	public void process(StormData sd1, StormData sd2) {
-		// TODO Auto-generated method stub
-		
+		Utilities.addPropertyChangeListener(this);
+		ArrayList<StormData> list = Utilities.openSeries(path1.getText(), pattern1.getText(), path2.getText(), pattern2.getText());
+		sd1.copyStormData(list.get(0));
+		sd2.copyStormData(list.get(1));
+		setProgressbarValue(100);
 	}
+	
 }

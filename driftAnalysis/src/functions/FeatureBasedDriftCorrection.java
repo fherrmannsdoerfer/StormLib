@@ -298,7 +298,7 @@ public class FeatureBasedDriftCorrection {
 	}
 		
 	static ArrayList<double[][]> finddisplacements2(StormData sd, int chunksize, int pixelsize, boolean xYOnly){
-		ArrayList<ArrayList<ImagePlus>> movie = makemovie(sd, chunksize, pixelsize);
+		ArrayList<ArrayList<ImagePlus>> movie = makemovie(sd, chunksize, pixelsize,xYOnly);
 		int window = 90;
 		int numFrames = movie.get(0).size();
 		double [][] ddxXY = new double[numFrames][numFrames];
@@ -310,9 +310,9 @@ public class FeatureBasedDriftCorrection {
 		//for (int k = 0; k< numFrames - 1; k++){
 		//for (int k = 0; k< 1; k++){ only upper row
 		for (int k = 0; k< numFrames - 1; k++){
+			setProgress("DriftCorrections", (int) 50+(50*k)/numFrames);
 			for (int l = k+1; l< numFrames; l++){
 				for(int m = 0; m<3; m++){
-					setProgress("DriftCorrections", (int) 50+(50*k*numFrames+l)/numFrames/numFrames);
 				//for (int l = k+1; l< k+2; l++){
 					ArrayList<Double> displacements = findDisplacementBetweenFrames(movie.get(0).get(k).getProcessor(),
 							movie.get(0).get(l).getProcessor(), window);
@@ -365,7 +365,7 @@ public class FeatureBasedDriftCorrection {
 		return ret;
 	}
 	
-	static ArrayList<ArrayList<ImagePlus>> makemovie(StormData sd, int chunksize, int pixelsize){
+	static ArrayList<ArrayList<ImagePlus>> makemovie(StormData sd, int chunksize, int pixelsize,boolean xYOnly){
 		ArrayList<ArrayList<ImagePlus>> movie = new ArrayList<ArrayList<ImagePlus>>();
 		ArrayList<Double> dims = sd.getDimensions();
 		int startFrame = dims.get(6).intValue();
@@ -386,28 +386,37 @@ public class FeatureBasedDriftCorrection {
 			
 			//ij.IJ.save(transformedImage2D,"c:\\tmp2\\movie"+counter+".tiff");
 			StormData subset = sd.findSubset(i,i+chunksize);
-			ArrayList<ImagePlus> imgs = calculateFourierTransforms(subset,pixelsize,longestDimension);
+			ArrayList<ImagePlus> imgs = calculateFourierTransforms(subset,pixelsize,longestDimension,xYOnly);
 			imgsxy.add(imgs.get(0));
-			imgsxz.add(imgs.get(1));
-			imgsyz.add(imgs.get(2));
+			if (!useXYOnly){
+				imgsxz.add(imgs.get(1));
+				imgsyz.add(imgs.get(2));
+			}
 			i = i + chunksize;
 			counter = counter +1;
-		}	
+		}
 		movie.add(imgsxy);
-		movie.add(imgsxz);
-		movie.add(imgsyz);
+		if (!useXYOnly){
+			movie.add(imgsxz);
+			movie.add(imgsyz);
+		}
 		return movie;
 	}
 	
-	static ArrayList<ImagePlus> calculateFourierTransforms(StormData subset, int pixelsize, int longestDimension){
+	static ArrayList<ImagePlus> calculateFourierTransforms(StormData subset, int pixelsize, int longestDimension, boolean useOnlyXY){
 		ArrayList<ImagePlus> retImg = new ArrayList<ImagePlus>();
-		ImagePlus imgXY = subset.renderImage2D(pixelsize, false,"",0,longestDimension);
-		ImagePlus imgXZ = subset.renderImage2D(pixelsize, false,"",1,longestDimension);
-		ImagePlus imgYZ = subset.renderImage2D(pixelsize, false,"",2,longestDimension);
 		ArrayList<ImagePlus> realImgs = new ArrayList<ImagePlus>();
+		
+		ImagePlus imgXY = subset.renderImage2D(pixelsize, false,"",0,longestDimension);
 		realImgs.add(imgXY);
-		realImgs.add(imgXZ);
-		realImgs.add(imgYZ);
+		
+		if (!useOnlyXY){
+			ImagePlus imgXZ = subset.renderImage2D(pixelsize, false,"",1,longestDimension);
+			ImagePlus imgYZ = subset.renderImage2D(pixelsize, false,"",2,longestDimension);
+			realImgs.add(imgXZ);
+			realImgs.add(imgYZ);
+		}
+		
 		//ij.IJ.save(img, "c:\\tmp2\\origImg"+i+".tiff");
 		for (int i = 0; i<realImgs.size(); i++){
 			FHT fft3 = new FHT(realImgs.get(i).getProcessor());

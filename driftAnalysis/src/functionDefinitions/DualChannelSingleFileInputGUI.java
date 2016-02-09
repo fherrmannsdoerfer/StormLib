@@ -25,8 +25,8 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 	JTextField path2 = new JTextField("C:\\Uni\\STORM-Test-Data\\");
 	JTextField file2 = new JTextField("Right.txt");
 	private static String name = "DualChannelSingleFileInput";
-	private final Box horizontalBox = Box.createHorizontalBox();
-	private final Box verticalBox_1 = Box.createVerticalBox();
+	private final Box verticalBox2 = Box.createVerticalBox();
+	private final Box hb = Box.createHorizontalBox();
 	private final JButton loadFile1Button = new JButton("Load File1");
 	private final JButton loadFile2Button = new JButton("Load File2");
 	final JFileChooser dualChannel1FileChooser = new JFileChooser();
@@ -47,9 +47,9 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 		retPanel.setSize(300, 500);
 		Dimension d = new Dimension(100,22);
 		
-		retPanel.add(horizontalBox);
+		retPanel.add(verticalBox2);
 		Box verticalBox = Box.createVerticalBox();
-		horizontalBox.add(verticalBox);
+		verticalBox2.add(verticalBox);
 		path1.setPreferredSize(d);
 		path2.setPreferredSize(d);
 		file1.setPreferredSize(d);
@@ -64,9 +64,9 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 		verticalBox.add(new JLabel("File 2:"));
 		verticalBox.add(file2);
 		
-		horizontalBox.add(verticalBox_1);		
-		verticalBox_1.add(loadFile1Button);
-		verticalBox_1.add(loadFile2Button);
+		verticalBox2.add(hb);		
+		hb.add(loadFile1Button);
+		hb.add(loadFile2Button);
 		
 		loadFile1Button.addActionListener(new ActionListener(){
 			@Override

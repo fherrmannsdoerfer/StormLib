@@ -3,6 +3,7 @@ package functionDefinitions;
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.Serializable;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
@@ -16,7 +17,7 @@ import gui.MainFrame;
 import gui.MyPropertyChangeListener;
 import gui.ProcessingStepsPanel;
 
-public class DriftcorrectionGUI extends ProcessingStepsPanel{
+public class DriftcorrectionGUI extends ProcessingStepsPanel implements Serializable{
 	JTextField chunksize = new JTextField();
 	private static String name = "Driftcorrection";
 	public DriftcorrectionGUI(MainFrame mf) {
@@ -34,7 +35,7 @@ public class DriftcorrectionGUI extends ProcessingStepsPanel{
 		Box verticalBox = Box.createVerticalBox();
 		verticalBox.add(new JLabel("Chunk Size:"));
 		verticalBox.add(chunksize);
-		
+		chunksize.setText("5000");
 		retPanel.add(verticalBox);
 		return retPanel;
 	}

@@ -27,6 +27,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import functionDefinitions.CreateLogFileGUI;
 import functionDefinitions.CropGUI;
 import functionDefinitions.DemixingGUI;
 import functionDefinitions.DriftcorrectionGUI;
@@ -34,9 +35,12 @@ import functionDefinitions.DualChannelSingleFileInputGUI;
 import functionDefinitions.DualColorMultipleFileInputGUI;
 import functionDefinitions.MergePointsGUI;
 import functionDefinitions.MultipleFileInputGUI;
+import functionDefinitions.RenderDemixingImage;
 import functionDefinitions.RenderImage2DGUI;
 import functionDefinitions.RenderImage3DGUI;
 import functionDefinitions.SingleFileInputGUI;
+import functionDefinitions.WriteArrayListForVisp;
+import functionDefinitions.WriteLocalizationsToFile;
 
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
@@ -55,10 +59,7 @@ public class MainFrame extends JFrame implements Serializable{
 	private JComboBox processingComboBox;
 	transient ActionListener outputActionListener;
 	private final ArrayList<String> optionsPreselectedTasksComboBoxAuto = new ArrayList<String>();
-//	String[] optionsPreselectedTasksComboBox = {"Single Channel Input", "Demixing"}; //is taken care of automatically (File folder = new ...)
-//	String[] optionsInputComboBox = {"SingleFileInput", "MultipleFileInput", "DualChannelSingleFileInput", "DualChannelMultipleFileInput"}; // moved to inputComboBoxOptions
-//	String[] optionsProcessingComboBox = {"Driftcorrection", "MergePoints", "Demixing", "Crop", "Multi Channel Alignment"}; // moved to processingComboBoxOptions
-//	String[] optionsOutputComboBox = {"Render 2D Image", "RenderImage3D", "Processing Log File", "Visp File", "Localization File "}; // moved to outputComboBoxOptions
+
 	File folder = new File(System.getProperty("user.home")+"//PostProcessingSoftware"); //Folder of savedPresettings
 	private final ArrayList<ProcessingStepsPanel> outputComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
 	private final ArrayList<ProcessingStepsPanel> inputComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
@@ -79,12 +80,17 @@ public class MainFrame extends JFrame implements Serializable{
 		horizontalBox.setPreferredSize(new Dimension(1200, 0));
 		getContentPane().add(horizontalBox, BorderLayout.CENTER);
 		panel = new RootPanel(this);
+		panel.setPreferredSize(new Dimension(200, 20));
 		panel.setMinimumSize(new Dimension(4, 2));
 		
 		//////////////////////////////////////////////////////////////////// set options to choose from for drop-down menus; creates empty GUI class objects with member name
 
 		outputComboBoxOptions.add(new RenderImage2DGUI());
 		outputComboBoxOptions.add(new RenderImage3DGUI());
+		outputComboBoxOptions.add(new RenderDemixingImage());
+		outputComboBoxOptions.add(new WriteArrayListForVisp());
+		outputComboBoxOptions.add(new WriteLocalizationsToFile());
+		outputComboBoxOptions.add(new CreateLogFileGUI());
 		
 		inputComboBoxOptions.add(new SingleFileInputGUI());
 		inputComboBoxOptions.add(new DualChannelSingleFileInputGUI());
@@ -94,7 +100,7 @@ public class MainFrame extends JFrame implements Serializable{
 		processingComboBoxOptions.add(new DriftcorrectionGUI());
 		processingComboBoxOptions.add(new MergePointsGUI());
 		processingComboBoxOptions.add(new DemixingGUI());
-//		processingComboBoxOptions.add(new CropGUI());
+		processingComboBoxOptions.add(new CropGUI());
 		
 		///////////////////////////////////////////////////////////////////
 		
@@ -200,183 +206,180 @@ public class MainFrame extends JFrame implements Serializable{
 		Component verticalGlue = Box.createVerticalGlue();
 		verticalBox_1.add(verticalGlue);
 		
-		Box horizontalBox_4 = Box.createHorizontalBox();
-		verticalBox_1.add(horizontalBox_4);
+		Box verticalBox_5 = Box.createVerticalBox();
+		verticalBox_1.add(verticalBox_5);
 		
-//		Box horizontalBox_4 = Box.createHorizontalBox();
-//		verticalBox_1.add(horizontalBox_4);
-//		
-//		Box horizontalBox_1 = Box.createHorizontalBox();
-//		verticalBox_1.add(horizontalBox_1);
-		
-		Box verticalBox_3 = Box.createVerticalBox();
-		horizontalBox_4.add(verticalBox_3);
+		Box horizontalBox_6 = Box.createHorizontalBox();
+		verticalBox_5.add(horizontalBox_6);
 		
 		JButton loadSettingsButton = new JButton("Load Settings");
-		verticalBox_3.add(loadSettingsButton);
+		horizontalBox_6.add(loadSettingsButton);
+		
+		Component horizontalGlue_5 = Box.createHorizontalGlue();
+		horizontalBox_6.add(horizontalGlue_5);
+		
+		JButton loadDefaultSettingsButton = new JButton("Load Default Settings");
+		horizontalBox_6.add(loadDefaultSettingsButton);
+		
+		loadDefaultSettingsButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {				
+				ArrayList<ProcessingStepsPanel> tempOrderList = new ArrayList<ProcessingStepsPanel>();
+				String settingsPath = "settings.default";
+				try {
+					FileInputStream fileInDefault = new FileInputStream(settingsPath);
+					ObjectInputStream inDefault = new ObjectInputStream(fileInDefault);
+					tempOrderList = (ArrayList<ProcessingStepsPanel>) inDefault.readObject();
+					inDefault.close();
+					fileInDefault.close();
+					System.out.println("loaded default");
+					listProcessingStepPanels.clear();
+					panel.removeAll();
+					optionPanel.removeAll();				
+					for (int i = 0; i < tempOrderList.size(); i++){						
+						ProcessingStepsPanel tempObject = tempOrderList.get(i);
+						listProcessingStepPanels.add(tempObject.getProcessingStepsPanelObject(tempObject, mf));
+						listProcessingStepPanels.get(i).setSettings(tempOrderList.get(i).getSettings());
+					}				
+					updatePanels();
+					revalidate();
+					repaint();					
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}			
+		});
+		
+		loadSettingsButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("before loaded");
+				int returnVal = settingsFileChooserLoad.showOpenDialog(null);
+				System.out.println("loadSettingsButton");
+				if (returnVal == JFileChooser.APPROVE_OPTION){
+					ArrayList<ProcessingStepsPanel> tempOrderList = new ArrayList<ProcessingStepsPanel>();
+					String settingsPath = null;
+					File file = settingsFileChooserLoad.getSelectedFile();
+					settingsPath = file.getAbsolutePath();
+					try {
+						FileInputStream fileIn = new FileInputStream(settingsPath);
+						ObjectInputStream in = new ObjectInputStream(fileIn);
+						tempOrderList = (ArrayList<ProcessingStepsPanel>) in.readObject();
+						in.close();
+						fileIn.close();
+						System.out.println("loaded");	
+						listProcessingStepPanels.clear();
+						panel.removeAll();
+						optionPanel.removeAll();				
+						for (int i = 0; i < tempOrderList.size(); i++){						
+							ProcessingStepsPanel tempObject = tempOrderList.get(i);
+							listProcessingStepPanels.add(tempObject.getProcessingStepsPanelObject(tempObject, mf));
+							listProcessingStepPanels.get(i).setSettings(tempOrderList.get(i).getSettings());
+						}
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (ClassNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					updatePanels();
+					revalidate();
+					repaint();
+				}
+			}
+		});
+		
+		Box horizontalBox_7 = Box.createHorizontalBox();
+		verticalBox_5.add(horizontalBox_7);
 		
 		
 		JButton saveSettingsButton = new JButton("Save Settings");
-		verticalBox_3.add(saveSettingsButton);
+		horizontalBox_7.add(saveSettingsButton);
+		
+		Component horizontalGlue_3 = Box.createHorizontalGlue();
+		horizontalBox_7.add(horizontalGlue_3);
+		
+		JButton saveDefaultSettingsButton = new JButton("Save Default Settings");
+		horizontalBox_7.add(saveDefaultSettingsButton);
 		
 		JButton runButton = new JButton("Start Processing");
-		//		horizontalBox_4.add(runButton);
-		//		
-		//		Component horizontalGlue_3 = Box.createHorizontalGlue();
-		//		horizontalBox_4.add(horizontalGlue_3);
-				verticalBox_3.add(runButton);
-				
-				Box verticalBox_4 = Box.createVerticalBox();
-				horizontalBox_4.add(verticalBox_4);
-				
-				JButton loadDefaultSettingsButton = new JButton("Load Default Settings");
-				verticalBox_4.add(loadDefaultSettingsButton);
-				
-				JButton saveDefaultSettingsButton = new JButton("Save Default Settings");
-				verticalBox_4.add(saveDefaultSettingsButton);
-				
-				saveDefaultSettingsButton.addActionListener(new ActionListener(){
+		runButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		verticalBox_5.add(runButton);
+		
+		runButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Thread t = new Thread(){
 					@Override
-					public void actionPerformed(ActionEvent e) {
-						try {
-							FileOutputStream fileOutDefault = new FileOutputStream("settings.default");
-							ObjectOutputStream outDefault = new ObjectOutputStream(fileOutDefault);
-							outDefault.writeObject(listProcessingStepPanels);
-							outDefault.close();
-							fileOutDefault.close();
-							System.out.println("saved default");					
-						} catch (FileNotFoundException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
+					public 
+					void run(){
+						controler.resetProgressBar(getListProcessingStepPanels());
+						controler.startProcessing(getListProcessingStepPanels());
 					}
-				});
-				
-				loadDefaultSettingsButton.addActionListener(new ActionListener(){
-					@Override
-					public void actionPerformed(ActionEvent e) {				
-						ArrayList<ProcessingStepsPanel> tempOrderList = new ArrayList<ProcessingStepsPanel>();
-						String settingsPath = "settings.default";
-						try {
-							FileInputStream fileInDefault = new FileInputStream(settingsPath);
-							ObjectInputStream inDefault = new ObjectInputStream(fileInDefault);
-							tempOrderList = (ArrayList<ProcessingStepsPanel>) inDefault.readObject();
-							inDefault.close();
-							fileInDefault.close();
-							System.out.println("loaded default");
-							listProcessingStepPanels.clear();
-							panel.removeAll();
-							optionPanel.removeAll();				
-							for (int i = 0; i < tempOrderList.size(); i++){						
-								ProcessingStepsPanel tempObject = tempOrderList.get(i);
-								listProcessingStepPanels.add(tempObject.getProcessingStepsPanelObject(tempObject, mf));
-								listProcessingStepPanels.get(i).setSettings(tempOrderList.get(i).getSettings());
-							}				
-							updatePanels();
-							revalidate();
-							repaint();					
-						} catch (FileNotFoundException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						} catch (ClassNotFoundException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-					}			
-				});
-				
-				runButton.addActionListener(new ActionListener(){
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						Thread t = new Thread(){
-							@Override
-							public 
-							void run(){
-								controler.resetProgressBar(getListProcessingStepPanels());
-								controler.startProcessing(getListProcessingStepPanels());
-							}
-						};
-						t.start();
-					}			
-				});
-				
-				saveSettingsButton.addActionListener(new ActionListener(){
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						System.out.println("before saved");
-						int saveVal = settingsFileChooserSave.showSaveDialog(null);
-						System.out.println("saveSettingsButton");
-						if (saveVal == JFileChooser.APPROVE_OPTION){
-							File file = settingsFileChooserSave.getSelectedFile();
-							String settingsPath = file.getAbsolutePath();
-							try {
+				};
+				t.start();
+			}			
+		});
+		
+		saveDefaultSettingsButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					FileOutputStream fileOutDefault = new FileOutputStream("settings.default");
+					ObjectOutputStream outDefault = new ObjectOutputStream(fileOutDefault);
+					outDefault.writeObject(listProcessingStepPanels);
+					outDefault.close();
+					fileOutDefault.close();
+					System.out.println("saved default");					
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		
+		saveSettingsButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("before saved");
+				int saveVal = settingsFileChooserSave.showSaveDialog(null);
+				System.out.println("saveSettingsButton");
+				if (saveVal == JFileChooser.APPROVE_OPTION){
+					File file = settingsFileChooserSave.getSelectedFile();
+					String settingsPath = file.getAbsolutePath();
+					try {
 //						if (!settingsPath.endsWith(".ser")){return;}
-								FileOutputStream fileOut = new FileOutputStream(settingsPath);
-								ObjectOutputStream out = new ObjectOutputStream(fileOut);
-								out.writeObject(listProcessingStepPanels);
-								out.close();
-								fileOut.close();
-								System.out.println("saved");	
-								setupPreselectedTasks();
-							} catch (FileNotFoundException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-						}				
+						FileOutputStream fileOut = new FileOutputStream(settingsPath);
+						ObjectOutputStream out = new ObjectOutputStream(fileOut);
+						out.writeObject(listProcessingStepPanels);
+						out.close();
+						fileOut.close();
+						System.out.println("saved");	
+						setupPreselectedTasks();
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
-				});
-				
-				loadSettingsButton.addActionListener(new ActionListener(){
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						System.out.println("before loaded");
-						int returnVal = settingsFileChooserLoad.showOpenDialog(null);
-						System.out.println("loadSettingsButton");
-						if (returnVal == JFileChooser.APPROVE_OPTION){
-							ArrayList<ProcessingStepsPanel> tempOrderList = new ArrayList<ProcessingStepsPanel>();
-							String settingsPath = null;
-							File file = settingsFileChooserLoad.getSelectedFile();
-							settingsPath = file.getAbsolutePath();
-							try {
-								FileInputStream fileIn = new FileInputStream(settingsPath);
-								ObjectInputStream in = new ObjectInputStream(fileIn);
-								tempOrderList = (ArrayList<ProcessingStepsPanel>) in.readObject();
-								in.close();
-								fileIn.close();
-								System.out.println("loaded");	
-								listProcessingStepPanels.clear();
-								panel.removeAll();
-								optionPanel.removeAll();				
-								for (int i = 0; i < tempOrderList.size(); i++){						
-									ProcessingStepsPanel tempObject = tempOrderList.get(i);
-									listProcessingStepPanels.add(tempObject.getProcessingStepsPanelObject(tempObject, mf));
-									listProcessingStepPanels.get(i).setSettings(tempOrderList.get(i).getSettings());
-								}
-							} catch (FileNotFoundException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							} catch (ClassNotFoundException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-							updatePanels();
-							revalidate();
-							repaint();
-						}
-					}
-				});
+				}				
+			}
+		});
 		
 		
 		
@@ -387,7 +390,7 @@ public class MainFrame extends JFrame implements Serializable{
 		horizontalBox.add(scrollPane);		
 		
 		optionPanel = new JPanel();
-		optionPanel.setPreferredSize(new Dimension(500, 10));
+		optionPanel.setPreferredSize(new Dimension(300, 10));
 		horizontalBox.add(optionPanel);
 		
 	}

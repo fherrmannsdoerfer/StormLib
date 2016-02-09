@@ -21,8 +21,8 @@ public class Main {
 //
 	public static void main(String[] args) {
 
-		settingsMaja();
-		//settingsFrank();
+		//settingsMaja();
+		settingsFrank();
 		//settingsVarun();
 		
 	}
@@ -41,9 +41,9 @@ public class Main {
 	public static void settingsFrank(){
 		String tag = "150111MtBla";
 		String tag2 = "_2";
-		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\151105__Rab3a-m-Al647_Synapsin12-r-CF680_STORMFr\\";
+		String path1 = "Y:\\Users_shared\\SuReSim-Software Project\\160119Resubmission\\Figures\\Hauptfigures\\Figure 1\\Raw\\Figure1f-MT Messung\\";
 		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\ThunderStorm\\";
-		demixingMultipleInputFiles(path1, "Left", path1, "Right");
+		singleColor3dImage(path1, "LeftChannel141107MicrotubuliAlexa647Cos3dMessung2.txt");
 	}
 	
 	static void createVispOutput(String path, String fname){
@@ -208,12 +208,13 @@ public class Main {
 		//sd.connectPoints(100, 100, 150, 3);
 	//sd.renderImage3D(10);
 	//sd.writeArrayListForFRC("ConDC");
-		sd.renderImage3D(10);
-		sd.writeArrayListForVisp("connected");
+		
 		//sd.correctDrift(4000);
 	//	sd.writeArrayListForFRC("drift");
-		//sd.cropCoords(0, 100000, 0, 100000, 300, 600, 0, 10000);
-		
+		sd.cropCoords(0, 100000, 0, 100000, 75, 875, 0, 10000);
+		sd.renderImage3D(10);
+		sd.writeArrayListForVisp("connected");
+		sd.writeLocs("final");
 	//	sd.writeArrayListForVisp("conDCcropped300-600-0-10000");
 	
 		//sd.cropCoords(4960, 5600, 8660, 9300, 200, 550, 0, 60000);

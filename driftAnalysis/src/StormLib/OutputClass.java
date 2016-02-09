@@ -230,6 +230,31 @@ public class OutputClass {
 			writer.close();
 		} catch (IOException e) {e.printStackTrace();}
 	}
+	
+	public static void writeLocs(String path, String basename, ArrayList<StormLocalization> locs, 
+			String tag,DemixingParameters demixingParams) {
+		double minAngle1 = demixingParams.getAngle1() - demixingParams.getWidth1()/2;
+		double maxAngle1 = demixingParams.getAngle1() + demixingParams.getWidth1()/2;
+		double minAngle2 = demixingParams.getAngle2() - demixingParams.getWidth2()/2;
+		double maxAngle2 = demixingParams.getAngle2() + demixingParams.getWidth2()/2;
+		try {
+			FileWriter writer1 = new FileWriter(path+"Statistics\\Texts\\"+"forLocsDemixedCH1_"+basename+tag+".txt");
+			FileWriter writer2 = new FileWriter(path+"Statistics\\Texts\\"+"forLocsDemixedCH2_"+basename+tag+".txt");
+			for (int i = 0; i<locs.size(); i++){
+				StormLocalization sl = locs.get(i);
+				if (((sl.getAngle()> minAngle1 && sl.getAngle()< maxAngle1))|| sl.getAngle() == 0){
+					writer1.append(sl.toPlainString()+"\n");
+				}
+				else if ((sl.getAngle()> minAngle2 && sl.getAngle()< maxAngle2) || sl.getAngle() == Math.PI/2){
+					writer2.append(sl.toPlainString()+"\n");
+				}
+			}
+			writer1.flush();
+			writer1.close();
+			writer2.flush();
+			writer2.close();
+		} catch (IOException e) {e.printStackTrace();}
+	}
 
 	public static void writeLocsPerFrame(String path, String basename,
 			ArrayList<ArrayList<Integer>> tmp, int binWidth, String tag) {

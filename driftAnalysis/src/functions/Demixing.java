@@ -1,5 +1,7 @@
 package functions;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -11,44 +13,65 @@ import dataStructure.StormData;
 import dataStructure.StormLocalization;
 import StormLib.OutputClass;
 import StormLib.Progressbar;
+import StormLib.Utilities;
 import StormLib.HelperClasses.DemixingResultLog;
 import StormLib.HelperClasses.DemixingTransformationLog;
 
 
 public class Demixing {
+	private static PropertyChangeSupport propertyChangeSupport =
+		       new PropertyChangeSupport(Demixing.class);
+	private static int lastVal = 0;
 	static boolean verbose = false;
 	static ExecutorService executor;
 	static ExecutorService executor2;
 	static double[][] noTransMat = {{1, 0, 0},{0, 1, 0}};
 	
-	
-	public static StormData spectralUnmixing(StormData ch1, StormData ch2, boolean useAll){
-		return spectralUnmixing(ch1, ch2, useAll,"");
+	public static void addPropertyChangeListener(PropertyChangeListener listener) {
+        propertyChangeSupport.addPropertyChangeListener(listener);
+    }
+
+    public static void setProgress(String messageName, int val) {
+    	propertyChangeSupport.firePropertyChange(messageName, lastVal, val);
+		lastVal = val;
+    }
+    
+    public static StormData spectralUnmixing(StormData ch1, StormData ch2, boolean useAll,
+			String tag){
+		return spectralUnmixing(ch1, ch2, useAll,"",60,500, 1500, 50,false);
 	}
 	
-	public static StormData spectralUnmixing(StormData ch1, StormData ch2){
-		return spectralUnmixing(ch1, ch2, false,"");
+	public static StormData spectralUnmixing(StormData ch1, StormData ch2, boolean useAll,
+			double dist,double minInt, int nbrIter, double toleratedError){
+		return spectralUnmixing(ch1, ch2, useAll,"",dist,minInt, nbrIter, toleratedError,false);
 	}
 	
-	public static StormData spectralUnmixing(StormData ch1, StormData ch2, boolean useAll, String tag){
+	public static StormData spectralUnmixing(StormData ch1, StormData ch2,double dist, double minInt,
+			int nbrIter, double toleratedError,boolean savePairedPoints){
+		return spectralUnmixing(ch1, ch2, false,"",dist, minInt, nbrIter, toleratedError, savePairedPoints);
+	}
+	
+	public static StormData spectralUnmixing(StormData ch1, StormData ch2, boolean useAll, String tag,
+			double dist, double minInt, int nbrIter, double toleratedError,boolean savePairedPoints){
 		executor = Executors.newFixedThreadPool(1);
 		executor2 = Executors.newFixedThreadPool(1);
-		double[][] trafo = findGlobalTransformationMultithreaded(ch1, ch2);
+		double[][] trafo = findGlobalTransformationMultithreaded(ch1, ch2,nbrIter, toleratedError);
 		//double[][] trafo = {{0.9989659705798773, -0.00152716543305873, 100.09632875943628},{-4.850730075698712E-4, 0.9986236679388222, -51.39384826518874}};
 		
 		
 		//double[][] trafo = {{0.9988,-0.0013,65.9763},{-0.0004,0.9988,-7.46}};
-		StormData combinedSet = doUnmixingMultiThreaded(ch1,ch2,trafo, useAll,tag);
+		StormData combinedSet = doUnmixingMultiThreaded(ch1,ch2,trafo, useAll,tag,dist, minInt,savePairedPoints);
 		combinedSet.setFname(ch1.getFname());
 		combinedSet.setPath(ch1.getPath());
 		//StormData combinedSet = doUnmixing(ch1, ch2, trafo);
 		return combinedSet;
 	}
 	
-	static StormData doUnmixingMultiThreaded(StormData untransformedCh1, StormData ch2, double[][] trafo, boolean useAll,String tag){
+	static StormData doUnmixingMultiThreaded(StormData untransformedCh1, StormData ch2, double[][] trafo, 
+			boolean useAll,String tag, double dist, double minInt, boolean savePairedPoints){
 		StormData ch1 = TransformationControl.applyTrafo(trafo, untransformedCh1);
-		double dist = 60; //in nm //this variable determines within which distance for matching points are searched
-		double minInt = 500; // minimal intensity of at least one channel
+//		double dist = 60; //in nm //this variable determines within which distance for matching points are searched
+//		double minInt = 500; // minimal intensity of at least one channel
 		if (verbose) {
 			System.out.println("start unmixing...");
 			System.out.println("maximal tolerance for matching points: "+dist);
@@ -79,7 +102,9 @@ public class Demixing {
 		} catch (InterruptedException e) {
 		
 		}
-		OutputClass.writeDemixingOutput(ch1.getPath(), ch1.getBasename(), demixingData.getCh1(), demixingData.getCh2(), demixingData.getUntransformedCh1(), ch1.getProcessingLog()+tag);
+		if (savePairedPoints){
+			OutputClass.writeDemixingOutput(ch1.getPath(), ch1.getBasename(), demixingData.getCh1(), demixingData.getCh2(), demixingData.getUntransformedCh1(), ch1.getProcessingLog()+tag);
+		}
 		DemixingResultLog rl = new DemixingResultLog(demixingData.getCh1().size(), demixingData.getCh2().size(), useAll);
 		ch1.addToLog(rl);
 		if (true) {
@@ -89,9 +114,10 @@ public class Demixing {
 		return coloredSet;
 	}
 	
-	static double[][] findGlobalTransformationMultithreaded(StormData ch1, StormData ch2){
-		int nbrIter = 5000;
-		double toleratedError = 60;
+	static double[][] findGlobalTransformationMultithreaded(StormData ch1, StormData ch2, int nbrIter, 
+			double toleratedError){
+//		int nbrIter = 5000;
+//		double toleratedError = 60;
 		ArrayList<ArrayList<ArrayList<StormLocalization>>> collectionOfGoodPoints = new ArrayList<ArrayList<ArrayList<StormLocalization>>>();
 		ArrayList<Integer> listOfMatchingPoints = new ArrayList<Integer>();
 		ArrayList<Double> listOfErrors = new ArrayList<Double>();
@@ -111,10 +137,13 @@ public class Demixing {
 			System.out.println(" ");
 		}
 		
+		int counter = 0;
 		for (int frame : frames) {
+			counter +=1;
 			Runnable t = new Thread(new findTransformation(collectionOfGoodPoints, listOfMatchingPoints, listOfErrors, 
 					frame, ch1, ch2, verbose, nbrIter, toleratedError, pb));
 			executor.execute(t);
+			
 		}
 		executor.shutdown();
 		try {
@@ -324,6 +353,7 @@ class UnmixFrame implements Runnable{
 		currFrameCh2.sortX();
 		currFrameUntransformedCh1.sortX();
 		for (int i = 0; i<currFrameCh1.getSize(); i++){
+			//Demixing.setProgress("demixing",(int)((double)i/(double)currFrameCh1.getSize()*50.+50));
 			StormLocalization currLoc = currFrameCh1.getElement(i); 
 			boolean matching = false;
 			int startvalue = 0; //if a match was found at the 20 th. position of the second channel, all following matches will lie after that

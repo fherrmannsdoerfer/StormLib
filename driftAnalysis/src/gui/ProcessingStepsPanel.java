@@ -8,6 +8,8 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,10 +19,11 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JTextField;
 
 import dataStructure.StormData;
 
-public abstract class ProcessingStepsPanel extends JPanel implements Transferable, Serializable{
+public abstract class ProcessingStepsPanel extends JPanel implements PropertyChangeListener, Transferable, Serializable{
 	/**
 	 * 
 	 */
@@ -169,9 +172,27 @@ public abstract class ProcessingStepsPanel extends JPanel implements Transferabl
 	}
 	
 	public void setProgressbarValue(int val){
+		//System.out.println(val);
 		progressbar.setValue(val);
 	}
 	
+	public void getTextFieldTexts(JTextField[] listTextFields, int nbrOtherComponents, String[] parameterList){
+		for (int i = 0; i<listTextFields.length; i++){
+			parameterList[i+nbrOtherComponents] = listTextFields[i].getText();
+		}
+	}
+		
+	public void setTextFieldTexts(JTextField[] listTextFields, int nbrOtherComponents, String[] parameterList){
+		for (int i = 0; i<listTextFields.length; i++){
+			listTextFields[i].setText(parameterList[i+nbrOtherComponents]);
+		}
+	}
+			
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		int progress = (Integer) evt.getNewValue();
+        setProgressbarValue(progress);
+	}
 	abstract public ProcessingStepsPanel getFunction(MainFrame mf);
 	abstract public String[] getSettings();
 	abstract public void setSettings(String[] tempString);

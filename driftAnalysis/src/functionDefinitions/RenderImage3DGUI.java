@@ -1,6 +1,7 @@
 package functionDefinitions;
 
 import java.awt.Color;
+import java.io.Serializable;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
@@ -11,10 +12,10 @@ import dataStructure.StormData;
 import gui.MainFrame;
 import gui.ProcessingStepsPanel;
 
-public class RenderImage3DGUI extends ProcessingStepsPanel{
+public class RenderImage3DGUI extends ProcessingStepsPanel implements Serializable{
 	JTextField pixelsize = new JTextField();
 	JTextField tag = new JTextField();
-	private static String name = "RenderImage3D";
+	private static String name = "Render Image 3D";
 	public RenderImage3DGUI(MainFrame mf) {
 		super(mf);
 		this.setParameterButtonsName(name);
@@ -30,6 +31,7 @@ public class RenderImage3DGUI extends ProcessingStepsPanel{
 		Box verticalBox = Box.createVerticalBox();
 		verticalBox.add(new JLabel("Pixelsize:"));
 		verticalBox.add(pixelsize);
+		pixelsize.setText("10");
 		verticalBox.add(new JLabel("Tag:"));
 		verticalBox.add(tag);
 		retPanel.add(verticalBox);
