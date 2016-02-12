@@ -26,7 +26,7 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 	public DualColorMultipleFileInputGUI(MainFrame mf) {
 		super(mf);
 		this.setParameterButtonsName(name);
-		this.setColor(Color.WHITE);
+		this.setColor(mf.style.getColorInput());
 		this.setOptionPanel(createOptionPanel());
 	}
 	

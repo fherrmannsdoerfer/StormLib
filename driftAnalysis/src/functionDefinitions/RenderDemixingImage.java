@@ -26,7 +26,7 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 	public RenderDemixingImage(MainFrame mf) {
 		super(mf);
 		this.setParameterButtonsName(name);
-		this.setColor(Color.GREEN);
+		this.setColor(mf.style.getColorOutput());
 		this.setOptionPanel(createOptionPanel());
 	}
 	

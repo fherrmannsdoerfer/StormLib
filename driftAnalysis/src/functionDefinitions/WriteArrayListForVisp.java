@@ -20,7 +20,11 @@ import gui.MainFrame;
 import gui.ProcessingStepsPanel;
 
 public class WriteArrayListForVisp extends ProcessingStepsPanel implements Serializable{
-	JTextField tag = null;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3328074532507221929L;
+	JTextField tag = new JTextField();
 	JRadioButton bothChannels = new JRadioButton("original Channels");
 	JRadioButton demixedChannels = new JRadioButton("demixed Channels");
 	JTextField width1 = new JTextField();
@@ -38,9 +42,8 @@ public class WriteArrayListForVisp extends ProcessingStepsPanel implements Seria
 		String[] settings = new String[2];
 		settings[0] = "";
 		settings[1] = "";
-		tag = new JTextField();
 		this.setParameterButtonsName(name);
-		this.setColor(Color.GREEN);
+		this.setColor(mf.style.getColorOutput());
 		this.setOptionPanel(createOptionPanel());
 	}
 	
@@ -48,7 +51,6 @@ public class WriteArrayListForVisp extends ProcessingStepsPanel implements Seria
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
-		retPanel.setSize(300, 500);
 		Box verticalBox = Box.createVerticalBox();
 		verticalBox.add(new JLabel("Tag:"));
 		verticalBox.add(tag);
@@ -127,7 +129,7 @@ public class WriteArrayListForVisp extends ProcessingStepsPanel implements Seria
 			tempString[2] = "demixing";
 		}
 		
-		setTextFieldTexts(listTextFields, 3, tempString);
+		getTextFieldTexts(listTextFields, 3, tempString);
 		return tempString;
 	}
 	public void setSettings(String[] tempString){
@@ -149,7 +151,7 @@ public class WriteArrayListForVisp extends ProcessingStepsPanel implements Seria
 		else{
 			demixedChannels.setSelected(true);
 		}
-		getTextFieldTexts(listTextFields, 3, tempString);
+		setTextFieldTexts(listTextFields, 3, tempString);
 	}
 	
 	public ProcessingStepsPanel getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){

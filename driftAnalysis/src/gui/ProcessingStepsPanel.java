@@ -3,6 +3,7 @@ package gui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -15,6 +16,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -40,13 +42,15 @@ public abstract class ProcessingStepsPanel extends JPanel implements PropertyCha
 	
 	public ProcessingStepsPanel(final MainFrame mf){
 		thisPanel = this;
+		this.mf = mf;
 		Box horizontalBox = Box.createHorizontalBox();
 		Box verticalBox = Box.createVerticalBox();
-		final Dimension d = new Dimension(300,50);
+		final Dimension d = new Dimension(mf.style.getWidthProcessingStepsPanel(),mf.style.getHeightProcessingStepsPanel());
+		Component ui = Box.createVerticalStrut(mf.style.getUpperIndent());
 		verticalBox.setPreferredSize(d);
+		verticalBox.add(ui);
 		verticalBox.add(horizontalBox);
 		this.add(verticalBox);
-		this.mf = mf;
 		this.addMouseListener(new MyDraggableMouseListener());
 		this.setTransferHandler(new DragAndDropTransferHandler());
 		this.setBackground(Color.cyan);
@@ -63,7 +67,14 @@ public abstract class ProcessingStepsPanel extends JPanel implements PropertyCha
 			}
 		});
 				
-		JButton removeButton = new JButton("X");
+		JButton removeButton = new JButton();
+		removeButton.setBackground(Color.black);
+		ImageIcon icon = createImageIcon("/Resources/removeButtonNormal.png","lol");
+		removeButton.setIcon(icon);
+		ImageIcon iconPressed = createImageIcon("/Resources/removeButtonPressed.png","lol");
+		removeButton.setPressedIcon(iconPressed);
+		removeButton.setBorder(null);
+		//removeButton.setForeground(mf.style.getRemoveButtonColor());
 		removeButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -72,18 +83,27 @@ public abstract class ProcessingStepsPanel extends JPanel implements PropertyCha
 				mf.repaint();
 			}
 		});
+		Component ls = Box.createHorizontalStrut(mf.style.getLeftIndent());
+		horizontalBox.add(ls);
 		horizontalBox.add(parameterButton);
 		Component hg = Box.createHorizontalGlue();
 		horizontalBox.add(hg);
 		horizontalBox.add(removeButton);
+		Component rs = Box.createHorizontalStrut(mf.style.getRightIndent());
+		horizontalBox.add(rs);
 		
 		Component verticalGlue = Box.createVerticalGlue();
 		verticalBox.add(verticalGlue);
-		
+		Box hb2 = Box.createHorizontalBox();
+		hb2.add(Box.createHorizontalStrut(mf.style.getLeftIndent()));
 		progressbar = new JProgressBar(0,100);
 		progressbar.setValue(0);
 		progressbar.setPreferredSize(new Dimension(d.width,20));
-		verticalBox.add(progressbar);
+		hb2.add(progressbar);
+		hb2.add(Box.createHorizontalStrut(mf.style.getRightIndent()));
+		verticalBox.add(hb2);
+		Component li = Box.createVerticalStrut(mf.style.getLowerIndent());
+		verticalBox.add(li);
 	}
 	
 	public ProcessingStepsPanel(){}
@@ -200,4 +220,16 @@ public abstract class ProcessingStepsPanel extends JPanel implements PropertyCha
 	abstract public String getFunctionName();
 	abstract public void process(StormData sd1, StormData sd2);
 	
+	
+	/** Returns an ImageIcon, or null if the path was invalid. */
+	protected ImageIcon createImageIcon(String path,
+	                                           String description) {
+	    java.net.URL imgURL = getClass().getResource(path);
+	    if (imgURL != null) {
+	        return new ImageIcon(imgURL, description);
+	    } else {
+	        System.err.println("Couldn't find file: " + path);
+	        return null;
+	    }
+	}
 }

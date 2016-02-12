@@ -31,7 +31,7 @@ public class DemixingGUI extends ProcessingStepsPanel implements Serializable{
 	public DemixingGUI(MainFrame mf) {
 		super(mf);
 		this.setParameterButtonsName(name);
-		this.setColor(Color.RED);
+		this.setColor(mf.style.getColorProcessing());
 		this.setOptionPanel(createOptionPanel());
 		
 	}

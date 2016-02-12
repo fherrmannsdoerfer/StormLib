@@ -33,7 +33,7 @@ public class CropGUI extends ProcessingStepsPanel{
 	public CropGUI(MainFrame mf) {
 		super(mf);
 		this.setParameterButtonsName(name);
-		this.setColor(Color.RED);
+		this.setColor(mf.style.getColorProcessing());
 		this.setOptionPanel(createOptionPanel());
 	}
 	
@@ -41,7 +41,7 @@ public class CropGUI extends ProcessingStepsPanel{
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
-		retPanel.setSize(300, 500);
+		
 		Box verticalBox = Box.createVerticalBox();
 		for (int i=0; i<4; i++){
 			Component vs = Box.createVerticalStrut(20);
@@ -179,7 +179,7 @@ public class CropGUI extends ProcessingStepsPanel{
 		String[] tempString = new String[listTextFields.length+2];
 		tempString[0] = statusChkBox;
 		tempString[1] = statusChkBox2;
-		setTextFieldTexts(listTextFields, 2, tempString);
+		getTextFieldTexts(listTextFields, 2, tempString);
 		return tempString;
 	}
 	public void setSettings(String[] tempString){
@@ -195,7 +195,7 @@ public class CropGUI extends ProcessingStepsPanel{
 		else{
 			ch2Chkbox.setSelected(false);
 		}
-		getTextFieldTexts(listTextFields, 2, tempString);
+		setTextFieldTexts(listTextFields, 2, tempString);
 	}
 
 	@Override

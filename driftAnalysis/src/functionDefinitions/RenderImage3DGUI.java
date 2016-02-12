@@ -19,7 +19,7 @@ public class RenderImage3DGUI extends ProcessingStepsPanel implements Serializab
 	public RenderImage3DGUI(MainFrame mf) {
 		super(mf);
 		this.setParameterButtonsName(name);
-		this.setColor(Color.GREEN);
+		this.setColor(mf.style.getColorOutput());
 		this.setOptionPanel(createOptionPanel());
 	}
 	

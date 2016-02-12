@@ -31,7 +31,7 @@ public class CreateLogFileGUI extends ProcessingStepsPanel implements Serializab
 		settings[0] = "";
 		settings[1] = "";
 		this.setParameterButtonsName(name);
-		this.setColor(Color.GREEN);
+		this.setColor(mf.style.getColorOutput());
 		this.setOptionPanel(createOptionPanel());
 	}
 	
@@ -39,7 +39,6 @@ public class CreateLogFileGUI extends ProcessingStepsPanel implements Serializab
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
-		retPanel.setSize(300, 500);
 		Box hb = Box.createHorizontalBox();
 		hb.add(ch1Chkbox);
 		hb.add(Box.createHorizontalStrut(20));

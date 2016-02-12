@@ -36,7 +36,7 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 		filename.setText(settings[1]);
 		setSettings(settings);
 		this.setParameterButtonsName(name);
-		this.setColor(Color.WHITE);
+		this.setColor(mf.style.getColorInput());
 		this.setOptionPanel(createOptionPanel());
 	}
 	

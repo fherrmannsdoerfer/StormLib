@@ -36,7 +36,7 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 	public DualChannelSingleFileInputGUI(MainFrame mf) {
 		super(mf);
 		this.setParameterButtonsName(name);
-		this.setColor(Color.WHITE);
+		this.setColor(mf.style.getColorInput());
 		this.setOptionPanel(createOptionPanel());
 	}
 	

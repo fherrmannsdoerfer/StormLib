@@ -24,6 +24,9 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -59,6 +62,7 @@ public class MainFrame extends JFrame implements Serializable{
 	private JComboBox processingComboBox;
 	transient ActionListener outputActionListener;
 	private final ArrayList<String> optionsPreselectedTasksComboBoxAuto = new ArrayList<String>();
+	public StyleClass style = new StyleClass();
 
 	File folder = new File(System.getProperty("user.home")+"//PostProcessingSoftware"); //Folder of savedPresettings
 	private final ArrayList<ProcessingStepsPanel> outputComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
@@ -66,6 +70,8 @@ public class MainFrame extends JFrame implements Serializable{
 	private final ArrayList<ProcessingStepsPanel> processingComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
 
 	public MainFrame(final Controler controler) {
+		setMinimumSize(new Dimension(1000, 500));
+		setMaximumSize(new Dimension(1300, 2500));
 		folder.mkdir();
 		optionPanel = new JPanel();
 		final JFileChooser settingsFileChooserLoad = new JFileChooser(folder);
@@ -74,6 +80,7 @@ public class MainFrame extends JFrame implements Serializable{
 		folder.mkdir();
 		this.controlerReference = controler;
 		outputActionListener = new OutputActionListener();
+		
 		this.setBounds(0,0,1200,800);
 		getContentPane().setPreferredSize(new Dimension(1200, 0));
 		setPreferredSize(new Dimension(1200, 0));
@@ -82,8 +89,7 @@ public class MainFrame extends JFrame implements Serializable{
 		horizontalBox.setPreferredSize(new Dimension(1200, 0));
 		getContentPane().add(horizontalBox, BorderLayout.CENTER);
 		panel = new RootPanel(this);
-		panel.setPreferredSize(new Dimension(200, 20));
-		panel.setMinimumSize(new Dimension(4, 2));
+		
 		
 		//////////////////////////////////////////////////////////////////// set options to choose from for drop-down menus; creates empty GUI class objects with member name
 
@@ -110,6 +116,7 @@ public class MainFrame extends JFrame implements Serializable{
 		Box verticalBox = Box.createVerticalBox();
 			
 		Box verticalBox_1 = Box.createVerticalBox();
+		verticalBox_1.setMaximumSize(new Dimension(400, 99990));
 		horizontalBox.add(verticalBox_1);
 		
 		Box horizontalBox_5 = Box.createHorizontalBox();
@@ -214,14 +221,19 @@ public class MainFrame extends JFrame implements Serializable{
 		Box horizontalBox_6 = Box.createHorizontalBox();
 		verticalBox_5.add(horizontalBox_6);
 		
-		JButton loadSettingsButton = new JButton("Load Settings");
-		horizontalBox_6.add(loadSettingsButton);
+		JMenuBar menuBar = new JMenuBar();
+		this.setJMenuBar(menuBar);
+		JMenu fileMenu = new JMenu("File");
+		menuBar.add(fileMenu);
+		
+		JMenuItem loadSettingsButton = new JMenuItem("Load Settings");
+		fileMenu.add(loadSettingsButton);
 		
 		Component horizontalGlue_5 = Box.createHorizontalGlue();
 		horizontalBox_6.add(horizontalGlue_5);
 		
-		JButton loadDefaultSettingsButton = new JButton("Load Default Settings");
-		horizontalBox_6.add(loadDefaultSettingsButton);
+		JMenuItem loadDefaultSettingsButton = new JMenuItem("Load Default Settings");
+		fileMenu.add(loadDefaultSettingsButton);
 		
 		loadDefaultSettingsButton.addActionListener(new ActionListener(){
 			@Override
@@ -306,18 +318,18 @@ public class MainFrame extends JFrame implements Serializable{
 		verticalBox_5.add(horizontalBox_7);
 		
 		
-		JButton saveSettingsButton = new JButton("Save Settings");
-		horizontalBox_7.add(saveSettingsButton);
+		JMenuItem saveSettingsButton = new JMenuItem("Save Settings");
+		fileMenu.add(saveSettingsButton);
 		
 		Component horizontalGlue_3 = Box.createHorizontalGlue();
 		horizontalBox_7.add(horizontalGlue_3);
 		
-		JButton saveDefaultSettingsButton = new JButton("Save Default Settings");
-		horizontalBox_7.add(saveDefaultSettingsButton);
+		JMenuItem saveDefaultSettingsButton = new JMenuItem("Save Default Settings");
+		fileMenu.add(saveDefaultSettingsButton);
 		
 		JButton runButton = new JButton("Start Processing");
 		runButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-		verticalBox_5.add(runButton);
+		menuBar.add(runButton);
 		
 		runButton.addActionListener(new ActionListener(){
 			@Override
@@ -383,12 +395,23 @@ public class MainFrame extends JFrame implements Serializable{
 			}
 		});
 		
-		
-		
+		JMenuItem quit = new JMenuItem("Exit");
+		fileMenu.add(quit);
+		quit.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+			
+		});
 		
 		horizontalBox.add(panel);
 		panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
 		JScrollPane scrollPane = new JScrollPane(panel);
+		scrollPane.setPreferredSize(new Dimension(style.getWidthProcessingStepsPanel()+60,1200));
+		scrollPane.setMinimumSize(new Dimension(style.getWidthProcessingStepsPanel()+30,500));
+		scrollPane.setMaximumSize(new Dimension(style.getWidthProcessingStepsPanel()+90,33200));
 		horizontalBox.add(scrollPane);		
 		
 		optionPanel = new JPanel();

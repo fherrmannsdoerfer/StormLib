@@ -20,7 +20,7 @@ import gui.MainFrame;
 import gui.ProcessingStepsPanel;
 
 public class WriteLocalizationsToFile extends ProcessingStepsPanel implements Serializable{
-	JTextField tag = null;
+	JTextField tag = new JTextField();
 	JRadioButton bothChannels = new JRadioButton("original Channels");
 	JRadioButton demixedChannels = new JRadioButton("demixed Channels");
 
@@ -39,9 +39,8 @@ public class WriteLocalizationsToFile extends ProcessingStepsPanel implements Se
 		String[] settings = new String[2];
 		settings[0] = "";
 		settings[1] = "";
-		tag = new JTextField();
 		this.setParameterButtonsName(name);
-		this.setColor(Color.GREEN);
+		this.setColor(mf.style.getColorOutput());
 		this.setOptionPanel(createOptionPanel());
 	}
 	
@@ -49,7 +48,6 @@ public class WriteLocalizationsToFile extends ProcessingStepsPanel implements Se
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
-		retPanel.setSize(300, 500);
 		Box verticalBox = Box.createVerticalBox();
 		verticalBox.add(new JLabel("Tag:"));
 		verticalBox.add(tag);
@@ -112,7 +110,7 @@ public class WriteLocalizationsToFile extends ProcessingStepsPanel implements Se
 			tempString[0] = "demixing";
 		}
 		
-		setTextFieldTexts(listTextFields, 1, tempString);
+		getTextFieldTexts(listTextFields, 1, tempString);
 		return tempString;
 	}
 	public void setSettings(String[] tempString){
@@ -122,7 +120,7 @@ public class WriteLocalizationsToFile extends ProcessingStepsPanel implements Se
 		else{
 			demixedChannels.setSelected(true);
 		}
-		getTextFieldTexts(listTextFields, 1, tempString);
+		setTextFieldTexts(listTextFields, 1, tempString);
 	}
 	
 	public ProcessingStepsPanel getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){

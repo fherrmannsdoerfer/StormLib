@@ -23,7 +23,7 @@ public class DriftcorrectionGUI extends ProcessingStepsPanel implements Serializ
 	public DriftcorrectionGUI(MainFrame mf) {
 		super(mf);
 		this.setParameterButtonsName(name);
-		this.setColor(Color.RED);
+		this.setColor(mf.style.getColorProcessing());
 		this.setOptionPanel(createOptionPanel());
 	}
 	

@@ -26,7 +26,7 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 	public MergePointsGUI(MainFrame mf) {
 		super(mf);
 		this.setParameterButtonsName(name);
-		this.setColor(Color.RED);
+		this.setColor(mf.style.getColorProcessing());
 		this.setOptionPanel(createOptionPanel());
 	}
 	

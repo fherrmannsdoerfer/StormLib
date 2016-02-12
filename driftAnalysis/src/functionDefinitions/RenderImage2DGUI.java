@@ -26,7 +26,7 @@ public class RenderImage2DGUI extends ProcessingStepsPanel implements Serializab
 		pixelsize  = new JTextField();
 		tag = new JTextField();
 		this.setParameterButtonsName(name);
-		this.setColor(Color.GREEN);
+		this.setColor(mf.style.getColorOutput());
 		this.setOptionPanel(createOptionPanel());
 	}
 	
