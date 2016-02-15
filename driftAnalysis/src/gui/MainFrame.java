@@ -48,6 +48,12 @@ import functionDefinitions.WriteLocalizationsToFile;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.border.TitledBorder;
+import java.awt.GridLayout;
+import java.awt.CardLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 
 public class MainFrame extends JFrame implements Serializable{
 	private final ArrayList<ProcessingStepsPanel> listProcessingStepPanels = new ArrayList<ProcessingStepsPanel>();
@@ -70,8 +76,7 @@ public class MainFrame extends JFrame implements Serializable{
 	private final ArrayList<ProcessingStepsPanel> processingComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
 
 	public MainFrame(final Controler controler) {
-		setMinimumSize(new Dimension(1000, 500));
-		setMaximumSize(new Dimension(1300, 2500));
+		setMinimumSize(new Dimension(1100, 500));
 		folder.mkdir();
 		optionPanel = new JPanel();
 		final JFileChooser settingsFileChooserLoad = new JFileChooser(folder);
@@ -81,14 +86,9 @@ public class MainFrame extends JFrame implements Serializable{
 		this.controlerReference = controler;
 		outputActionListener = new OutputActionListener();
 		
-		this.setBounds(0,0,1200,800);
+		this.setBounds(0,0,1100,800);
 		getContentPane().setPreferredSize(new Dimension(1200, 0));
-		setPreferredSize(new Dimension(1200, 0));
 		mf = this;
-		Box horizontalBox = Box.createHorizontalBox();
-		horizontalBox.setPreferredSize(new Dimension(1200, 0));
-		getContentPane().add(horizontalBox, BorderLayout.CENTER);
-		panel = new RootPanel(this);
 		
 		
 		//////////////////////////////////////////////////////////////////// set options to choose from for drop-down menus; creates empty GUI class objects with member name
@@ -110,24 +110,6 @@ public class MainFrame extends JFrame implements Serializable{
 		processingComboBoxOptions.add(new DemixingGUI());
 		processingComboBoxOptions.add(new CropGUI());
 		
-		///////////////////////////////////////////////////////////////////
-		
-		
-		Box verticalBox = Box.createVerticalBox();
-			
-		Box verticalBox_1 = Box.createVerticalBox();
-		verticalBox_1.setMaximumSize(new Dimension(400, 99990));
-		horizontalBox.add(verticalBox_1);
-		
-		Box horizontalBox_5 = Box.createHorizontalBox();
-		verticalBox_1.add(horizontalBox_5);
-		
-		JLabel lblNewLabel_3 = new JLabel("Preselected tasks");
-		horizontalBox_5.add(lblNewLabel_3);
-		
-		Component horizontalGlue_4 = Box.createHorizontalGlue();
-		horizontalBox_5.add(horizontalGlue_4);
-		
 		File[] listOfFiles = folder.listFiles();		
 	    for (int i = 0; i < listOfFiles.length; i++) {
 		if (listOfFiles[i].isFile()) {
@@ -135,91 +117,18 @@ public class MainFrame extends JFrame implements Serializable{
 			} 
 	    }
 		
-		preselectionComboBox = new JComboBox(optionsPreselectedTasksComboBoxAuto.toArray());
-		preselectionComboBox.addActionListener(outputActionListener);
-		preselectionComboBox.setMaximumSize(new Dimension(32767, 22));
-		verticalBox_1.add(preselectionComboBox);		
-		
-		Component verticalStrut_2 = Box.createVerticalStrut(20);
-		verticalBox_1.add(verticalStrut_2);
-		
-		Box verticalBox_2 = Box.createVerticalBox();
-		verticalBox_2.setBorder(new TitledBorder(null, "Modules", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		verticalBox_1.add(verticalBox_2);
-		
-				
-		Box horizontalBox_3 = Box.createHorizontalBox();
-		verticalBox_2.add(horizontalBox_3);
-		
-		JLabel lblNewLabel_2 = new JLabel("Input");
-		horizontalBox_3.add(lblNewLabel_2);
-		lblNewLabel_2.setAlignmentY(Component.TOP_ALIGNMENT);
-		
 		
 		String[] optionsInputComboBox = new String[inputComboBoxOptions.size()];		
 		for (int i = 0; i < inputComboBoxOptions.size(); i++){
 			optionsInputComboBox[i] = inputComboBoxOptions.get(i).getFunctionName();}	
-		inputComboBox = new JComboBox(optionsInputComboBox);
-		inputComboBox.addActionListener(outputActionListener);
-		
-		Component horizontalGlue_2 = Box.createHorizontalGlue();
-		horizontalBox_3.add(horizontalGlue_2);
-		verticalBox_2.add(inputComboBox);
-		inputComboBox.setMaximumSize(new Dimension(32767, 22));
-		
-		Component verticalStrut = Box.createVerticalStrut(20);
-		verticalBox_2.add(verticalStrut);
-		
-		Box horizontalBox_2 = Box.createHorizontalBox();
-		verticalBox_2.add(horizontalBox_2);
-		
-		JLabel lblNewLabel_1 = new JLabel("Processing");
-		horizontalBox_2.add(lblNewLabel_1);
-		
-		Component horizontalGlue_1 = Box.createHorizontalGlue();
-		horizontalBox_2.add(horizontalGlue_1);
 		
 		String[] optionsProcessingComboBox = new String[processingComboBoxOptions.size()];		
 		for (int i = 0; i < processingComboBoxOptions.size(); i++){
 			optionsProcessingComboBox[i] = processingComboBoxOptions.get(i).getFunctionName();}		
-		
-		processingComboBox = new JComboBox(optionsProcessingComboBox);
-		processingComboBox.addActionListener(outputActionListener);
-		verticalBox_2.add(processingComboBox);
-		processingComboBox.setMaximumSize(new Dimension(32767, 22));
-		
-		Component verticalStrut_1 = Box.createVerticalStrut(20);
-		verticalBox_2.add(verticalStrut_1);
-		
-		Box horizontalBox_1 = Box.createHorizontalBox();
-		
-		
-		JLabel lblNewLabel = new JLabel("Output");
-		lblNewLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		horizontalBox_1.add(lblNewLabel);
-		
-		Component horizontalGlue = Box.createHorizontalGlue();
-		horizontalBox_1.add(horizontalGlue);
-		verticalBox_2.add(horizontalBox_1);
 		String[] optionsOutputComboBox = new String[outputComboBoxOptions.size()];
 		
 		for (int i = 0; i < outputComboBoxOptions.size(); i++){
 			optionsOutputComboBox[i] = outputComboBoxOptions.get(i).getFunctionName();}
-		
-		
-		outputComboBox = new JComboBox(optionsOutputComboBox);
-		outputComboBox.addActionListener(outputActionListener);
-		verticalBox_2.add(outputComboBox);
-		outputComboBox.setMaximumSize(new Dimension(32767, 22));
-		
-		Component verticalGlue = Box.createVerticalGlue();
-		verticalBox_1.add(verticalGlue);
-		
-		Box verticalBox_5 = Box.createVerticalBox();
-		verticalBox_1.add(verticalBox_5);
-		
-		Box horizontalBox_6 = Box.createHorizontalBox();
-		verticalBox_5.add(horizontalBox_6);
 		
 		JMenuBar menuBar = new JMenuBar();
 		this.setJMenuBar(menuBar);
@@ -228,9 +137,6 @@ public class MainFrame extends JFrame implements Serializable{
 		
 		JMenuItem loadSettingsButton = new JMenuItem("Load Settings");
 		fileMenu.add(loadSettingsButton);
-		
-		Component horizontalGlue_5 = Box.createHorizontalGlue();
-		horizontalBox_6.add(horizontalGlue_5);
 		
 		JMenuItem loadDefaultSettingsButton = new JMenuItem("Load Default Settings");
 		fileMenu.add(loadDefaultSettingsButton);
@@ -314,15 +220,9 @@ public class MainFrame extends JFrame implements Serializable{
 			}
 		});
 		
-		Box horizontalBox_7 = Box.createHorizontalBox();
-		verticalBox_5.add(horizontalBox_7);
-		
 		
 		JMenuItem saveSettingsButton = new JMenuItem("Save Settings");
 		fileMenu.add(saveSettingsButton);
-		
-		Component horizontalGlue_3 = Box.createHorizontalGlue();
-		horizontalBox_7.add(horizontalGlue_3);
 		
 		JMenuItem saveDefaultSettingsButton = new JMenuItem("Save Default Settings");
 		fileMenu.add(saveDefaultSettingsButton);
@@ -405,6 +305,107 @@ public class MainFrame extends JFrame implements Serializable{
 			}
 			
 		});
+		Box horizontalBox = Box.createHorizontalBox();
+		panel = new RootPanel(this);
+		
+		///////////////////////////////////////////////////////////////////
+		
+		
+		Box verticalBox_1 = Box.createVerticalBox();
+		verticalBox_1.setMaximumSize(new Dimension(400, 99990));
+		horizontalBox.add(verticalBox_1);
+		
+		Box horizontalBox_5 = Box.createHorizontalBox();
+		verticalBox_1.add(horizontalBox_5);
+		
+		JLabel lblNewLabel_3 = new JLabel("Preselected tasks");
+		horizontalBox_5.add(lblNewLabel_3);
+		
+		Component horizontalGlue_4 = Box.createHorizontalGlue();
+		horizontalBox_5.add(horizontalGlue_4);
+		
+		preselectionComboBox = new JComboBox(optionsPreselectedTasksComboBoxAuto.toArray());
+		preselectionComboBox.addActionListener(outputActionListener);
+		preselectionComboBox.setMaximumSize(new Dimension(32767, 22));
+		verticalBox_1.add(preselectionComboBox);		
+		
+		Component verticalStrut_2 = Box.createVerticalStrut(20);
+		verticalBox_1.add(verticalStrut_2);
+		
+		Box verticalBox_2 = Box.createVerticalBox();
+		verticalBox_2.setBorder(new TitledBorder(null, "Modules", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		verticalBox_1.add(verticalBox_2);
+		
+				
+		Box horizontalBox_3 = Box.createHorizontalBox();
+		verticalBox_2.add(horizontalBox_3);
+		
+		JLabel lblNewLabel_2 = new JLabel("Input");
+		horizontalBox_3.add(lblNewLabel_2);
+		lblNewLabel_2.setAlignmentY(Component.TOP_ALIGNMENT);
+		inputComboBox = new JComboBox(optionsInputComboBox);
+		inputComboBox.addActionListener(outputActionListener);
+		
+		Component horizontalGlue_2 = Box.createHorizontalGlue();
+		horizontalBox_3.add(horizontalGlue_2);
+		verticalBox_2.add(inputComboBox);
+		inputComboBox.setMaximumSize(new Dimension(32767, 22));
+		
+		Component verticalStrut = Box.createVerticalStrut(20);
+		verticalBox_2.add(verticalStrut);
+		
+		Box horizontalBox_2 = Box.createHorizontalBox();
+		verticalBox_2.add(horizontalBox_2);
+		
+		JLabel lblNewLabel_1 = new JLabel("Processing");
+		horizontalBox_2.add(lblNewLabel_1);
+		
+		Component horizontalGlue_1 = Box.createHorizontalGlue();
+		horizontalBox_2.add(horizontalGlue_1);
+		
+		processingComboBox = new JComboBox(optionsProcessingComboBox);
+		processingComboBox.addActionListener(outputActionListener);
+		verticalBox_2.add(processingComboBox);
+		processingComboBox.setMaximumSize(new Dimension(32767, 22));
+		
+		Component verticalStrut_1 = Box.createVerticalStrut(20);
+		verticalBox_2.add(verticalStrut_1);
+		
+		Box horizontalBox_1 = Box.createHorizontalBox();
+		
+		
+		JLabel lblNewLabel = new JLabel("Output");
+		lblNewLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		horizontalBox_1.add(lblNewLabel);
+		
+		Component horizontalGlue = Box.createHorizontalGlue();
+		horizontalBox_1.add(horizontalGlue);
+		verticalBox_2.add(horizontalBox_1);
+		
+		
+		outputComboBox = new JComboBox(optionsOutputComboBox);
+		outputComboBox.addActionListener(outputActionListener);
+		getContentPane().setLayout(new BorderLayout(0, 0));
+		verticalBox_2.add(outputComboBox);
+		outputComboBox.setMaximumSize(new Dimension(32767, 22));
+		
+		Component verticalGlue = Box.createVerticalGlue();
+		verticalBox_1.add(verticalGlue);
+		
+		Box verticalBox_5 = Box.createVerticalBox();
+		verticalBox_1.add(verticalBox_5);
+		
+		Box horizontalBox_6 = Box.createHorizontalBox();
+		verticalBox_5.add(horizontalBox_6);
+		
+		Component horizontalGlue_5 = Box.createHorizontalGlue();
+		horizontalBox_6.add(horizontalGlue_5);
+		
+		Box horizontalBox_7 = Box.createHorizontalBox();
+		verticalBox_5.add(horizontalBox_7);
+		
+		Component horizontalGlue_3 = Box.createHorizontalGlue();
+		horizontalBox_7.add(horizontalGlue_3);
 		
 		horizontalBox.add(panel);
 		panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
@@ -415,8 +416,9 @@ public class MainFrame extends JFrame implements Serializable{
 		horizontalBox.add(scrollPane);		
 		
 		optionPanel = new JPanel();
-		optionPanel.setPreferredSize(new Dimension(300, 10));
+		optionPanel.setMinimumSize(mf.style.getDimensionOptionPane());
 		horizontalBox.add(optionPanel);
+		getContentPane().add(horizontalBox);
 		
 	}
 		

@@ -2,10 +2,15 @@ package functionDefinitions;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
+import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -20,7 +25,10 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 	JTextField pattern1 = new JTextField();
 	JTextField path2 = new JTextField();
 	JTextField pattern2 = new JTextField();
-
+	private final JButton loadPath1Button = new JButton("Load File 1");
+	private final JButton loadPath2Button = new JButton("Load File 2");
+	final JFileChooser dualChannel1FileChooser = new JFileChooser();
+	final JFileChooser dualChannel2FileChooser = new JFileChooser();
 	private static String name = "Dual-Color Multiple File Input";
 	
 	public DualColorMultipleFileInputGUI(MainFrame mf) {
@@ -43,6 +51,10 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 		pattern2.setPreferredSize(d);
 		pattern1.setText("Left");
 		pattern2.setText("Right");
+		path1.setAlignmentX(0);
+		path2.setAlignmentX(0);
+		pattern1.setAlignmentX(0);
+		pattern2.setAlignmentX(0);
 		verticalBox.add(new JLabel("Path 1:"));
 		verticalBox.add(path1);
 		verticalBox.add(new JLabel("Pattern 1:"));
@@ -52,7 +64,35 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 		verticalBox.add(new JLabel("Pattern 2:"));
 		verticalBox.add(pattern2);
 		retPanel.add(verticalBox);
+		Box hb = Box.createHorizontalBox();
+		hb.setAlignmentX(0);
+		verticalBox.add(hb);		
+		hb.add(loadPath1Button);
+		hb.add(loadPath2Button);
 		
+		loadPath1Button.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e){
+				dualChannel1FileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int returnVal = dualChannel1FileChooser.showOpenDialog(null);
+				if (returnVal == JFileChooser.APPROVE_OPTION){
+					File file = dualChannel1FileChooser.getSelectedFile();
+					path1.setText(file.getParent()+"\\");
+				}
+			}
+		});
+		
+		loadPath2Button.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e){
+				dualChannel2FileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int returnVal = dualChannel2FileChooser.showOpenDialog(null);
+				if (returnVal == JFileChooser.APPROVE_OPTION){
+					File file = dualChannel2FileChooser.getSelectedFile();
+					path2.setText(file.getParent()+"\\");
+				}
+			}
+		});
 		return retPanel;
 	}
 	

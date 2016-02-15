@@ -20,21 +20,25 @@ import javax.swing.JButton;
 import dataStructure.StormData;
 
 public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
-	JTextField path1 = new JTextField("C:\\Uni\\STORM-Test-Data\\");
-	JTextField file1 = new JTextField("Left.txt");
-	JTextField path2 = new JTextField("C:\\Uni\\STORM-Test-Data\\");
-	JTextField file2 = new JTextField("Right.txt");
-	private static String name = "DualChannelSingleFileInput";
+	JTextField path1 = new JTextField("");
+	JTextField file1 = new JTextField("");
+	JTextField path2 = new JTextField("");
+	JTextField file2 = new JTextField("");
+	private static String name = "Dual-Channel Single File Input";
 	private final Box verticalBox2 = Box.createVerticalBox();
 	private final Box hb = Box.createHorizontalBox();
-	private final JButton loadFile1Button = new JButton("Load File1");
-	private final JButton loadFile2Button = new JButton("Load File2");
+	private final JButton loadFile1Button = new JButton("Load File 1");
+	private final JButton loadFile2Button = new JButton("Load File 2");
 	final JFileChooser dualChannel1FileChooser = new JFileChooser();
 	final JFileChooser dualChannel2FileChooser = new JFileChooser();
 	
 	
 	public DualChannelSingleFileInputGUI(MainFrame mf) {
 		super(mf);
+		path1.setPreferredSize(mf.style.getDimensionPathFields());
+		file1.setPreferredSize(mf.style.getDimensionPathFields());
+		path2.setPreferredSize(mf.style.getDimensionPathFields());
+		file2.setPreferredSize(mf.style.getDimensionPathFields());
 		this.setParameterButtonsName(name);
 		this.setColor(mf.style.getColorInput());
 		this.setOptionPanel(createOptionPanel());
@@ -44,17 +48,13 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
-		retPanel.setSize(300, 500);
-		Dimension d = new Dimension(100,22);
-		
 		retPanel.add(verticalBox2);
 		Box verticalBox = Box.createVerticalBox();
 		verticalBox2.add(verticalBox);
-		path1.setPreferredSize(d);
-		path2.setPreferredSize(d);
-		file1.setPreferredSize(d);
-		file2.setPreferredSize(d);
-		
+		path1.setAlignmentX(0);
+		file1.setAlignmentX(0);
+		path2.setAlignmentX(0);
+		file2.setAlignmentX(0);
 		verticalBox.add(new JLabel("Path 1:"));
 		verticalBox.add(path1);
 		verticalBox.add(new JLabel("File 1:"));
@@ -63,7 +63,7 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 		verticalBox.add(path2);
 		verticalBox.add(new JLabel("File 2:"));
 		verticalBox.add(file2);
-		
+		hb.setAlignmentX(0);
 		verticalBox2.add(hb);		
 		hb.add(loadFile1Button);
 		hb.add(loadFile2Button);

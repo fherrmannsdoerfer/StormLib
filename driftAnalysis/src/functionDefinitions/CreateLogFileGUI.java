@@ -25,6 +25,7 @@ public class CreateLogFileGUI extends ProcessingStepsPanel implements Serializab
 	JCheckBox ch1Chkbox = new JCheckBox();
 	JCheckBox ch2Chkbox = new JCheckBox();
 	
+	
 	public CreateLogFileGUI(MainFrame mf) {
 		super(mf);
 		String[] settings = new String[2];

@@ -1,6 +1,7 @@
 package functionDefinitions;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -8,6 +9,7 @@ import java.io.Serializable;
 import java.nio.file.Paths;
 
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,20 +23,16 @@ import javax.swing.JButton;
 import dataStructure.StormData;
 
 public class SingleFileInputGUI extends ProcessingStepsPanel{
-	JTextField path = new JTextField();
-	JTextField filename = new JTextField();
+	JTextField path = new JTextField("");
+	JTextField filename = new JTextField("");
 	final JFileChooser singleFileChooser = new JFileChooser();
 	JButton loadFileButton;
-	private static String name ="SingleFileInput";
+	private static String name ="Single File Input";
 	
 	public SingleFileInputGUI(MainFrame mf) {
 		super(mf);
-		String[] settings = new String[2];
-		settings[0] = "C:\\Uni\\STORM-Test-Data\\";
-		settings[1] = "Daten.txt";
-		path.setText(settings[0]);
-		filename.setText(settings[1]);
-		setSettings(settings);
+		path.setMinimumSize(mf.style.getDimensionPathFields());
+		filename.setPreferredSize(mf.style.getDimensionPathFields());
 		this.setParameterButtonsName(name);
 		this.setColor(mf.style.getColorInput());
 		this.setOptionPanel(createOptionPanel());
@@ -44,16 +42,24 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
-		retPanel.setSize(300, 500);
 		Box verticalBox = Box.createVerticalBox();
-		verticalBox.add(new JLabel("Path:"));
+		//verticalBox.setLayout(new BoxLayout(verticalBox,BoxLayout.Y_AXIS));	
+		path.setAlignmentX(0);
+		JLabel lab1 =new JLabel("Path:");
+		lab1.setAlignmentX(0);
+		verticalBox.add(lab1);
 		verticalBox.add(path);
-		verticalBox.add(new JLabel("Foldername:"));
+		JLabel lab2 = new JLabel("Foldername:");
+		lab2.setAlignmentX(0);
+		verticalBox.add(lab2);
+		filename.setAlignmentX(0);
 		verticalBox.add(filename);
+		
 		retPanel.add(verticalBox);
 
 		loadFileButton = new JButton("Load File...");
-		retPanel.add(loadFileButton);
+		verticalBox.add(loadFileButton);
+		loadFileButton.setAlignmentX(0);
 		loadFileButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){

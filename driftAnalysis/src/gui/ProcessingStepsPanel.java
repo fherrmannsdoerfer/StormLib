@@ -58,6 +58,7 @@ public abstract class ProcessingStepsPanel extends JPanel implements PropertyCha
 		this.setPreferredSize(d);
 
 		parameterButton = new JButton();
+		parameterButton.setBackground(null);
 		parameterButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){

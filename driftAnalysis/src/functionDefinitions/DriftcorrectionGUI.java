@@ -19,7 +19,7 @@ import gui.ProcessingStepsPanel;
 
 public class DriftcorrectionGUI extends ProcessingStepsPanel implements Serializable{
 	JTextField chunksize = new JTextField();
-	private static String name = "Driftcorrection";
+	private static String name = "Drift Correction";
 	public DriftcorrectionGUI(MainFrame mf) {
 		super(mf);
 		this.setParameterButtonsName(name);
@@ -45,7 +45,7 @@ public class DriftcorrectionGUI extends ProcessingStepsPanel implements Serializ
 			return Integer.valueOf(chunksize.getText());
 		}
 		catch(Exception e){
-			return Integer.valueOf("500");
+			return Integer.valueOf("5000");
 		}
 	
 	}
@@ -74,7 +74,8 @@ public class DriftcorrectionGUI extends ProcessingStepsPanel implements Serializ
 	public void process(StormData sd1, StormData sd2) {
 		PropertyChangeListener pcl = new MyPropertyChangeListener(this);
 		FeatureBasedDriftCorrection.addPropertyChangeListener(pcl);
-		sd1.correctDrift(getChunksize());	
+		sd1.correctDrift(getChunksize());
+		sd2.correctDrift(getChunksize());
 		setProgressbarValue(100);	
 	}
 

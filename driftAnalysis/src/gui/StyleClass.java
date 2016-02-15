@@ -1,8 +1,10 @@
 package gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.io.Serializable;
 
-public class StyleClass {
+public class StyleClass implements Serializable{
 	private Color colorInput = new Color(0,0,158);
 	private Color colorProcessing = new Color(0,238,118);
 	private Color colorOutput = new Color(255,185,15);
@@ -13,6 +15,8 @@ public class StyleClass {
 	private int upperIndent = 5;
 	private int lowerIndent = 5;
 	private Color removeButtonColor = new Color(176,23,31);
+	private Dimension pathFields = new Dimension(400,22);
+	private Dimension optionPaneWidth = new Dimension(450,999);
 	
 	public Color getColorInput() {
 		return colorInput;
@@ -73,5 +77,14 @@ public class StyleClass {
 	}
 	public void setRemoveButtonColor(Color removeButtonColor) {
 		this.removeButtonColor = removeButtonColor;
+	}
+	public Dimension getDimensionPathFields() {
+		return pathFields;
+	}
+	public void setDimensionPathFields(Dimension widthPathFields) {
+		this.pathFields = widthPathFields;
+	}
+	public Dimension getDimensionOptionPane() {
+		return optionPaneWidth;
 	}
 }

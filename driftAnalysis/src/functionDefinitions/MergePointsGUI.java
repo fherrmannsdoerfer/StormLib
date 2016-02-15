@@ -22,9 +22,10 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 	JTextField disty = new JTextField();
 	JTextField distz = new JTextField();
 	JTextField distframe = new JTextField();
-	private static String name = "MergePoints";
+	private static String name = "Merge Points";
 	public MergePointsGUI(MainFrame mf) {
 		super(mf);
+		distx.setPreferredSize(mf.style.getDimensionPathFields());
 		this.setParameterButtonsName(name);
 		this.setColor(mf.style.getColorProcessing());
 		this.setOptionPanel(createOptionPanel());
@@ -34,7 +35,10 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 	
 	private JPanel createOptionPanel(){
 		JPanel retPanel = new JPanel();
-		retPanel.setSize(300, 500);
+		distx.setAlignmentX(0);
+		disty.setAlignmentX(0);
+		distz.setAlignmentX(0);
+		distframe.setAlignmentX(0);
 		Box verticalBox = Box.createVerticalBox();
 		verticalBox.add(new JLabel("Maximal Tolerated Distance in X:"));
 		distx.setText("100");

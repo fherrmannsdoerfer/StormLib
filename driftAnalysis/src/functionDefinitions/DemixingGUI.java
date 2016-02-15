@@ -42,7 +42,11 @@ public class DemixingGUI extends ProcessingStepsPanel implements Serializable{
 		JPanel retPanel = new JPanel();
 		retPanel.setSize(300, 500);
 		Box verticalBox = Box.createVerticalBox();
-		verticalBox.add(savePairedOutput);
+		Box verticalBox3 = Box.createVerticalBox();
+		verticalBox3.add(new JLabel("Chunksize:"));
+		chunkSize.setMaximumSize(new Dimension(100,20));
+		verticalBox3.add(chunkSize);
+		verticalBox.add(verticalBox3);
 		verticalBox.add(new JLabel("tag:"));
 		verticalBox.add(tag);
 		Box hb = Box.createHorizontalBox();
@@ -61,11 +65,8 @@ public class DemixingGUI extends ProcessingStepsPanel implements Serializable{
 		hb.add(hs);
 		hb.add(vb2);
 		verticalBox.add(hb);
-		Box verticalBox3 = Box.createVerticalBox();
-		verticalBox3.add(new JLabel("Chunksize:"));
-		chunkSize.setMaximumSize(new Dimension(100,20));
-		verticalBox3.add(chunkSize);
-		verticalBox.add(verticalBox3);
+		
+		verticalBox.add(savePairedOutput);
 		retPanel.add(verticalBox);
 		
 		return retPanel;
