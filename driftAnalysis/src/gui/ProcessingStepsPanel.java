@@ -21,6 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import dataStructure.StormData;
@@ -39,6 +40,7 @@ public abstract class ProcessingStepsPanel extends JPanel implements PropertyCha
 	private boolean visibilityOptionPanel = false;
 	private JPanel optionPanel;
 	private JProgressBar progressbar;
+	JRadioButton rb = new JRadioButton();
 	
 	public ProcessingStepsPanel(final MainFrame mf){
 		thisPanel = this;
@@ -68,13 +70,14 @@ public abstract class ProcessingStepsPanel extends JPanel implements PropertyCha
 			}
 		});
 				
-		JButton removeButton = new JButton();
-		removeButton.setBackground(Color.black);
+		removeButton = new JButton();
+		
 		ImageIcon icon = createImageIcon("/Resources/removeButtonNormal.png","lol");
 		removeButton.setIcon(icon);
 		ImageIcon iconPressed = createImageIcon("/Resources/removeButtonPressed.png","lol");
 		removeButton.setPressedIcon(iconPressed);
 		removeButton.setBorder(null);
+		removeButton.setBackground(null);
 		//removeButton.setForeground(mf.style.getRemoveButtonColor());
 		removeButton.addActionListener(new ActionListener(){
 			@Override
@@ -86,6 +89,9 @@ public abstract class ProcessingStepsPanel extends JPanel implements PropertyCha
 		});
 		Component ls = Box.createHorizontalStrut(mf.style.getLeftIndent());
 		horizontalBox.add(ls);
+		horizontalBox.add(rb);
+		rb.setBackground(null);
+		horizontalBox.add(Box.createHorizontalGlue());
 		horizontalBox.add(parameterButton);
 		Component hg = Box.createHorizontalGlue();
 		horizontalBox.add(hg);
@@ -105,6 +111,9 @@ public abstract class ProcessingStepsPanel extends JPanel implements PropertyCha
 		verticalBox.add(hb2);
 		Component li = Box.createVerticalStrut(mf.style.getLowerIndent());
 		verticalBox.add(li);
+	}
+	public JRadioButton getRadioButton(){
+		return this.rb;
 	}
 	
 	public ProcessingStepsPanel(){}
