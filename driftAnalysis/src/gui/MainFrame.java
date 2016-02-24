@@ -66,8 +66,8 @@ public class MainFrame extends JFrame implements Serializable{
 	private ArrayList<ProcessingStepsPanel> listProcessingStepPanels = new ArrayList<ProcessingStepsPanel>();
 	Controler controlerReference;
 	JPanel panel;
+	//JPanel optionPanel;
 	JPanel optionPanel;
-	private JPanel optionPanel_1;
 	static MainFrame mf;
 	private static DataFlavor dragAndDropPanelDataFlavor = null;
 	private JComboBox preselectionComboBox;
@@ -389,9 +389,9 @@ public class MainFrame extends JFrame implements Serializable{
 		lblNewLabel_4.setFont(new Font("Tahoma", Font.BOLD, 20));
 		verticalBox_4.add(lblNewLabel_4);
 		
-		optionPanel_1 = new JPanel();
-		verticalBox_4.add(optionPanel_1);
-		optionPanel_1.setMinimumSize(mf.style.getDimensionOptionPane());
+		optionPanel = new JPanel();
+		verticalBox_4.add(optionPanel);
+		optionPanel.setMinimumSize(mf.style.getDimensionOptionPane());
 		
 	}
 		
@@ -480,7 +480,7 @@ public class MainFrame extends JFrame implements Serializable{
 				fileInDefault.close();
 				listProcessingStepPanels.clear();
 				panel.removeAll();
-				optionPanel_1.removeAll();				
+				optionPanel.removeAll();				
 				for (int i = 0; i < tempOrderListSettings.size(); i++){						
 					ProcessingStepsPanel tempObject = tempOrderListSettings.get(i);
 					listProcessingStepPanels.add(tempObject.getProcessingStepsPanelObject(tempObject, mf));
@@ -503,8 +503,6 @@ public class MainFrame extends JFrame implements Serializable{
 //					break;
 			}
 		}
-		
-		
 		
 		if (panelToAdd !=null){
 			listProcessingStepPanels.add(panelToAdd);
