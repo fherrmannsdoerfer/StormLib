@@ -433,8 +433,8 @@ public class StormData implements Serializable{
 		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, params, locsCh1, locsCh2);
 		StormData channel1 = new StormData(locsCh1,getPath(),getFname());
 		StormData channel2 = new StormData(locsCh2,getPath(),getFname());
-		channel1.renderImage3D(pixelsize, "ColorCodedChannel1");
-		channel2.renderImage3D(pixelsize, "ColorCodedChannel2");
+		channel1.renderImage3D(pixelsize, tag+"ColorCodedChannel1");
+		channel2.renderImage3D(pixelsize, tag+"ColorCodedChannel2");
 		
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);

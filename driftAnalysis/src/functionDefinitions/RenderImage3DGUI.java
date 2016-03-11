@@ -68,7 +68,7 @@ public class RenderImage3DGUI extends ProcessingStepsPanel implements Serializab
 
 	@Override
 	public void process(StormData sd1, StormData sd2) {
-		sd1.renderImage2D(getPixelsize(), getTag());
+		sd1.renderImage3D(getPixelsize(), getTag());
 		setProgressbarValue(100);		
 	}
 }
