@@ -7,6 +7,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import StormLib.Utilities;
 import dataStructure.StormData;
 import gui.MainFrame;
 import gui.ProcessingStepsPanel;
@@ -75,7 +76,7 @@ public class MultipleFileInputGUI extends ProcessingStepsPanel{
 //		sd1.setLocs(sd1.importData(getPath()+getFilename()));
 //		PropertyChangeListener pcl = new Controler();
 //		Utilities.addPropertyChangeListener(pcl);
-//		sd1 = Utilities.openSeries(getPath(), getPattern());
+		sd1 = Utilities.openSeries(getPath(), getPattern());
 		setProgressbarValue(100);
 	}
 }

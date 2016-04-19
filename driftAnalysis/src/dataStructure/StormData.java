@@ -313,21 +313,25 @@ public class StormData implements Serializable{
 		return ret;
 	}
 	public ImagePlus renderImage2D(double pixelsize){
-		return renderImage2D(pixelsize, true, processingLog,0,-1,10); // function is also used to create images for the fourier transformation for the drift correction
+		return renderImage2D(pixelsize, true, processingLog,0,-1,10,0); // function is also used to create images for the fourier transformation for the drift correction
 	}
 	public ImagePlus renderImage2D(double pixelsize, String tag) {
-		return renderImage2D(pixelsize, true, tag,0,-1,10);
+		return renderImage2D(pixelsize, true, tag,0,-1,10,0);
 	}
+	public ImagePlus renderImage2D(double pixelsize, String tag, int intensityMode){
+		return renderImage2D(pixelsize,true, tag, 0,-1,10,intensityMode);
+	}
+	
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage){
-		return renderImage2D(pixelsize, saveImage, "",0,-1,10);
+		return renderImage2D(pixelsize, saveImage, "",0,-1,10,0);
 	}
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag){
-		return renderImage2D(pixelsize, saveImage,tag,0,-1,10);
+		return renderImage2D(pixelsize, saveImage,tag,0,-1,10,0);
 	}
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize){
-		return renderImage2D(pixelsize,saveImage,tag,mode,maxPixelsize,10);
+		return renderImage2D(pixelsize,saveImage,tag,mode,maxPixelsize,10,0);
 	}
-	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize, double sigma){ 
+	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize, double sigma, int intensityMode){ 
 		//render localizations from Stormdata to Image Plus Object
 		//mode specifies which projection is rendered 0:xy plane, 1: xz, 2:yz
 		sigma = sigma/pixelsize; //in nm sigma to blur localizations
@@ -381,8 +385,8 @@ public class StormData implements Serializable{
 		}
 		
 		float [][] image = new float[pixelX][pixelY];
-		image = addFilteredPoints(image, sigma, filterwidth, pixelsize, getLocs(),mode);
-		image = normalizeChannel(image);
+		image = addFilteredPoints(image, sigma, filterwidth, pixelsize, getLocs(),mode,intensityMode);
+		//image = normalizeChannel(image);
 		ImageProcessor ip = new FloatProcessor(pixelX,pixelY);
 		ip.setFloatArray(image);
 		ImagePlus imgP = new ImagePlus("", ip);
@@ -402,14 +406,13 @@ public class StormData implements Serializable{
 	
 	
 	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, DemixingParameters params){
-		return renderDemixingImage(pixelsize, params, processingLog);
+		return renderDemixingImage(pixelsize, params, processingLog,0);
 	}
 		
-	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, DemixingParameters params, String tag){
+	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, DemixingParameters params, String tag, int intensityMode){
 		double sigma = 10/pixelsize; //in nm sigma to blur localizations
 		int filterwidth = 3; // must be odd
 		ArrayList<Double> dims = getDimensions();
-		//int pixelX = (int) Math.pow(2, Math.ceil(Math.log(dims.get(1) / pixelsize)/Math.log(2)));
 		int pixelX = (int) Math.ceil(dims.get(1) / pixelsize);
 		int pixelY = (int) Math.ceil(dims.get(3) / pixelsize);
 		float [][] imageRed = new float[pixelX][pixelY];
@@ -433,8 +436,11 @@ public class StormData implements Serializable{
 		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, params, locsCh1, locsCh2);
 		StormData channel1 = new StormData(locsCh1,getPath(),getFname());
 		StormData channel2 = new StormData(locsCh2,getPath(),getFname());
+		
 		channel1.renderImage3D(pixelsize, tag+"ColorCodedChannel1");
 		channel2.renderImage3D(pixelsize, tag+"ColorCodedChannel2");
+		channel1.renderImage2D(pixelsize, true, tag+"ColorCodedChannel1_2D",0,-1,10,intensityMode);
+		channel2.renderImage2D(pixelsize, true, tag+"ColorCodedChannel2_2D",0,-1,10,intensityMode);
 		
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);
@@ -557,13 +563,23 @@ public class StormData implements Serializable{
 	}
 	
 	float[][] addFilteredPoints(float[][] image, double sigma, int filterwidth, 
-			double pixelsize, ArrayList<StormLocalization> sd, int mode){
+			double pixelsize, ArrayList<StormLocalization> sd, int mode, int intensityMode){
 		if (filterwidth %2 == 0) {System.err.println("filterwidth must be odd");}
-		double factor = 100*1/(2*Math.PI*sigma*sigma);
+		//double factor = 100*1/(2*Math.PI*sigma*sigma);
 		double factor2 = -0.5/sigma/sigma;
 		//System.out.println(sd.getSize());
 		for (int i = 1; i<getSize(); i++){
 			StormLocalization sl = sd.get(i);
+			double factor = 0;
+			switch (intensityMode){
+				case 0: //intensities are based on photon counts
+					factor = sl.getIntensity() *1/(2*Math.PI*sigma*sigma);
+					break;
+				case 1: //intensities in the rendered image are based on the number of localizations
+					factor = 1 *1/(2*Math.PI*sigma*sigma);
+					break;
+			}
+			
 			double posX = 0;
 			double posY = 0;
 			switch (mode){
@@ -597,7 +613,6 @@ public class StormData implements Serializable{
 	
 	ArrayList<float[][]> addFilteredPoints(ArrayList<float[][]> coloredImage, double sigma, int filterwidth, double pixelsize, ArrayList<StormLocalization> sd){
 		if (filterwidth %2 == 0) {System.err.println("filterwidth must be odd");}
-		double factor = 10000*1/(2*Math.PI*sigma*sigma);
 		double factor2 = -0.5/sigma/sigma;
 		ArrayList<Double> dims = getDimensions();
 		double zMin = dims.get(4);
@@ -611,6 +626,7 @@ public class StormData implements Serializable{
 		float[][] blueChannel = coloredImage.get(2);
 		for (int i = 1; i<getSize(); i++){
 			StormLocalization sl = sd.get(i);
+			double factor = sl.getIntensity()*1/(2*Math.PI*sigma*sigma);
 			double posX = sl.getX()/pixelsize; //position of current localization
 			double posY = sl.getY()/pixelsize;
 			double posZ = sl.getZ() - zMin;
@@ -629,61 +645,6 @@ public class StormData implements Serializable{
 								System.out.println(k+" "+l);
 							}
 						}
-						else{
-							double parts = 6;
-							double invparts = 1./parts;
-							if (posZ < invparts * zMax){
-								blueChannel[k][l] = blueChannel[k][l] + (float)((1)*weight);
-								greenChannel[k][l] = greenChannel[k][l] + (float)((parts*posZ/zMax)*weight);
-							}
-							else if (posZ<invparts * 2*zMax){
-								greenChannel[k][l] = greenChannel[k][l] + (float)((1)*weight);
-								blueChannel[k][l] = blueChannel[k][l] + (float)((1-parts*(posZ/zMax-invparts))*weight);
-							}
-							else if (posZ<invparts * 3*zMax){
-								greenChannel[k][l] = greenChannel[k][l] + (float)((1)*weight);
-								redChannel[k][l] = redChannel[k][l] + (float)((parts*(posZ/zMax - invparts*2))*weight);
-							}
-							else if (posZ<invparts * 4*zMax){
-								redChannel[k][l] = redChannel[k][l] + (float)((1)*weight);
-								greenChannel[k][l] = greenChannel[k][l] + (float)((1-parts*(posZ/zMax-invparts*3))*weight);
-							}
-							else if (posZ<invparts * 5*zMax){
-								redChannel[k][l] = redChannel[k][l] + (float)((1)*weight);
-								blueChannel[k][l] = blueChannel[k][l] + (float)((parts*(posZ/zMax-invparts*4))*weight);
-							}
-							else if (posZ<invparts * 6*zMax){
-								redChannel[k][l] = redChannel[k][l] + (float)((1)*weight);
-								greenChannel[k][l] = greenChannel[k][l] + (float)((parts*(posZ/zMax-invparts*5))*weight);
-								blueChannel[k][l] = blueChannel[k][l] + (float)((1)*weight);
-							}
-							if (redChannel[k][l]<0||greenChannel[k][l]<0||blueChannel[k][l]<0){
-								System.out.print(redChannel[k][l] +" "+greenChannel[k][l] +" "+blueChannel[k][l] );
-							}
-						}
-						/*else{
-							if (posZ < 0.2 * zMax){
-								blueChannel[k][l] = blueChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								greenChannel[k][l] = greenChannel[k][l] + (float)((5*posZ/zMax)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-							}
-							else if (posZ<0.4*zMax){
-								greenChannel[k][l] = greenChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								blueChannel[k][l] = blueChannel[k][l] + (float)((1-5*(posZ/zMax-0.2))*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-							}
-							else if (posZ<0.6*zMax){
-								greenChannel[k][l] = greenChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								redChannel[k][l] = redChannel[k][l] + (float)((5*(posZ/zMax - 0.4))*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-							}
-							else if (posZ<0.8*zMax){
-								redChannel[k][l] = redChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								greenChannel[k][l] = greenChannel[k][l] + (float)((1-5*(posZ/zMax-0.6))*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-							}
-							else if (posZ<zMax){
-								redChannel[k][l] = redChannel[k][l] + (float)((1)*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-								blueChannel[k][l] = blueChannel[k][l] + (float)((5*(posZ/zMax-0.8))*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-							}
-							
-						}*/
 					} catch(Exception e){
 						//System.out.println(e.toString());
 					}
@@ -1353,6 +1314,15 @@ public class StormData implements Serializable{
 			}
 		}
 		return sl;
+	}
+	
+	public ArrayList<StormLocalization> scaleCoords(double scaleX, double scaleY, double scaleZ){
+		for (int i = 0; i< this.locs.size(); i++){
+			this.locs.get(i).setX(this.locs.get(i).getX()*scaleX);
+			this.locs.get(i).setY(this.locs.get(i).getX()*scaleY);
+			this.locs.get(i).setZ(this.locs.get(i).getX()*scaleZ);
+		}
+		return this.locs;
 	}
 	
 	public synchronized ArrayList<StormLocalization> cropCoords(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, int framemin, int framemax){

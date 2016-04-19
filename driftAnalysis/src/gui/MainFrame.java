@@ -42,6 +42,7 @@ import functionDefinitions.MultipleFileInputGUI;
 import functionDefinitions.RenderDemixingImage;
 import functionDefinitions.RenderImage2DGUI;
 import functionDefinitions.RenderImage3DGUI;
+import functionDefinitions.ScalingGUI;
 import functionDefinitions.SingleFileInputGUI;
 import functionDefinitions.WriteArrayListForVisp;
 import functionDefinitions.WriteLocalizationsToFile;
@@ -117,6 +118,7 @@ public class MainFrame extends JFrame implements Serializable{
 		processingComboBoxOptions.add(new DriftcorrectionGUI());
 		processingComboBoxOptions.add(new MergePointsGUI());
 		processingComboBoxOptions.add(new DemixingGUI());
+		processingComboBoxOptions.add(new ScalingGUI());
 		processingComboBoxOptions.add(new CropGUI());
 		
 		File[] listOfFiles = folder.listFiles();		

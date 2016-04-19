@@ -1,6 +1,8 @@
 package dataStructure;
 
-public class StormLocalization {
+import java.io.Serializable;
+
+public class StormLocalization implements Serializable{
 	private double x;
 	
 

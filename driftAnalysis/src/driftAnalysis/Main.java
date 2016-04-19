@@ -40,9 +40,11 @@ public class Main {
 	public static void settingsFrank(){
 		String tag = "150111MtBla";
 		String tag2 = "_2";
-		String path1 = "Y:\\Users_shared\\SuReSim-Software Project\\160119Resubmission\\Figures\\Hauptfigures\\Figure 1\\Raw\\Figure1f-MT Messung\\";
+		String path1 = "Y:\\Users_shared\\SERI-Project\\SERI-Exp010\\Auswertung\\Rapidstorm\\1st Staining\\";
 		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\ThunderStorm\\";
-		singleColor3dImage(path1, "LeftChannel141107MicrotubuliAlexa647Cos3dMessung2.txt");
+		demixingMultipleInputFiles(path1, "pt",path1,"Right");
+		//singleColor3dImage("Y:\\Users_shared\\Herrmannsdoerfer\\NP\\", "LeftChannelSERI-Exp009YpetNuclearAntiGFP1to500Messung5pt001.txt");
+		
 	}
 	
 	static void createVispOutput(String path, String fname){
@@ -58,20 +60,20 @@ public class Main {
 		sd1.estimateLocalizationPrecision(100, 200);
 	}
 	
-	static void singleColor3dMultipleInput(String path, String pattern){
+	static void singleColor2dMultipleInput(String path, String pattern){
 		StormData sd = Utilities.openSeries(path, pattern);
 //		sd.cropCoords(0, 60000, 0, 60000);
 //		sd.renderImage3D(10);
 ////		sd.writeArrayListForFRC("native");
-////		sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/7 ));
+        sd.correctDrift((int)Math.ceil((double)sd.getDimensions().get(7)/3 ));
 //		sd.writeArrayListForVisp();
-		sd.estimateLocalizationPrecision(100, 100);
-		sd.connectPoints(100, 100, 150, 3);
-		sd.estimateLocalizationPrecision(100, 100);
-		sd.writeArrayListForFRC("");
-		sd.writeArrayListForVisp("");
+		//sd.estimateLocalizationPrecision(100, 100);
+		//sd.connectPoints(100, 100, 150, 3);
+		//sd.estimateLocalizationPrecision(100, 100);
+		//sd.writeArrayListForFRC("");
+		//sd.writeArrayListForVisp("");
 		//sd.correctDrift(4000);
-		sd.renderImage3D(10);
+		sd.renderImage2D(10);
 //		sd.writeLocs();
 //		sd.createPdf();
 //		sd.writeArrayListForFRC();
