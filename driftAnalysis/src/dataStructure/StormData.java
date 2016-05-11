@@ -221,7 +221,12 @@ public class StormData implements Serializable{
 	}
 	
 	public String getPath(){
-		return path;
+		if (path.endsWith("\\")){
+			return path;
+		}
+		else{
+			return path+"\\";
+		}
 	}
 	
 	public String getFname(){
@@ -397,7 +402,7 @@ public class StormData implements Serializable{
 			Save2DImage si = new Save2DImage(path, getBasename(), tag,imgP, pixelsize);
 			logs.add(si);
 
-			OutputClass.save2DImage(path, getBasename(), tag, imgP, pixelsize);
+			//OutputClass.save2DImage(path, getBasename(), tag, imgP, pixelsize);
 			//OutputClass.writeImageSaveStatistics(path, getBasename(), pixelsize, imgP, picname);
 		}
 		
@@ -558,7 +563,8 @@ public class StormData implements Serializable{
 		colImg.add(imgPGreen);
 		colImg.add(imgPBlue);
 		Save3DImage si = new Save3DImage(path, getBasename(), tag, colImg, pixelsize);
-		OutputClass.save3DImage(path, getBasename(), tag, colImg);
+		//only necessary if no Save3DImage object is created since the image is saved there anyways
+		//OutputClass.save3DImage(path, getBasename(), tag, colImg);
 		return colImg;
 	}
 	
@@ -1319,8 +1325,8 @@ public class StormData implements Serializable{
 	public ArrayList<StormLocalization> scaleCoords(double scaleX, double scaleY, double scaleZ){
 		for (int i = 0; i< this.locs.size(); i++){
 			this.locs.get(i).setX(this.locs.get(i).getX()*scaleX);
-			this.locs.get(i).setY(this.locs.get(i).getX()*scaleY);
-			this.locs.get(i).setZ(this.locs.get(i).getX()*scaleZ);
+			this.locs.get(i).setY(this.locs.get(i).getY()*scaleY);
+			this.locs.get(i).setZ(this.locs.get(i).getZ()*scaleZ);
 		}
 		return this.locs;
 	}

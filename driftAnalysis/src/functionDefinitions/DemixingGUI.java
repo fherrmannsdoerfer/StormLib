@@ -135,6 +135,7 @@ public class DemixingGUI extends ProcessingStepsPanel implements Serializable{
 			setProgressbarValue((int)(j*100./numberChunks));
 		}
 		StormData unmixedFromParts = new StormData();
+		unmixedFromParts.copyAttributes(unmixedChannels.get(0));
 		for (int j = 0; j < numberChunks; j++){
 //			unmixedFromParts.addStormData(unmixedChannels.get(i)); //get(i) bezieht sich auf controler-schleife durch die listprocessingstepspanel, ist die nummer der ausgeführten funktion
 			unmixedFromParts.addStormData(unmixedChannels.get(j));

@@ -76,7 +76,7 @@ public class MultipleFileInputGUI extends ProcessingStepsPanel{
 //		sd1.setLocs(sd1.importData(getPath()+getFilename()));
 //		PropertyChangeListener pcl = new Controler();
 //		Utilities.addPropertyChangeListener(pcl);
-		sd1 = Utilities.openSeries(getPath(), getPattern());
+		sd1.copyStormData(Utilities.openSeries(getPath(), getPattern()));
 		setProgressbarValue(100);
 	}
 }

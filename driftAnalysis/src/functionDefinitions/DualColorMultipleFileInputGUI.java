@@ -21,6 +21,10 @@ import gui.MainFrame;
 import gui.ProcessingStepsPanel;
 
 public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	JTextField path1 = new JTextField();
 	JTextField pattern1 = new JTextField();
 	JTextField path2 = new JTextField();

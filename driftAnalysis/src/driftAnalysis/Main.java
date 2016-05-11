@@ -32,15 +32,17 @@ public class Main {
 	}
 	public static void settingsVarun(){
 		String tag = "sigmas12_40labelingEff10PercentKOFF2000ver02000Photonen.txt";
-		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\ordner\\F-Actin-TiffStack\\sigmas12_40labelingEff10PercentKOFF2000ver0\\";
+		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\SERI-Exp011\\";
 		dualColor(path1, "LeftChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt", path1, "RightChannel141219Phalloidin647Synaptophysin1CF680Calyx600nm3DSchnitt2Messung4.txt");
 		singleColor2dImage(path1,tag);
+		
+		
 		
 	}
 	public static void settingsFrank(){
 		String tag = "150111MtBla";
 		String tag2 = "_2";
-		String path1 = "Y:\\Users_shared\\SERI-Project\\SERI-Exp010\\Auswertung\\Rapidstorm\\1st Staining\\";
+		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\SERI-Exp011\\\\";
 		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\ThunderStorm\\";
 		demixingMultipleInputFiles(path1, "pt",path1,"Right");
 		//singleColor3dImage("Y:\\Users_shared\\Herrmannsdoerfer\\NP\\", "LeftChannelSERI-Exp009YpetNuclearAntiGFP1to500Messung5pt001.txt");

@@ -50,9 +50,9 @@ public class OutputClass {
 	}
 	
 	public static void createOutputFolder(String path) throws IOException{
-		new File(path + "Statistics").mkdir();
-		new File(path + "Statistics\\Texts\\").mkdir();
-		new File(path + "Statistics\\Pictures\\").mkdir();
+		new File(path + "\\Statistics").mkdir();
+		new File(path + "\\Statistics\\Texts\\").mkdir();
+		new File(path + "\\Statistics\\Pictures\\").mkdir();
 	}
 
 	private static void writeImageSaveStatistics(String path, String basename, double pixelsize, ImagePlus imgP, String picname){

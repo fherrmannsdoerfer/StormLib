@@ -15,6 +15,10 @@ import gui.MainFrame;
 import gui.ProcessingStepsPanel;
 
 public class ScalingGUI extends ProcessingStepsPanel{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	JTextField scaleX = new JTextField("1");
 	JTextField scaleY = new JTextField("0.925");
 	JTextField scaleZ = new JTextField("1");
@@ -141,8 +145,8 @@ public class ScalingGUI extends ProcessingStepsPanel{
 	@Override
 	public ProcessingStepsPanel getProcessingStepsPanelObject(
 			ProcessingStepsPanel processingStepsPanelObject, MainFrame mf) {
-		if (processingStepsPanelObject instanceof CropGUI){
-			CropGUI returnObject = new CropGUI(mf);
+		if (processingStepsPanelObject instanceof ScalingGUI){
+			ScalingGUI returnObject = new ScalingGUI(mf);
 			return returnObject;
 		}
 		return null;

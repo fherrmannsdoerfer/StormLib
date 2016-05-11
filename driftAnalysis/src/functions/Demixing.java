@@ -53,8 +53,8 @@ public class Demixing {
 	
 	public static StormData spectralUnmixing(StormData ch1, StormData ch2, boolean useAll, String tag,
 			double dist, double minInt, int nbrIter, double toleratedError,boolean savePairedPoints){
-		executor = Executors.newFixedThreadPool(1);
-		executor2 = Executors.newFixedThreadPool(1);
+		executor = Executors.newFixedThreadPool(12);
+		executor2 = Executors.newFixedThreadPool(12);
 		double[][] trafo = findGlobalTransformationMultithreaded(ch1, ch2,nbrIter, toleratedError);
 		//double[][] trafo = {{0.9989659705798773, -0.00152716543305873, 100.09632875943628},{-4.850730075698712E-4, 0.9986236679388222, -51.39384826518874}};
 		

@@ -75,7 +75,12 @@ public class DriftcorrectionGUI extends ProcessingStepsPanel implements Serializ
 		PropertyChangeListener pcl = new MyPropertyChangeListener(this);
 		FeatureBasedDriftCorrection.addPropertyChangeListener(pcl);
 		sd1.correctDrift(getChunksize());
-		sd2.correctDrift(getChunksize());
+		try{
+			sd2.correctDrift(getChunksize());
+		}
+		catch(Exception e){
+			
+		}
 		setProgressbarValue(100);	
 	}
 

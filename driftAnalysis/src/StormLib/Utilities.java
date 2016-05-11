@@ -66,6 +66,12 @@ public class Utilities {
 		File[] files = folder.listFiles();
 		File folder2 = new File(path2);
 		File[] files2 = folder2.listFiles();
+		if (files == null){
+			files = new File[0];
+		}
+		if (files2 == null){
+			files2 = new File[0];
+		}
 		try {
 			OutputClass.createOutputFolder(path1);
 			OutputClass.createOutputFolder(path2);
