@@ -391,6 +391,13 @@ public class StormData implements Serializable{
 		
 		float [][] image = new float[pixelX][pixelY];
 		image = addFilteredPoints(image, sigma, filterwidth, pixelsize, getLocs(),mode,intensityMode);
+		double summe = 0;
+		for (int i = 0; i<image[0].length; i++){
+			for (int j=0; j<image.length; j++){
+				summe+= image[j][i];
+			}
+		}
+		System.out.println("Summe : " + summe);
 		//image = normalizeChannel(image);
 		ImageProcessor ip = new FloatProcessor(pixelX,pixelY);
 		ip.setFloatArray(image);
@@ -494,6 +501,12 @@ public class StormData implements Serializable{
 			double posX = sl.getX()/pixelsize; //position of current localization
 			double posY = sl.getY()/pixelsize;
 			//double posZ = sl.getZ();
+			if (((sl.getAngle()> minAngle1 && sl.getAngle()< maxAngle1))|| sl.getAngle() == 0){
+				locsCh1.add(sl);
+			}
+			else if ((sl.getAngle()> minAngle2 && sl.getAngle()< maxAngle2) || sl.getAngle() == Math.PI/2){
+				locsCh2.add(sl);
+			}
 			int pixelXStart = (int)Math.floor(posX) - (filterwidth-1)/2;
 			int pixelYStart = (int)Math.floor(posY) - (filterwidth-1)/2;
 			for (int k = pixelXStart; k<pixelXStart+ filterwidth;k++){
@@ -501,11 +514,9 @@ public class StormData implements Serializable{
 					try{
 						if (((sl.getAngle()> minAngle1 && sl.getAngle()< maxAngle1))|| sl.getAngle() == 0){
 							redChannel[k][l] = redChannel[k][l] + (float)((sl.getIntensity())*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-							locsCh1.add(sl);
 						}
 						else if ((sl.getAngle()> minAngle2 && sl.getAngle()< maxAngle2) || sl.getAngle() == Math.PI/2){
 							greenChannel[k][l] = greenChannel[k][l] + (float)((sl.getIntensity())*factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
-							locsCh2.add(sl);
 						}
 					} catch(IndexOutOfBoundsException e){e.toString();}
 				}
@@ -605,10 +616,22 @@ public class StormData implements Serializable{
 			
 			int pixelXStart = (int)Math.floor(posX) - (filterwidth-1)/2;
 			int pixelYStart = (int)Math.floor(posY) - (filterwidth-1)/2;
+			float corrFactor = 1; //factor to compensate the cutoff due to discrete Gaussian
+			if (intensityMode == 1){
+				for (int k = pixelXStart; k<pixelXStart+ filterwidth;k++){
+					for(int l= pixelYStart; l<pixelYStart+ filterwidth;l++){
+						try{
+							corrFactor += (float)(factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
+							//System.out.println("factor: "+factor+" k: "+k+" l: "+l+"posX: "+posX+"posY: "+posY+" image[k][l]" +image[k][l]+" res: "+(float)(factor * Math.exp(-0.5/sigma/sigma*(Math.pow((k-posX),2)+Math.pow((l-posY),2)))));
+						} catch(IndexOutOfBoundsException e){e.toString();}
+					}
+				}
+				corrFactor -=1;
+			}
 			for (int k = pixelXStart; k<pixelXStart+ filterwidth;k++){
 				for(int l= pixelYStart; l<pixelYStart+ filterwidth;l++){
 					try{
-						image[k][l] = image[k][l] + (float)(factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
+						image[k][l] = image[k][l] + (float)(factor/corrFactor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
 						//System.out.println("factor: "+factor+" k: "+k+" l: "+l+"posX: "+posX+"posY: "+posY+" image[k][l]" +image[k][l]+" res: "+(float)(factor * Math.exp(-0.5/sigma/sigma*(Math.pow((k-posX),2)+Math.pow((l-posY),2)))));
 					} catch(IndexOutOfBoundsException e){e.toString();}
 				}

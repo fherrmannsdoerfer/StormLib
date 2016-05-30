@@ -49,7 +49,7 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 		lab1.setAlignmentX(0);
 		verticalBox.add(lab1);
 		verticalBox.add(path);
-		JLabel lab2 = new JLabel("Foldername:");
+		JLabel lab2 = new JLabel("Filename:");
 		lab2.setAlignmentX(0);
 		verticalBox.add(lab2);
 		filename.setAlignmentX(0);
