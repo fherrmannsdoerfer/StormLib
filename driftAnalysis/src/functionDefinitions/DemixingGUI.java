@@ -131,7 +131,8 @@ public class DemixingGUI extends ProcessingStepsPanel implements Serializable{
 		Demixing.addPropertyChangeListener(this);
 		ArrayList<StormData> unmixedChannels = new ArrayList<StormData>();
 		for (int j = 0; j < numberChunks; j++){
-			unmixedChannels.add(Demixing.spectralUnmixing(chunksChannel1.get(j), chunksChannel2.get(j),false,tag.getText()));
+			unmixedChannels.add(Demixing.spectralUnmixing(chunksChannel1.get(j), chunksChannel2.get(j),false,tag.getText(),Double.parseDouble(dist.getText())
+					,Double.parseDouble(minInt.getText()),Integer.parseInt(nbrIter.getText()),Double.parseDouble(toleratedError.getText()),false));
 			setProgressbarValue((int)(j*100./numberChunks));
 		}
 		StormData unmixedFromParts = new StormData();
