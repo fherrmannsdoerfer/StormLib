@@ -1,6 +1,7 @@
 package StormLib.HelperClasses;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class FileImportLog extends BasicProcessingInformation {
+public class FileImportLog extends BasicProcessingInformation implements Serializable{
 
 	public FileImportLog(ArrayList<Integer> errorlines, int nbrLocs, String path, String filename){
 		setNameOfProcessing("File import.");

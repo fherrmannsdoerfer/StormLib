@@ -1,12 +1,13 @@
 package StormLib.HelperClasses;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import dataStructure.DemixingParameters;
 import ij.ImagePlus;
 import StormLib.OutputClass;
 
-public class SaveDemixingImageLog extends BasicProcessingInformation {
+public class SaveDemixingImageLog extends BasicProcessingInformation implements Serializable{
 	public SaveDemixingImageLog(String path, String basename, String tag,
 			ArrayList<ImagePlus> colImg,DemixingParameters params, double pixelsize) {
 		setNameOfProcessing("Save demixing image");

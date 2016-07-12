@@ -1,9 +1,11 @@
 package StormLib.HelperClasses;
 
+import java.io.Serializable;
+
 import StormLib.OutputClass;
 import ij.ImagePlus;
 
-public class Save2DImage extends BasicProcessingInformation {
+public class Save2DImage extends BasicProcessingInformation implements Serializable{
 
 	public Save2DImage(String path, String basename, String tag,
 			ImagePlus imgP, double pixelsize) {

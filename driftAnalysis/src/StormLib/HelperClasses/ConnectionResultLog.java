@@ -1,10 +1,11 @@
 package StormLib.HelperClasses;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class ConnectionResultLog extends BasicProcessingInformation {
+public class ConnectionResultLog extends BasicProcessingInformation implements Serializable{
 
 	public ConnectionResultLog(String path, String basename, int size,
 			int size2, String processingLog) {

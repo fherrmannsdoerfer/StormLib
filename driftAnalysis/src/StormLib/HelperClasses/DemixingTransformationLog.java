@@ -1,8 +1,9 @@
 package StormLib.HelperClasses;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class DemixingTransformationLog extends BasicProcessingInformation {
+public class DemixingTransformationLog extends BasicProcessingInformation implements Serializable{
 	private String trafo = "";
 	
 	public DemixingTransformationLog(int nbrIter, double toleratedError,

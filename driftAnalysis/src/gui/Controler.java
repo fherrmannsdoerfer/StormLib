@@ -16,6 +16,10 @@ public class Controler implements Serializable{
 	    }
 	}
 	
+	public void resetData(){
+		ch1 = new StormData();
+		ch2 = new StormData();
+	}
 	
 	public void setMainFrameReference(MainFrame mf) {
 		this.mf = mf;

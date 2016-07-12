@@ -17,6 +17,7 @@ import gui.ProcessingStepsPanel;
 public class RenderImage2DGUI extends ProcessingStepsPanel implements Serializable{
 	JTextField pixelsize = null; 
 	JTextField tag = null;
+	JTextField percentile = null;
 	JRadioButton photonBased = new JRadioButton("Photon based intensities");
 	JRadioButton locBased = new JRadioButton("Localization count based intensities");
 	private static String name = "Render 2D Image";
@@ -29,6 +30,7 @@ public class RenderImage2DGUI extends ProcessingStepsPanel implements Serializab
 		settings[1] = "";
 		pixelsize  = new JTextField();
 		tag = new JTextField();
+		percentile = new JTextField();
 		this.setParameterButtonsName(name);
 		this.setColor(mf.style.getColorOutput());
 		this.setOptionPanel(createOptionPanel());
@@ -45,6 +47,9 @@ public class RenderImage2DGUI extends ProcessingStepsPanel implements Serializab
 		pixelsize.setText("10");
 		verticalBox.add(new JLabel("Tag:"));
 		verticalBox.add(tag);
+		verticalBox.add(new JLabel("Percentile:"));
+		verticalBox.add(percentile);
+		percentile.setText("0.997");
 		Box hb2 = Box.createHorizontalBox();
 		ButtonGroup group = new ButtonGroup();
 		group.add(photonBased);
@@ -75,7 +80,7 @@ public class RenderImage2DGUI extends ProcessingStepsPanel implements Serializab
 		repaint();
 	}
 	public String[] getSettings(){
-		String[] tempString = new String[3];
+		String[] tempString = new String[4];
 		tempString[0] = pixelsize.getText();
 		tempString[1] = tag.getText();
 		if (photonBased.isSelected()){
@@ -84,7 +89,7 @@ public class RenderImage2DGUI extends ProcessingStepsPanel implements Serializab
 		else{
 			tempString[2] = "locCount";
 		}
-		
+		tempString[3] = percentile.getText();
 		return tempString;
 	}
 	public void setSettings(String[] settings){
@@ -96,6 +101,7 @@ public class RenderImage2DGUI extends ProcessingStepsPanel implements Serializab
 		else{
 			locBased.setSelected(true);
 		}
+		percentile.setText(settings[3]);
 	}
 	
 	public ProcessingStepsPanel getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
@@ -124,10 +130,10 @@ public class RenderImage2DGUI extends ProcessingStepsPanel implements Serializab
 	@Override
 	public void process(StormData sd1, StormData sd2) {
 		if (photonBased.isSelected()){
-			sd1.renderImage2D(getPixelsize(), getTag(),0);
+			sd1.renderImage2D(getPixelsize(), getTag(),0,Float.parseFloat(percentile.getText()));
 		}
 		else{
-			sd1.renderImage2D(getPixelsize(), getTag(),1);
+			sd1.renderImage2D(getPixelsize(), getTag(),1,Float.parseFloat(percentile.getText()));
 		}
 		
 		setProgressbarValue(100);

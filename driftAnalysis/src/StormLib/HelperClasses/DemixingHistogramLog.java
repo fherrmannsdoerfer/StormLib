@@ -2,11 +2,12 @@ package StormLib.HelperClasses;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import StormLib.OutputClass;
 
-public class DemixingHistogramLog extends BasicProcessingInformation {
+public class DemixingHistogramLog extends BasicProcessingInformation implements Serializable{
 	public DemixingHistogramLog(){
 		
 	}

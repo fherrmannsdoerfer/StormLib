@@ -1,11 +1,12 @@
 package StormLib.HelperClasses;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import dataStructure.StormLocalization;
 import StormLib.OutputClass;
 
-public class LocsSaveLog extends BasicProcessingInformation {
+public class LocsSaveLog extends BasicProcessingInformation implements Serializable{
 
 	public LocsSaveLog(String path, String basename,
 			ArrayList<StormLocalization> locs, String tag) {

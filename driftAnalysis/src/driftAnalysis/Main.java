@@ -42,9 +42,15 @@ public class Main {
 	public static void settingsFrank(){
 		String tag = "150111MtBla";
 		String tag2 = "_2";
-		String path1 = "C:\\Users\\herrmannsdoerfer\\Desktop\\SERI-Exp011\\\\";
+		String path1 = "\\\\129.206.158.50\\herrmannsdoerfer\\BackupMessungen\\SERI37\\TestAutoAlignmentBeads\\";
 		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\ThunderStorm\\";
-		demixingMultipleInputFiles(path1, "pt",path1,"Right");
+		StormData sd1 = new StormData(path1,"LeftmergedFileZelle5.txt");
+		StormData sd2 = new StormData(path1,"LeftmergedFileZelle5ReReStained.txt");
+		sd1.renderImage2D(10, true, "beforeAlign",0,-1,10.,0,(float) 0.99);
+		sd2.renderImage2D(10, true, "beforeAlign",0,-1,10.,0,0.99f);
+		ArrayList<StormData> list = BeadRegistration.doRegistration(sd1, sd2);
+		list.get(0).renderImage2D(10, true, "afterAlign",0,-1,10.,0,(float) 0.99);
+		list.get(1).renderImage2D(10, true, "afterAlign",0,-1,10.,0,0.99f);
 		//singleColor3dImage("Y:\\Users_shared\\Herrmannsdoerfer\\NP\\", "LeftChannelSERI-Exp009YpetNuclearAntiGFP1to500Messung5pt001.txt");
 		
 	}

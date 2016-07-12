@@ -1,11 +1,12 @@
 package StormLib.HelperClasses;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import StormLib.OutputClass;
 
 public class LocalizationPrecissionEstimationHistogramLog extends
-		BasicProcessingInformation {
+		BasicProcessingInformation implements Serializable{
 
 	
 	public LocalizationPrecissionEstimationHistogramLog(String path,

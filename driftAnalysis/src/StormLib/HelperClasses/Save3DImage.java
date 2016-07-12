@@ -1,11 +1,12 @@
 package StormLib.HelperClasses;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import ij.ImagePlus;
 import StormLib.OutputClass;
 
-public class Save3DImage extends BasicProcessingInformation {
+public class Save3DImage extends BasicProcessingInformation implements Serializable{
 	
 	public Save3DImage(String path, String basename, String tag,
 			ArrayList<ImagePlus> colImg, double pixelsize) {

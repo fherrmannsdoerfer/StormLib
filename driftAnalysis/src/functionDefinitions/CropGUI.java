@@ -21,13 +21,15 @@ public class CropGUI extends ProcessingStepsPanel{
 	JTextField maxY = new JTextField();
 	JTextField minZ = new JTextField();
 	JTextField maxZ = new JTextField();
+	JTextField minInt = new JTextField();
+	JTextField maxInt = new JTextField();
 	JTextField minFrame = new JTextField();
 	JTextField maxFrame = new JTextField();
 	JCheckBox ch1Chkbox = new JCheckBox();
 	JCheckBox ch2Chkbox = new JCheckBox();
-	String[] listLabelTexts = {"minimal x-value:", "maximal x-value:","minimal y-value:", "maximal y-value:","minimal z-value:", "maximal z-value:","minimal frame:", "maximal frame:"};
-	JTextField[] listTextFields = {minX, maxX,minY,maxY,minZ,maxZ,minFrame,maxFrame};
-	String[] listTextFieldTexts = {"xmin", "xmax", "ymin", "ymax", "zmin", "zmax", "framemin", "framemax"};
+	String[] listLabelTexts = {"minimal x-value:", "maximal x-value:","minimal y-value:", "maximal y-value:","minimal z-value:", "maximal z-value:","minimal frame:", "maximal frame:", "minimal intensity:", "maximal intensity"};
+	JTextField[] listTextFields = {minX, maxX,minY,maxY,minZ,maxZ,minFrame,maxFrame,minInt, maxInt};
+	String[] listTextFieldTexts = {"xmin", "xmax", "ymin", "ymax", "zmin", "zmax", "framemin", "framemax", "intmin", "intmax"};
 	private static String name = "Crop";
 	
 	public CropGUI(MainFrame mf) {
@@ -43,7 +45,7 @@ public class CropGUI extends ProcessingStepsPanel{
 		JPanel retPanel = new JPanel();
 		
 		Box verticalBox = Box.createVerticalBox();
-		for (int i=0; i<4; i++){
+		for (int i=0; i<5; i++){
 			Component vs = Box.createVerticalStrut(20);
 			Component hs = Box.createHorizontalStrut(20);
 			Box hb1 = Box.createHorizontalBox();
@@ -129,6 +131,22 @@ public class CropGUI extends ProcessingStepsPanel{
 			return Double.valueOf("1e20");
 		}
 	}
+	public Double getMinInt(){
+		try{
+			return Double.valueOf(minInt.getText());
+		}
+		catch(Exception e){
+			return Double.valueOf("0");
+		}
+	}
+	public Double getMaxInt(){
+		try{
+			return Double.valueOf(maxInt.getText());
+		}
+		catch(Exception e){
+			return Double.valueOf("1e20");
+		}
+	}
 	public Integer getMinFrame(){
 		try{
 			return Integer.valueOf(minFrame.getText());
@@ -148,10 +166,10 @@ public class CropGUI extends ProcessingStepsPanel{
 	@Override
 	public void process(StormData sd1, StormData sd2) {
 		if (ch1Chkbox.isSelected()){
-			sd1.cropCoords(getMinX(), getMaxX(), getMinY(), getMaxY(), getMinZ(), getMaxZ(), getMinFrame(), getMaxFrame());
+			sd1.cropCoords(getMinX(), getMaxX(), getMinY(), getMaxY(), getMinZ(), getMaxZ(), getMinFrame(), getMaxFrame(), getMinInt(), getMaxInt());
 		}
 		if (ch2Chkbox.isSelected()){
-			sd2.cropCoords(getMinX(), getMaxX(), getMinY(), getMaxY(), getMinZ(), getMaxZ(), getMinFrame(), getMaxFrame());
+			sd2.cropCoords(getMinX(), getMaxX(), getMinY(), getMaxY(), getMinZ(), getMaxZ(), getMinFrame(), getMaxFrame(), getMinInt(), getMaxInt());
 		}
 		setProgressbarValue(100);
 	}

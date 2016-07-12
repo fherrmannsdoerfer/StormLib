@@ -1,6 +1,8 @@
 package StormLib.HelperClasses;
 
-public class Graph {
+import java.io.Serializable;
+
+public class Graph implements Serializable{
 	private String description;
 	private String filename;
 	

@@ -1,10 +1,11 @@
 package StormLib.HelperClasses;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import StormLib.OutputClass;
 
-public class LocalizationsPerFrameLog extends BasicProcessingInformation {
+public class LocalizationsPerFrameLog extends BasicProcessingInformation implements Serializable{
 
 	public LocalizationsPerFrameLog(String path, String basename,
 			ArrayList<ArrayList<Integer>> data, int binWidth,

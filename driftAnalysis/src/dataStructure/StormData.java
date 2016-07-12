@@ -23,6 +23,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import comperators.StormLocalizationFrameComperator;
+import comperators.StormLocalizationIntComperator;
 import comperators.StormLocalizationXComperator;
 import comperators.StormLocalizationYComperator;
 import comperators.StormLocalizationZComperator;
@@ -115,7 +116,7 @@ public class StormData implements Serializable{
 							getLocs().add(sl);
 						}
 						else if(tmpStr.length == 6) { //Malk output
-							StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Integer.valueOf(tmpStr[2]), Double.valueOf(tmpStr[3]));
+							StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Integer.valueOf(tmpStr[3]), Double.valueOf(tmpStr[4]));
 							getLocs().add(sl);
 						}
 						else if(tmpStr.length == 7) { //no Malk output
@@ -272,12 +273,15 @@ public class StormData implements Serializable{
 		double maxZ = 0;
 		double minFrame = Double.MAX_VALUE;
 		double maxFrame = 0;
+		double minInt = Double.MAX_VALUE;
+		double maxInt = 0;
 		for (int i = 0; i<locs.size(); i++){
 			StormLocalization sl = locs.get(i);
 			double currX = sl.getX();
 			double currY = sl.getY();
 			double currZ = sl.getZ();
 			double currFrame = (double) sl.getFrame();
+			double currInt = sl.getIntensity();
 			
 			if (minX > currX) {
 				minX = currX;
@@ -303,6 +307,12 @@ public class StormData implements Serializable{
 			if (maxFrame<currFrame){
 				maxFrame = currFrame;
 			}
+			if (minInt > currInt) {
+				minInt = currInt;
+			}
+			if (maxInt < currInt) {
+				maxInt = currInt;
+			}
 		}
 		
 		ArrayList<Double> ret = new ArrayList<Double>();
@@ -314,29 +324,35 @@ public class StormData implements Serializable{
 		ret.add(maxZ);
 		ret.add(minFrame);
 		ret.add(maxFrame);
+		ret.add(minInt);
+		ret.add(maxInt);
 		
 		return ret;
 	}
 	public ImagePlus renderImage2D(double pixelsize){
-		return renderImage2D(pixelsize, true, processingLog,0,-1,10,0); // function is also used to create images for the fourier transformation for the drift correction
+		return renderImage2D(pixelsize, true, processingLog,0,-1,10,0,1); // function is also used to create images for the fourier transformation for the drift correction
 	}
 	public ImagePlus renderImage2D(double pixelsize, String tag) {
-		return renderImage2D(pixelsize, true, tag,0,-1,10,0);
+		return renderImage2D(pixelsize, true, tag,0,-1,10,0,1);
 	}
 	public ImagePlus renderImage2D(double pixelsize, String tag, int intensityMode){
-		return renderImage2D(pixelsize,true, tag, 0,-1,10,intensityMode);
+		return renderImage2D(pixelsize,true, tag, 0,-1,10,intensityMode,1);
+	}
+	
+	public ImagePlus renderImage2D(double pixelsize, String tag, int intensityMode,float percentile){
+		return renderImage2D(pixelsize,true, tag, 0,-1,10,intensityMode,percentile);
 	}
 	
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage){
-		return renderImage2D(pixelsize, saveImage, "",0,-1,10,0);
+		return renderImage2D(pixelsize, saveImage, "",0,-1,10,0,1);
 	}
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag){
-		return renderImage2D(pixelsize, saveImage,tag,0,-1,10,0);
+		return renderImage2D(pixelsize, saveImage,tag,0,-1,10,0,1);
 	}
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize){
-		return renderImage2D(pixelsize,saveImage,tag,mode,maxPixelsize,10,0);
+		return renderImage2D(pixelsize,saveImage,tag,mode,maxPixelsize,10,0,1);
 	}
-	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize, double sigma, int intensityMode){ 
+	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize, double sigma, int intensityMode,float percentile){ 
 		//render localizations from Stormdata to Image Plus Object
 		//mode specifies which projection is rendered 0:xy plane, 1: xz, 2:yz
 		sigma = sigma/pixelsize; //in nm sigma to blur localizations
@@ -398,7 +414,7 @@ public class StormData implements Serializable{
 			}
 		}
 		System.out.println("Summe : " + summe);
-		//image = normalizeChannel(image);
+		image = normalizeChannel(image,percentile);
 		ImageProcessor ip = new FloatProcessor(pixelX,pixelY);
 		ip.setFloatArray(image);
 		ImagePlus imgP = new ImagePlus("", ip);
@@ -451,8 +467,8 @@ public class StormData implements Serializable{
 		
 		channel1.renderImage3D(pixelsize, tag+"ColorCodedChannel1");
 		channel2.renderImage3D(pixelsize, tag+"ColorCodedChannel2");
-		channel1.renderImage2D(pixelsize, true, tag+"ColorCodedChannel1_2D",0,-1,10,intensityMode);
-		channel2.renderImage2D(pixelsize, true, tag+"ColorCodedChannel2_2D",0,-1,10,intensityMode);
+		channel1.renderImage2D(pixelsize, true, tag+"ColorCodedChannel1_2D",0,-1,10,intensityMode,1);
+		channel2.renderImage2D(pixelsize, true, tag+"ColorCodedChannel2_2D",0,-1,10,intensityMode,1);
 		
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);
@@ -739,6 +755,9 @@ public class StormData implements Serializable{
 	}
 
 	float[][] normalizeChannel(float[][] image){
+		return normalizeChannel(image,0.99f);
+	}
+	float[][] normalizeChannel(float[][] image, float percentile){
 		double max = 0;
 		double min = Double.MAX_VALUE;
 		for (int i = 0; i<image.length;i++){
@@ -760,14 +779,14 @@ public class StormData implements Serializable{
 				//System.out.println(hist[0]+ " "+ (int)redChannel[i][j]+ "nbrEntries "+ nbrEntries);
 			}
 		}
-		double percentile = 0.99;
+		//double percentile = 0.99;
 		int sum = 0;
 		double counts = nbrEntries - hist[0];//counts is the number of intensities above 0
 		double newMaximum = 0;
 		for (int i=1;i<65536;i++){
 			//System.out.println("sum: "+sum+" counts: "+ counts+"nbrEntries "+nbrEntries+"hist[0] "+hist[0]);
 			sum = sum +hist[i];
-			if (sum>percentile * counts){
+			if (sum>=percentile * counts){
 				newMaximum = i;
 				break;
 			}
@@ -1312,11 +1331,11 @@ public class StormData implements Serializable{
 	}
 	
 	public ArrayList<StormLocalization> cropCoords(double xmin, double xmax, double ymin, double ymax){
-		return cropCoords(xmin, xmax, ymin, ymax, this.getDimensions().get(4), this.getDimensions().get(5), this.getDimensions().get(6).intValue(), this.getDimensions().get(7).intValue());
+		return cropCoords(xmin, xmax, ymin, ymax, this.getDimensions().get(4), this.getDimensions().get(5), this.getDimensions().get(6).intValue(), this.getDimensions().get(7).intValue(), this.getDimensions().get(8),this.getDimensions().get(9));
 	}
 	
 	public ArrayList<StormLocalization> cropCoords(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax){
-		return cropCoords(xmin, xmax, ymin, ymax, zmin, zmax, this.getDimensions().get(6).intValue(), this.getDimensions().get(7).intValue());
+		return cropCoords(xmin, xmax, ymin, ymax, zmin, zmax, this.getDimensions().get(6).intValue(), this.getDimensions().get(7).intValue(), this.getDimensions().get(8),this.getDimensions().get(9));
 	}
 	
 	public ArrayList<StormLocalization> adjustCrop(ArrayList<StormLocalization> sl, double ymin, double ymax, double xmin, double xmax){
@@ -1354,7 +1373,7 @@ public class StormData implements Serializable{
 		return this.locs;
 	}
 	
-	public synchronized ArrayList<StormLocalization> cropCoords(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, int framemin, int framemax){
+	public synchronized ArrayList<StormLocalization> cropCoords(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, int framemin, int framemax, double minInt, double maxInt){
 		Comparator<StormLocalization> compX = new StormLocalizationXComperator();
 		Collections.sort(this.locs,compX);
 		ArrayList<StormLocalization> croppedList = new ArrayList<StormLocalization>();
@@ -1403,8 +1422,22 @@ public class StormData implements Serializable{
 			}
 			croppedList2.add(croppedList.get(i));
 		}
-		this.locs = croppedList2;
-		return croppedList2;
+		
+		croppedList.clear();
+		Comparator<StormLocalization> compInt = new StormLocalizationIntComperator();
+		Collections.sort(croppedList2,compInt);
+		for (int i = 0; i<croppedList2.size(); i++){
+			if (croppedList2.get(i).getIntensity()<minInt){
+				continue;
+			}
+			if (croppedList2.get(i).getIntensity()>maxInt){
+				continue;
+			}
+			croppedList.add(croppedList2.get(i));
+		}
+		
+		this.locs = croppedList;
+		return croppedList;
 	}
 
 	public String getOutputPath() {

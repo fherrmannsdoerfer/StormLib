@@ -1,6 +1,8 @@
 package StormLib.HelperClasses;
 
-public class DemixingResultLog extends BasicProcessingInformation {
+import java.io.Serializable;
+
+public class DemixingResultLog extends BasicProcessingInformation implements Serializable{
 
 	public DemixingResultLog(int size, int size2, boolean useAll) {
 		setNameOfProcessing("Demixing report.");

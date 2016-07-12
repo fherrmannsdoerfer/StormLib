@@ -64,7 +64,7 @@ public class BeadRegistration {
 				System.out.println(i+ " /"+nbrIter);
 			}
 			double[][] currTrafo = new double[2][3];
-			ArrayList<ArrayList<StormLocalization>> subsets = TransformationControl.findCandidatesForTransformation(distmat, set1, set2,5);
+			ArrayList<ArrayList<StormLocalization>> subsets = TransformationControl.findCandidatesForTransformation(distmat, set1, set2,6);
 			currTrafo = TransformationControl.findTransformation(subsets);
 			boolean usable = TransformationControl.isThisTrafoUsable(currTrafo);
 			if (usable){
@@ -87,8 +87,8 @@ public class BeadRegistration {
 		ImagePlus img1 = sd1.renderImage2D(pixelsize,true,"channel1");
 		ImagePlus img2 = sd2.renderImage2D(pixelsize,true,"channel2");
 		MaximumFinder mf = new MaximumFinder();
-		Polygon maxima1 = mf.getMaxima(img1.getProcessor(), img1.getStatistics().max*0.3,true);
-		Polygon maxima2 = mf.getMaxima(img2.getProcessor(), img2.getStatistics().max*0.3,true);
+		Polygon maxima1 = mf.getMaxima(img1.getProcessor(), img1.getStatistics().max*0.01,true);
+		Polygon maxima2 = mf.getMaxima(img2.getProcessor(), img2.getStatistics().max*0.01,true);
 		ArrayList<ArrayList<double[]>> retList = new ArrayList<ArrayList<double[]>>();
 		ArrayList<double[]> ch1 = new ArrayList<double[]>();
 		ArrayList<double[]> ch2 = new ArrayList<double[]>();
@@ -111,7 +111,7 @@ public class BeadRegistration {
 		ArrayList<double[]> candidatesCh1 = new ArrayList<double[]>();
 		ArrayList<double[]> candidatesCh2 = new ArrayList<double[]>();
 		ArrayList<ArrayList<StormLocalization>> tracesCh1 = 
-				Utilities.findTraces(sd1.getLocs(), 200, 200, 400, 3);
+				Utilities.findTraces(sd1.getLocs(), 200, 200, 400, 5);
 		int maxTraceLength = 0;
 		for (int i = 0; i< tracesCh1.size(); i++){
 			if (tracesCh1.get(i).size() > maxTraceLength){
@@ -157,9 +157,10 @@ public class BeadRegistration {
 			StormData sd1, StormData sd2) {
 
 		int pixelsize = 10;
-		ArrayList<ArrayList<double[]>> beadEstimates = findBeadCandidatesImageBased(sd1,sd2,pixelsize);
-		ArrayList<ArrayList<double[]>> beadEstimates2 = findBeadCandidatesTraceBased(sd1,sd2,400);
+		ArrayList<ArrayList<double[]>> beadEstimates2 = findBeadCandidatesImageBased(sd1,sd2,pixelsize);
+		ArrayList<ArrayList<double[]>> beadEstimates = findBeadCandidatesTraceBased(sd1,sd2,1000);
 
+		
 		ArrayList<ArrayList<StormLocalization>> listOfBeadsCh1 = new ArrayList<ArrayList<StormLocalization>>(); //an Arraylist for each potential bead
 		ArrayList<ArrayList<StormLocalization>> listOfBeadsCh2 = new ArrayList<ArrayList<StormLocalization>>(); //to collect all localizations to be averaged later
 		for (int i = 0; i<beadEstimates.get(0).size(); i++){
@@ -173,16 +174,16 @@ public class BeadRegistration {
 		double lateralTolerance = 100; //in nm
 		for (int i = 0; i<sd1.getSize();i++){
 			for (int j = 0; j<beadEstimates.get(0).size();j++){
-				if(Math.abs(sd1.getElement(i).getX()-pixelsize*beadEstimates.get(0).get(j)[0])<lateralTolerance
-				&& Math.abs(sd1.getElement(i).getY()-pixelsize*beadEstimates.get(0).get(j)[1])<lateralTolerance){
+				if(Math.abs(sd1.getElement(i).getX()-beadEstimates.get(0).get(j)[0])<lateralTolerance
+				&& Math.abs(sd1.getElement(i).getY()-beadEstimates.get(0).get(j)[1])<lateralTolerance){
 					listOfBeadsCh1.get(j).add(sd1.getElement(i));
 				}
 			}
 		}
 		for (int i = 0; i<sd2.getSize();i++){
 			for (int j = 0; j<beadEstimates.get(1).size();j++){
-				if(Math.abs(sd2.getElement(i).getX()-pixelsize*beadEstimates.get(1).get(j)[0])<lateralTolerance
-				&& Math.abs(sd2.getElement(i).getY()-pixelsize*beadEstimates.get(1).get(j)[1])<lateralTolerance){
+				if(Math.abs(sd2.getElement(i).getX()-beadEstimates.get(1).get(j)[0])<lateralTolerance
+				&& Math.abs(sd2.getElement(i).getY()-beadEstimates.get(1).get(j)[1])<lateralTolerance){
 					listOfBeadsCh2.get(j).add(sd2.getElement(i));
 				}
 			}

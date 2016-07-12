@@ -1,12 +1,13 @@
 package StormLib.HelperClasses;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 
 import StormLib.OutputClass;
 
-public class DriftCorrectionLogXYOnly extends BasicProcessingInformation {
+public class DriftCorrectionLogXYOnly extends BasicProcessingInformation implements Serializable{
 	private String matrixX;
 	private String matrixY;
 	private String strFrames= "";

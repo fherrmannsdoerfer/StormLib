@@ -218,6 +218,7 @@ public class MainFrame extends JFrame implements Serializable{
 					@Override
 					public 
 					void run(){
+						controler.resetData();
 						controler.resetProgressBar(getListProcessingStepPanels());
 						controler.startProcessing(getListProcessingStepPanels());
 					}
