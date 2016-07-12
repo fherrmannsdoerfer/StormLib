@@ -220,7 +220,7 @@ public class Main {
 		
 		//sd.correctDrift(4000);
 	//	sd.writeArrayListForFRC("drift");
-		sd.cropCoords(0, 100000, 0, 100000, 75, 875, 0, 10000);
+		//sd.cropCoords(0, 100000, 0, 100000, 75, 875, 0, 10000);
 		sd.renderImage3D(10);
 		sd.writeArrayListForVisp("connected");
 		sd.writeLocs("final");
@@ -345,10 +345,10 @@ public class Main {
 		unmixedSd.writeArrayListForVisp(demixingParams);
 		unmixedSd.writeArrayListForFRC(demixingParams);
 	
-		unmixedSd.cropCoords(0, 100000, 0, 100000, 0, 900, 0, 10000);
+		//unmixedSd.cropCoords(0, 100000, 0, 100000, 0, 900, 0, 10000);
 		unmixedSd.writeArrayListForVisp("cropped0-10000frames");
 		unmixedSd.writeArrayListForFRC("cropped0-10000frames");
-		unmixedSd.cropCoords(0, 100000, 0, 100000, 300, 600, 0, 10000);
+		//unmixedSd.cropCoords(0, 100000, 0, 100000, 300, 600, 0, 10000);
 		unmixedSd.writeArrayListForVisp("cropped0-10000frames-0-300z");
 		unmixedSd.writeArrayListForFRC("cropped0-10000frames0-300z");
 	
