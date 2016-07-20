@@ -52,7 +52,7 @@ public class Main {
 		list.get(0).renderImage2D(10, true, "afterAlign",0,-1,10.,0,(float) 0.99);
 		list.get(1).renderImage2D(10, true, "afterAlign",0,-1,10.,0,0.99f);
 		//singleColor3dImage("Y:\\Users_shared\\Herrmannsdoerfer\\NP\\", "LeftChannelSERI-Exp009YpetNuclearAntiGFP1to500Messung5pt001.txt");
-		
+		sd.render3d(10,"hi")
 	}
 	
 	static void createVispOutput(String path, String fname){

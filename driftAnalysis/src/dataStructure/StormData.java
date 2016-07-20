@@ -552,8 +552,12 @@ public class StormData implements Serializable{
 		return renderImage3D(pixelsize, processingLog);
 	}
 	
-	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag){ //render localizations from Stormdata to Image Plus Object
-		double sigma = 10/pixelsize; //in nm sigma to blur localizations
+	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag){
+		return renderImage3D(pixelsize, tag, 10);
+	}
+	
+	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag, double sigma){ //render localizations from Stormdata to Image Plus Object
+		//double sigma =  0.; //pixelsize //in nm sigma to blur localizations
 		int filterwidth = 3; // must be odd
 		ArrayList<Double> dims = getDimensions();
 		int pixelX = (int) Math.pow(2, Math.ceil(Math.log(dims.get(1) / pixelsize)/Math.log(2)));
