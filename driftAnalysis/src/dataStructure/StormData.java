@@ -770,15 +770,16 @@ public class StormData implements Serializable{
 				min = Math.min(image[i][j],min);
 			}
 		}
-		int[] hist = new int[65536];
+		int nbrIntesnsities = 1000000;
+		int[] hist = new int[nbrIntesnsities+1];
 		int nbrEntries = 0;
-		for (int i=0;i<65536;i++){
+		for (int i=0;i<nbrIntesnsities;i++){
 			hist[i] = 0;
 		}
 		for (int i = 0; i<image.length;i++){
 			for(int j = 0; j<image[0].length; j++){
-				image[i][j] = (float) Math.ceil((image[i][j] - min)/(max - min) * 65535);
-				hist[(int)image[i][j]] += 1;
+				//image[i][j] = (float) Math.ceil((image[i][j] - min)/(max - min) * 65535);
+				hist[(int) Math.ceil((image[i][j] - min)/(max - min) * nbrIntesnsities)] += 1;
 				nbrEntries +=1;
 				//System.out.println(hist[0]+ " "+ (int)redChannel[i][j]+ "nbrEntries "+ nbrEntries);
 			}
@@ -787,11 +788,11 @@ public class StormData implements Serializable{
 		int sum = 0;
 		double counts = nbrEntries - hist[0];//counts is the number of intensities above 0
 		double newMaximum = 0;
-		for (int i=1;i<65536;i++){
+		for (int i=1;i<nbrIntesnsities;i++){
 			//System.out.println("sum: "+sum+" counts: "+ counts+"nbrEntries "+nbrEntries+"hist[0] "+hist[0]);
 			sum = sum +hist[i];
 			if (sum>=percentile * counts){
-				newMaximum = i;
+				newMaximum = i*(max -min)/((float)nbrIntesnsities) + min;
 				break;
 			}
 		}
