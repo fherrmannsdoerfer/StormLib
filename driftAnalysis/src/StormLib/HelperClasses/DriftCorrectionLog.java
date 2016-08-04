@@ -16,7 +16,7 @@ public class DriftCorrectionLog extends BasicProcessingInformation implements Se
 	private String strDriftY = "";
 	private String strDriftZ = "";
 	public DriftCorrectionLog(ArrayList<double[][]> dds, UnivariateFunction fx,
-			UnivariateFunction fy,UnivariateFunction fz, String path, String basename, int frameMax, int chunksize, int nbrChunks, String tag) {
+			UnivariateFunction fy,UnivariateFunction fz, String path, String basename, int frameMax, int chunksize, int nbrChunks, String tag, int pixelsize) {
 		setNameOfProcessing("Drift correction");
 		addParam("Used chunksize:",chunksize);
 		addParam("Number of chunks:",nbrChunks);
@@ -55,7 +55,7 @@ public class DriftCorrectionLog extends BasicProcessingInformation implements Se
 		if (maxDriftX>40 || maxDriftY > 40){
 			System.out.println("High drift probably incorrect driftcorrection!!!");
 		}
-		String fullFilename = OutputClass.saveDriftGraph(path, basename, tag, frames,fx,fy,fz);
+		String fullFilename = OutputClass.saveDriftGraph(path, basename, tag, frames,fx,fy,fz,pixelsize);
 		addGraph("Drift over frames",fullFilename);
 		// TODO Auto-generated constructor stub
 	}

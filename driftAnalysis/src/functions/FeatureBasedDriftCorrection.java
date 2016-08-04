@@ -34,10 +34,10 @@ public class FeatureBasedDriftCorrection {
 		  String message = Integer.toString(val);
 		  propertyChangeSupport.firePropertyChange(messageName, 0, val);
 	   }
-	public static StormData correctDrift(StormData sd ,int chunksize)
+	public static StormData correctDrift(StormData sd ,int chunksize,int pixelsize)
 	{
 		//int chunksize = 5000;  //number frames that are summed up to calculate drift between this frame and the next
-		int pixelsize = 20; //pixelsize of intermediate reconstructed images used for fouriertransformations
+		//int pixelsize = 20; //pixelsize of intermediate reconstructed images used for fouriertransformations
 		ArrayList<double[][]> dds = finddisplacements2(sd, chunksize, pixelsize,useXYOnly); //dds contains the displacement matrices for x and y. the displacement beteween each chunk is calculated
 		StormData sdTrans = correctLocalizations(sd,dds,chunksize, pixelsize,useXYOnly); //uses the displacement to perform a spline interpolation and correct the data accordingly
 		return sdTrans;
@@ -172,7 +172,7 @@ public class FeatureBasedDriftCorrection {
 			Double frameMax2 = (double)sd.getDimensions().get(7);
 			int frameMax = frameMax2.intValue()-chunksize;
 			OutputClass.writeDriftLog(dds, fx, fy,sd.getPath(), sd.getBasename(), frameMax, sd.getProcessingLog(), pixelsize);
-			DriftCorrectionLogXYOnly cl = new DriftCorrectionLogXYOnly(dds,fx,fy,sd.getPath(), sd.getBasename(), frameMax, chunksize, nbrChunks, sd.getProcessingLog());
+			DriftCorrectionLogXYOnly cl = new DriftCorrectionLogXYOnly(dds,fx,fy,sd.getPath(), sd.getBasename(), frameMax, chunksize, nbrChunks, sd.getProcessingLog(), pixelsize);
 			return sdTrans;
 		}
 		else{
@@ -206,7 +206,7 @@ public class FeatureBasedDriftCorrection {
 			Double frameMax2 = (double)sd.getDimensions().get(7);
 			int frameMax = frameMax2.intValue()-chunksize;
 			OutputClass.writeDriftLogFile(dds,fx,fy,fz,sd.getPath(), sd.getBasename(), frameMax,sd.getProcessingLog());
-			DriftCorrectionLog cl = new DriftCorrectionLog(dds,fx,fy,fz,sd.getPath(), sd.getBasename(), frameMax, chunksize, nbrChunks, sd.getProcessingLog());
+			DriftCorrectionLog cl = new DriftCorrectionLog(dds,fx,fy,fz,sd.getPath(), sd.getBasename(), frameMax, chunksize, nbrChunks, sd.getProcessingLog(),pixelsize);
 			sd.addToLog(cl);
 			
 			return sdTrans;

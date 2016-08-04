@@ -1297,7 +1297,15 @@ public class StormData implements Serializable{
 	
 	public void correctDrift(int chunksize) {
 		if (getLocs().size()>0){
-			StormData sd = FeatureBasedDriftCorrection.correctDrift(this, chunksize);
+			StormData sd = FeatureBasedDriftCorrection.correctDrift(this, chunksize,20);
+			processingLog = processingLog +"DC";
+			locs = sd.getLocs();
+		}
+	}
+	
+	public void correctDrift(int chunksize, int pixelsize) {
+		if (getLocs().size()>0){
+			StormData sd = FeatureBasedDriftCorrection.correctDrift(this, chunksize,pixelsize);
 			processingLog = processingLog +"DC";
 			locs = sd.getLocs();
 		}

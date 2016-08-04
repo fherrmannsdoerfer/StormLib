@@ -502,7 +502,7 @@ public class OutputClass {
 
 	public static String saveDriftGraph(String path, String basename, String tag,
 			ArrayList<Integer> frames, UnivariateFunction fx,
-			UnivariateFunction fy) {
+			UnivariateFunction fy, int pixelsize) {
 		String picname = basename+"_DriftData_"+tag+".png";
 		String fullFilename = path+"Statistics\\Pictures\\"+picname;
 		ArrayList<ArrayList<ArrayList<Double>>> data = new ArrayList<ArrayList<ArrayList<Double>>>();
@@ -513,8 +513,8 @@ public class OutputClass {
 		ArrayList<Double> ydrift = new ArrayList<Double>();
 		for (int i = 0;i<frames.size(); ++i){
 			dFrames.add((double)frames.get(i));
-			xdrift.add(fx.value(frames.get(i)));
-			ydrift.add(fy.value(frames.get(i)));
+			xdrift.add(fx.value(frames.get(i))*pixelsize);
+			ydrift.add(fy.value(frames.get(i))*pixelsize);
 		}
 		data.get(0).add(dFrames);
 		data.get(0).add(xdrift);
@@ -524,7 +524,7 @@ public class OutputClass {
 		datalabels.add("x");
 		datalabels.add("y");
 		
-		CreateScatterPlot.createScatterPlot2(data, datalabels, "frame", "drift in ", "Overview drift x\\y over frames", fullFilename);
+		CreateScatterPlot.createScatterPlot2(data, datalabels, "frame", "drift in nm", "Overview drift x\\y over frames", fullFilename);
 		
 		return fullFilename;
 		// TODO Auto-generated method stub
@@ -532,7 +532,7 @@ public class OutputClass {
 	
 	public static String saveDriftGraph(String path, String basename, String tag,
 			ArrayList<Integer> frames, UnivariateFunction fx,
-			UnivariateFunction fy, UnivariateFunction fz) {
+			UnivariateFunction fy, UnivariateFunction fz,int pixelsize) {
 		String picname = basename+"_DriftData_"+tag+".png";
 		String fullFilename = path+"Statistics\\Pictures\\"+picname;
 		ArrayList<ArrayList<ArrayList<Double>>> data = new ArrayList<ArrayList<ArrayList<Double>>>();
@@ -545,9 +545,9 @@ public class OutputClass {
 		ArrayList<Double> zdrift = new ArrayList<Double>();
 		for (int i = 0;i<frames.size(); ++i){
 			dFrames.add((double)frames.get(i));
-			xdrift.add(fx.value(frames.get(i)));
-			ydrift.add(fy.value(frames.get(i)));
-			zdrift.add(fz.value(frames.get(i)));
+			xdrift.add(fx.value(frames.get(i))*pixelsize);
+			ydrift.add(fy.value(frames.get(i))*pixelsize);
+			zdrift.add(fz.value(frames.get(i))*pixelsize);
 		}
 		data.get(0).add(dFrames);
 		data.get(0).add(xdrift);
@@ -560,7 +560,7 @@ public class OutputClass {
 		datalabels.add("y");
 		datalabels.add("z");
 		
-		CreateScatterPlot.createScatterPlot2(data, datalabels, "frame", "drift in ", "Overview drift x\\y over frames", fullFilename);
+		CreateScatterPlot.createScatterPlot2(data, datalabels, "frame", "drift in nm", "Overview drift x\\y over frames", fullFilename);
 		
 		return fullFilename;
 		// TODO Auto-generated method stub

@@ -48,7 +48,7 @@ public class Utilities {
 				Arrays.sort(files);
 				for (int i = 0; i<files.length; i++ ){
 					if(isValidInputFile(files[i], pattern1)){
-						StormData tmp = new StormData(files[i].getAbsolutePath());
+						StormData tmp = new StormData(files[i].getParent(),files[i].getName());
 						sd1.addStormData(tmp);
 						setProgress("MultipleInput",(int)(100.*i/(files.length)));
 					}
