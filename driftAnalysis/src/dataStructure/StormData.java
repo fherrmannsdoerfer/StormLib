@@ -795,6 +795,7 @@ public class StormData implements Serializable{
 				newMaximum = i*(max -min)/((float)nbrIntesnsities) + min;
 				break;
 			}
+			newMaximum = i*(max -min)/((float)nbrIntesnsities) + min;
 		}
 		if (verbose){
 			System.out.println("Normalization:  Max: "+max+" newMax: "+newMaximum);
