@@ -20,6 +20,7 @@ import gui.ProcessingStepsPanel;
 public class DriftcorrectionGUI extends ProcessingStepsPanel implements Serializable{
 	JTextField chunksize = new JTextField();
 	JTextField pixelsize = new JTextField();
+	JTextField sigma = new JTextField();
 	private static String name = "Drift Correction";
 	public DriftcorrectionGUI(MainFrame mf) {
 		super(mf);
@@ -40,6 +41,9 @@ public class DriftcorrectionGUI extends ProcessingStepsPanel implements Serializ
 		verticalBox.add(new JLabel("Pixelsize for drift correction:"));
 		verticalBox.add(pixelsize);
 		pixelsize.setText("20");
+		verticalBox.add(new JLabel("Sigma for drift correction:"));
+		verticalBox.add(sigma);
+		pixelsize.setText("10");
 		retPanel.add(verticalBox);
 		return retPanel;
 	}
@@ -63,13 +67,24 @@ public class DriftcorrectionGUI extends ProcessingStepsPanel implements Serializ
 		}
 	
 	}
+	
+	public int getSigma(){
+		try{
+			return Integer.valueOf(sigma.getText());
+		}
+		catch(Exception e){
+			return Integer.valueOf("10");
+		}
+	
+	}
 	public String[] getSettings(){
-		String[] tempString = {chunksize.getText(), pixelsize.getText()};
+		String[] tempString = {chunksize.getText(), pixelsize.getText(), sigma.getText()};
 		return tempString;
 	}
 	public void setSettings(String[] tempString){
 		chunksize.setText(tempString[0]);
 		pixelsize.setText(tempString[1]);
+		sigma.setText(tempString[2]);
 	}
 	public DriftcorrectionGUI getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
 		if (processingStepsPanelObject instanceof DriftcorrectionGUI){
@@ -91,7 +106,7 @@ public class DriftcorrectionGUI extends ProcessingStepsPanel implements Serializ
 		FeatureBasedDriftCorrection.addPropertyChangeListener(pcl);
 		sd1.correctDrift(getChunksize());
 		try{
-			sd2.correctDrift(getChunksize(), getPixelsize());
+			sd2.correctDrift(getChunksize(), getPixelsize(), getSigma());
 		}
 		catch(Exception e){
 			

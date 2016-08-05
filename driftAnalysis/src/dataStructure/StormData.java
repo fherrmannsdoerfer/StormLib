@@ -352,6 +352,9 @@ public class StormData implements Serializable{
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize){
 		return renderImage2D(pixelsize,saveImage,tag,mode,maxPixelsize,10,0,1);
 	}
+	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize, double sigma){
+		return renderImage2D(pixelsize,saveImage,tag,mode,maxPixelsize,sigma,0,1);
+	}
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize, double sigma, int intensityMode,float percentile){ 
 		//render localizations from Stormdata to Image Plus Object
 		//mode specifies which projection is rendered 0:xy plane, 1: xz, 2:yz
@@ -1297,15 +1300,15 @@ public class StormData implements Serializable{
 	
 	public void correctDrift(int chunksize) {
 		if (getLocs().size()>0){
-			StormData sd = FeatureBasedDriftCorrection.correctDrift(this, chunksize,20);
+			StormData sd = FeatureBasedDriftCorrection.correctDrift(this, chunksize,20, 10);
 			processingLog = processingLog +"DC";
 			locs = sd.getLocs();
 		}
 	}
 	
-	public void correctDrift(int chunksize, int pixelsize) {
+	public void correctDrift(int chunksize, int pixelsize, float sigma) {
 		if (getLocs().size()>0){
-			StormData sd = FeatureBasedDriftCorrection.correctDrift(this, chunksize,pixelsize);
+			StormData sd = FeatureBasedDriftCorrection.correctDrift(this, chunksize,pixelsize, sigma);
 			processingLog = processingLog +"DC";
 			locs = sd.getLocs();
 		}
