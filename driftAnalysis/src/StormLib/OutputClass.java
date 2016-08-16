@@ -255,6 +255,19 @@ public class OutputClass {
 			writer2.close();
 		} catch (IOException e) {e.printStackTrace();}
 	}
+	
+	public static void writeLocsForBaumgart(String path, String basename,
+			ArrayList<StormLocalization> locs, String tag) {
+		try{
+			FileWriter writer = new FileWriter(path+basename+tag+".csv");
+			writer.append(",,,,,\n");
+			for (int i = 0; i<locs.size(); i++){
+				writer.append(","+(locs.get(i).getX()+2000)+","+(locs.get(i).getY()+2000)+",0,0,0\n");
+			}
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {e.printStackTrace();}
+	}
 
 	public static void writeLocsPerFrame(String path, String basename,
 			ArrayList<ArrayList<Integer>> tmp, int binWidth, String tag) {

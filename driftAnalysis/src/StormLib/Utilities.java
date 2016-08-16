@@ -926,5 +926,29 @@ public class Utilities {
 			
 		}
 		
+		public static void splitTxtCummulative(int startFrame, int endFrame, int chunksize, StormData sd, String path, boolean connected){
+			int i = startFrame;
+			int counter = 0;
+			while (i<endFrame){
+				StormData subset = sd.findSubset(0,i+chunksize);
+				if (connected){//connect
+					subset.setPath(sd.getPath()+"\\splittedTraced\\");
+					subset.connectPoints(90, 90, 9e9, 15);
+					subset.setFname("partTraced0_"+(i+chunksize)+".txt");
+				}
+				else{
+					subset.setPath(sd.getPath()+"\\splitted\\");
+					subset.setFname("part0_"+(i+chunksize)+".txt");
+				}
+				
+				new File(subset.getPath()).mkdir();
+				subset.writeLocsForBaumgart();
+				ij.IJ.save(subset.renderImage2D(10, false, "", 0, -1, 5, 1, 1),subset.getPath()+"\\"+subset.getBasename()+".tiff");
+				i = i + chunksize;
+				counter = counter +1;
+			}
+
+		}
+		
 }
 

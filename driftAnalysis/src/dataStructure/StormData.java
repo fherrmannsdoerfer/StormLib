@@ -1020,6 +1020,14 @@ public class StormData implements Serializable{
 		OutputClass.writeArrayListForVisp(path, getBasename(), locs, tag);
 	}
 	
+	public void writeLocsForBaumgart(){
+		writeLocsForBaumgart(processingLog);
+	}
+	
+	public void writeLocsForBaumgart(String tag){
+		OutputClass.writeLocsForBaumgart(path, getBasename(), locs, tag);
+	}
+	
 	public void writeLocs(){
 		writeLocs(processingLog);
 	}
@@ -1164,6 +1172,15 @@ public class StormData implements Serializable{
 		//System.out.println("sigmaXY: "+params.get(0)+" scale: "+params.get(1));
 		//System.out.println("sigmaXY: "+params.get(0)+ " omega: "+params.get(1)+ " dc: "+params.get(2)+" A1: "+params.get(3)+ " A2: "+params.get(4));
 		
+	}
+	
+	public void splitTxtCummulative(int chunksize, boolean connected){
+		ArrayList<Double> dims = this.getDimensions();
+		Utilities.splitTxtCummulative(dims.get(6).intValue(), dims.get(7).intValue(), chunksize, this, path+"\\"+getBasename()+".tiff", connected);
+	}
+	
+	public void splitTxtCummulative(int startFrame, int endFrame, int chunksize, StormData sd, String path, boolean connected){
+		Utilities.splitTxtCummulative(startFrame, endFrame, chunksize, sd, path, connected);
 	}
 	
 	
