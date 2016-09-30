@@ -8,6 +8,7 @@ import ij.ImagePlus;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 import dataStructure.DemixingParameters;
 import dataStructure.StormData;
@@ -15,15 +16,53 @@ import dataStructure.StormLocalization;
 import StormLib.OutputClass;
 import StormLib.Utilities;
 import StormLib.HelperClasses.BasicProcessingInformation;
-//dualColor(path1, "LeftChannel"+tag+tag2+".txt", path1, "RightChannel"+tag+tag2+".txt");
+
 
 public class Main {
 //
 	public static void main(String[] args) {
 
 		//settingsMaja();
-		settingsFrank();
+		//settingsFrank();
+		//splitMeasurements();
+		testConsecutivelySplittedSingleFile();
+	}
+	
+	public static void splitMeasurements(){
+		ArrayList<Double> percentages = new ArrayList<Double>();
+		percentages.add((double) .01);
+		percentages.add((double) .02);
+		percentages.add((double) .05);
+		percentages.add((double) .1);
+		percentages.add((double) .15);
+		percentages.add((double) .20);
+		percentages.add((double) .25);
+		for (int i = 30; i<101; i=i+10){
+			percentages.add((double) i/100.);
+		}
+		String path =  "D:\\Paper\\Figures\\Main Figure\\Raw Data\\Measurement";
+		String fname = "m2_PALM_tracked_DBScan_50nm_rad_splitting.txt";
+		StormData sd = new StormData(path+"\\"+fname);
+		//sd.connectPoints(90, 90, 9e9, 15);
+		sd.cropCoords(17640, 22640, 3500, 8500);
+		sd.setPath(path+"\\");
+		//sd.splitTxtCummulative(0, 1000, 100, sd, false);
+		//sd.splitTxtCummulative(1000, 15000, 1000, sd, false);
 		
+		StormData sd2 =  new StormData(path+"\\"+fname);
+		sd2.setPath(path+"\\");
+		sd2.splitTxtCummulative(percentages, sd);
+		sd2.splitTxtCummulative(percentages, sd);
+		
+		StormData sd3 =  new StormData(path+"\\"+fname);
+		sd3.setPath(path+"\\");
+		sd3.splitTxtCummulativeRandomly(percentages, sd, true);
+		
+		
+		StormData sd4 =  new StormData(path+"\\"+fname);
+		sd4.setPath(path+"\\");
+		sd4.splitTxtCummulativeRandomly(percentages, sd, false);
+	
 	}
 	
 	public static void settingsMaja(){
@@ -39,19 +78,89 @@ public class Main {
 		
 		
 	}
+	
+	public static void testRandomlyDistributedStuff(){
+		ArrayList<Double> percentages = new ArrayList<Double>();
+		percentages.add((double) .01);
+		percentages.add((double) .02);
+		percentages.add((double) .05);
+		for (int i = 10; i<101; i=i+10){
+			percentages.add((double) i/100.);
+		}
+
+		String path = "W:\\herrmannsdoerfer\\Sonstiges\\LaborTagebuch\\Dateien\\2016_07\\Epitope\\TestRandomSplitting\\EpisClusterRandom100persMM";
+		String basename = path.substring(path.lastIndexOf("\\")+1,path.length());
+		StormData sd = new StormData(path+"\\"+basename+"Localizations.txt");
+		sd.setPath(path+"\\");
+		sd.splitTxtCummulativeRandomly(percentages, sd, false);
+	}
+	
+	public static void testConsecutivelySplittedSingleFile(){
+		ArrayList<Double> percentages = new ArrayList<Double>();
+		percentages.add((double) .01);
+		percentages.add((double) .02);
+		percentages.add((double) .05);
+		percentages.add((double) .1);
+		percentages.add((double) .15);
+		percentages.add((double) .20);
+		percentages.add((double) .25);
+		for (int i = 30; i<101; i=i+10){
+			percentages.add((double) i/100.);
+		}
+		String path =  "D:\\Paper\\Figures\\SI Figure Realistic Simulation\\Raw Data\\Simulation\\CDpsMM6.00NEpC120CR90BGpsMM183";
+		String basename = path.substring(path.lastIndexOf("\\")+1,path.length());
+		StormData sd = new StormData(path+"\\"+basename+"Localizations.txt");
+		//sd.connectPoints(90, 90, 9e9, 15);
+		sd.setPath(path+"\\");
+		sd.splitTxtCummulative(0, 1000, 100, sd, false);
+		sd.splitTxtCummulative(1000, 15000, 1000, sd, false);
+		
+		StormData sd2 = new StormData(path+"\\"+basename+"Localizations.txt");
+		sd2.setPath(path+"\\");
+		sd2.splitTxtCummulative(percentages, sd);
+		sd2.splitTxtCummulative(percentages, sd);
+		
+		StormData sd3 = new StormData(path+"\\"+basename+"Localizations.txt");
+		sd3.setPath(path+"\\");
+		sd3.splitTxtCummulativeRandomly(percentages, sd, true);
+		
+		
+		StormData sd4 = new StormData(path+"\\"+basename+"Localizations.txt");
+		sd4.setPath(path+"\\");
+		sd4.splitTxtCummulativeRandomly(percentages, sd, false);
+	
+	}
 	public static void settingsFrank(){
-		String tag = "150111MtBla";
-		String tag2 = "_2";
-		String path1 = "\\\\129.206.158.50\\herrmannsdoerfer\\BackupMessungen\\SERI37\\TestAutoAlignmentBeads\\";
-		//String path1 = "D:\\MessungenTemp\\"+tag+"\\Auswertung\\ThunderStorm\\";
-		StormData sd1 = new StormData(path1,"LeftmergedFileZelle5.txt");
-		StormData sd2 = new StormData(path1,"LeftmergedFileZelle5ReReStained.txt");
-		sd1.renderImage2D(10, true, "beforeAlign",0,-1,10.,0,(float) 0.99);
-		sd2.renderImage2D(10, true, "beforeAlign",0,-1,10.,0,0.99f);
-		ArrayList<StormData> list = BeadRegistration.doRegistration(sd1, sd2);
-		list.get(0).renderImage2D(10, true, "afterAlign",0,-1,10.,0,(float) 0.99);
-		list.get(1).renderImage2D(10, true, "afterAlign",0,-1,10.,0,0.99f);
-		//singleColor3dImage("Y:\\Users_shared\\Herrmannsdoerfer\\NP\\", "LeftChannelSERI-Exp009YpetNuclearAntiGFP1to500Messung5pt001.txt");
+
+		ArrayList<Double> percentages = new ArrayList<Double>();
+		percentages.add((double) .01);
+		percentages.add((double) .02);
+		percentages.add((double) .05);
+		percentages.add((double) .1);
+		percentages.add((double) .15);
+		percentages.add((double) .20);
+		percentages.add((double) .25);
+		for (int i = 30; i<101; i=i+10){
+			percentages.add((double) i/100.);
+		}
+		//percentages.add((double) 1);
+		
+		String importPath = "D:\\Paper\\outputRegularGridPALM\\";
+		File[] listFiles = (new File(importPath)).listFiles();
+		for (int i =0; i<listFiles.length; i++){
+			File file = listFiles[i];
+			String path = file.getAbsolutePath();
+			String basename = path.substring(path.lastIndexOf("\\")+1,path.length());
+			StormData sd = new StormData(path+"\\"+basename+"Localizations.txt");
+			sd.setPath(path+"\\");
+			sd.connectPoints(90, 90, 9e9, 15);
+			//sd.splitTxtCummulative(0, 1000, 100, sd, false);
+			//sd.splitTxtCummulative(1000, 15000, 1000, sd, false);
+			sd.splitTxtCummulative(percentages, sd);
+			//sd.splitTxtCummulativeRandomly(percentages, sd, false);
+			//sd.splitTxtCummulativeRandomly(percentages, sd, true);
+			System.out.println("run "+i+" of "+listFiles.length);
+		}
 	}
 	
 	static void createVispOutput(String path, String fname){

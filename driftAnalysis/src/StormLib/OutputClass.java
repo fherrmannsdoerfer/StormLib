@@ -262,7 +262,7 @@ public class OutputClass {
 			FileWriter writer = new FileWriter(path+basename+tag+".csv");
 			writer.append(",,,,,\n");
 			for (int i = 0; i<locs.size(); i++){
-				writer.append(","+(locs.get(i).getX()+2000)+","+(locs.get(i).getY()+2000)+",0,0,0\n");
+				writer.append(","+(locs.get(i).getX()+2000)+","+(locs.get(i).getY()+2000)+",0,"+locs.get(i).getFrame()+",0\n");
 			}
 			writer.flush();
 			writer.close();

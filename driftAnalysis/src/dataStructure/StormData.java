@@ -112,7 +112,7 @@ public class StormData implements Serializable{
 							getLocs().add(sl);
 						}
 						else if(tmpStr.length == 5) { //3d data
-							StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Double.valueOf(tmpStr[2]), Integer.valueOf(tmpStr[3]), Double.valueOf(tmpStr[4]));
+							StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Double.valueOf(tmpStr[2]), Math.round(Float.valueOf(tmpStr[3])), Double.valueOf(tmpStr[4]));
 							getLocs().add(sl);
 						}
 						else if(tmpStr.length == 6) { //Malk output
@@ -417,7 +417,9 @@ public class StormData implements Serializable{
 			}
 		}
 		System.out.println("Summe : " + summe);
-		image = normalizeChannel(image,percentile);
+		if (intensityMode == 0){
+			image = normalizeChannel(image,percentile);
+		}
 		ImageProcessor ip = new FloatProcessor(pixelX,pixelY);
 		ip.setFloatArray(image);
 		ImagePlus imgP = new ImagePlus("", ip);
@@ -1176,11 +1178,19 @@ public class StormData implements Serializable{
 	
 	public void splitTxtCummulative(int chunksize, boolean connected){
 		ArrayList<Double> dims = this.getDimensions();
-		Utilities.splitTxtCummulative(dims.get(6).intValue(), dims.get(7).intValue(), chunksize, this, path+"\\"+getBasename()+".tiff", connected);
+		Utilities.splitTxtCummulative(dims.get(6).intValue(), dims.get(7).intValue(), chunksize, this, connected);
 	}
 	
-	public void splitTxtCummulative(int startFrame, int endFrame, int chunksize, StormData sd, String path, boolean connected){
-		Utilities.splitTxtCummulative(startFrame, endFrame, chunksize, sd, path, connected);
+	public void splitTxtCummulative(int startFrame, int endFrame, int chunksize, StormData sd, boolean connected){
+		Utilities.splitTxtCummulative(startFrame, endFrame, chunksize, sd,  connected);
+	}
+	
+	public void splitTxtCummulative(ArrayList<Double> percentages, StormData sd){
+		Utilities.splitTxtCummulative(percentages, sd);
+	}
+	
+	public void splitTxtCummulativeRandomly(ArrayList<Double> percentages, StormData sd, boolean randomly){
+		Utilities.splitTxtCummulativeRandomly(percentages, sd, randomly);
 	}
 	
 	

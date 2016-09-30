@@ -926,7 +926,7 @@ public class Utilities {
 			
 		}
 		
-		public static void splitTxtCummulative(int startFrame, int endFrame, int chunksize, StormData sd, String path, boolean connected){
+		public static void splitTxtCummulative(int startFrame, int endFrame, int chunksize, StormData sd, boolean connected){
 			int i = startFrame;
 			int counter = 0;
 			while (i<endFrame){
@@ -943,10 +943,64 @@ public class Utilities {
 				
 				new File(subset.getPath()).mkdir();
 				subset.writeLocsForBaumgart();
-				ij.IJ.save(subset.renderImage2D(10, false, "", 0, -1, 5, 1, 1),subset.getPath()+"\\"+subset.getBasename()+".tiff");
+				ij.IJ.save(subset.renderImage2D(10, false, "", 0, -1, 3, 1, 1),subset.getPath()+"\\"+subset.getBasename()+".tiff");
 				i = i + chunksize;
 				counter = counter +1;
 			}
+
+		}
+		
+		public static void splitTxtCummulative(ArrayList<Double> percentages, StormData sd){
+			//sd.connectPoints(90, 90, 9e9, 15);
+			ArrayList<StormLocalization> locs = sd.getLocs();
+			StormData tsd = new StormData();
+			int nbrLocs = locs.size();
+			for (int i = 0; i<percentages.size(); i++){
+				StormData subset = new StormData();
+				subset.setLocs(new ArrayList<StormLocalization>(locs.subList(0, (int)Math.floor(nbrLocs*percentages.get(i)))));
+				subset.setPath(sd.getPath()+"\\splittedPercentwiseTraced\\");
+				//subset.connectPoints(90, 90, 9e9, 15);
+				subset.setFname("partTracedPerc0_"+percentages.get(i)+".txt");
+				new File(subset.getPath()).mkdir();
+				subset.writeLocsForBaumgart();
+				ij.IJ.save(subset.renderImage2D(10, false, "", 0, -1, 3, 1, 1),subset.getPath()+"\\"+subset.getBasename()+".tiff");
+			}
+				
+
+		}
+		
+		public static void splitTxtCummulativeRandomly(ArrayList<Double> percentages, StormData sd, boolean randomly){
+			//sd.connectPoints(90, 90, 9e9, 15);
+			ArrayList<StormLocalization> locs = sd.getLocs();
+			StormData tsd = new StormData();
+			java.util.Collections.shuffle(locs);
+			int nbrLocs = locs.size();
+			if (randomly){
+				for (int i = 0; i<percentages.size(); i++){
+					StormData subset = new StormData();
+					java.util.Collections.shuffle(locs);
+					subset.setLocs(new ArrayList<StormLocalization>(locs.subList(0, (int)Math.floor(nbrLocs*percentages.get(i)))));
+					subset.setPath(sd.getPath()+"\\splittedRandomlyTraced\\");
+					//subset.connectPoints(90, 90, 9e9, 15);
+					subset.setFname("partTracedPerc0_"+percentages.get(i)+"Randomly.txt");
+					new File(subset.getPath()).mkdir();
+					subset.writeLocsForBaumgart();
+					ij.IJ.save(subset.renderImage2D(10, false, "", 0, -1, 3, 1, 1),subset.getPath()+"\\"+subset.getBasename()+".tiff");
+				}
+			}
+			else{
+				for (int i = 0; i<percentages.size(); i++){
+					StormData subset = new StormData();
+					subset.setLocs(new ArrayList<StormLocalization>(locs.subList(0, (int)Math.floor(nbrLocs*percentages.get(i)))));
+					subset.setPath(sd.getPath()+"\\splittedRandomly2Traced\\");
+					//subset.connectPoints(90, 90, 9e9, 15);
+					subset.setFname("partTracedPerc0_"+percentages.get(i)+"Randomly.txt");
+					new File(subset.getPath()).mkdir();
+					subset.writeLocsForBaumgart();
+					ij.IJ.save(subset.renderImage2D(10, false, "", 0, -1, 3, 1, 1),subset.getPath()+"\\"+subset.getBasename()+".tiff");
+				}
+			}
+				
 
 		}
 		
