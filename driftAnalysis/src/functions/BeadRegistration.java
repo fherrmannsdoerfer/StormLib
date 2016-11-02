@@ -111,7 +111,7 @@ public class BeadRegistration {
 		ArrayList<double[]> candidatesCh1 = new ArrayList<double[]>();
 		ArrayList<double[]> candidatesCh2 = new ArrayList<double[]>();
 		ArrayList<ArrayList<StormLocalization>> tracesCh1 = 
-				Utilities.findTraces(sd1.getLocs(), 200, 200, 400, 5);
+				Utilities.findTraces(sd1.getLocs(), 200, 200, 400, 50);
 		int maxTraceLength = 0;
 		for (int i = 0; i< tracesCh1.size(); i++){
 			if (tracesCh1.get(i).size() > maxTraceLength){
@@ -130,7 +130,7 @@ public class BeadRegistration {
 			}
 		}
 		ArrayList<ArrayList<StormLocalization>> tracesCh2 = 
-				Utilities.findTraces(sd2.getLocs(), 200, 200, 200, 5);
+				Utilities.findTraces(sd2.getLocs(), 200, 200, 200, 50);
 		maxTraceLength = 0;
 		for (int i = 0; i< tracesCh2.size(); i++){
 			if (tracesCh2.get(i).size() > maxTraceLength){
@@ -158,7 +158,7 @@ public class BeadRegistration {
 
 		int pixelsize = 10;
 		ArrayList<ArrayList<double[]>> beadEstimates2 = findBeadCandidatesImageBased(sd1,sd2,pixelsize);
-		ArrayList<ArrayList<double[]>> beadEstimates = findBeadCandidatesTraceBased(sd1,sd2,1000);
+		ArrayList<ArrayList<double[]>> beadEstimates = findBeadCandidatesTraceBased(sd1,sd2,10000);
 
 		
 		ArrayList<ArrayList<StormLocalization>> listOfBeadsCh1 = new ArrayList<ArrayList<StormLocalization>>(); //an Arraylist for each potential bead
@@ -199,12 +199,12 @@ public class BeadRegistration {
 			double weights = 0;
 			ArrayList<StormLocalization> currBead = listOfBeadsCh1.get(j);
 			for (int i = 0; i < currBead.size(); i++){
-				posx = posx + currBead.get(i).getX() * Math.sqrt(currBead.get(i).getIntensity()); //weight by squareroot of intensity
+				posx = posx + currBead.get(i).getX() * Math.sqrt(currBead.get(i).getIntensity()); //weight by square root of intensity
 				posy = posy + currBead.get(i).getY() * Math.sqrt(currBead.get(i).getIntensity());
 				posz = posz + currBead.get(i).getZ() * Math.sqrt(currBead.get(i).getIntensity());
 				weights = weights + Math.sqrt(currBead.get(i).getIntensity());
 			}
-			sl1.add(new StormLocalization(posx / weights, posy / weights, posz / weights, 0, 1));
+			sl1.add(new StormLocalization(posx / weights, posy / weights, posz / weights, 0, currBead.size()));
 		}
 		
 		for (int j = 0; j<listOfBeadsCh2.size(); j++){
@@ -219,7 +219,7 @@ public class BeadRegistration {
 				posz = posz + currBead.get(i).getZ() * Math.sqrt(currBead.get(i).getIntensity());
 				weights = weights + Math.sqrt(currBead.get(i).getIntensity());
 			}
-			sl2.add(new StormLocalization(posx / weights, posy / weights, posz / weights, 0, 1));
+			sl2.add(new StormLocalization(posx / weights, posy / weights, posz / weights, 0, currBead.size()));
 		}
 		
 		ArrayList<ArrayList<StormLocalization>> retList = new ArrayList<ArrayList<StormLocalization>>();

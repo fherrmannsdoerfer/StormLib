@@ -92,7 +92,10 @@ public class OutputClass {
 	}
 	
 	public static void save2DImage(String fullFilename,ImagePlus imgP){
-		ij.IJ.save(imgP,fullFilename);
+		try{
+			ij.IJ.save(imgP,fullFilename);
+		}
+		catch(Exception e){}
 	}
 
 	public static String saveDemixingImage(String path, String basename, String tag,

@@ -25,9 +25,18 @@ public class Main {
 		//settingsMaja();
 		//settingsFrank();
 		//splitMeasurements();
-		testConsecutivelySplittedSingleFile();
+		//testConsecutivelySplittedSingleFile();
+		testAutomaticAlignmentBeads();
 	}
 	
+	private static void testAutomaticAlignmentBeads() {
+		String path = "X:\\seri\\Registrierungsskripte\\Daten\\Condensed\\";
+		StormData sd1 = new StormData(path+"\\","LocsDCZelle5.txt");
+		StormData sd2 = new StormData(path+"\\","LocsDCZelle5Restain.txt");
+		BeadRegistration.doRegistration(sd1, sd2);
+		
+	}
+
 	public static void splitMeasurements(){
 		ArrayList<Double> percentages = new ArrayList<Double>();
 		percentages.add((double) .01);
