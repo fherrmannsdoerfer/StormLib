@@ -21,13 +21,14 @@ import gui.ProcessingStepsPanel;
 public class RenderDemixingImage extends ProcessingStepsPanel implements Serializable{
 	JTextField pixelsize = new JTextField();
 	JTextField tag = new JTextField();
+	JTextField percentile = new JTextField();
 	JTextField width1 = new JTextField();
 	JTextField width2 = new JTextField();
 	JTextField middle1 = new JTextField();
 	JTextField middle2 = new JTextField();
 	JRadioButton photonBased = new JRadioButton("Photon based intensities");
 	JRadioButton locBased = new JRadioButton("Localization count based intensities");
-	JTextField[] listTextFields = {pixelsize,tag,width1,width2,middle1,middle2};
+	JTextField[] listTextFields = {pixelsize,tag,percentile,width1,width2,middle1,middle2};
 	private static String name = "Render Demixing Image";
 	public RenderDemixingImage(MainFrame mf) {
 		super(mf);
@@ -49,6 +50,10 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 		verticalBox.add(pixelsize);
 		verticalBox.add(new JLabel("Tag:"));
 		verticalBox.add(tag);
+		verticalBox.add(new JLabel("Percentile:"));
+		percentile.setText("0.999");
+		verticalBox.add(percentile);
+		
 		Box hb1 = Box.createHorizontalBox();
 		Box vb1 = Box.createVerticalBox();
 		Box vb2 = Box.createVerticalBox();
@@ -128,10 +133,10 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 				(Double.parseDouble(middle2.getText()))/180.*Math.PI, Double.parseDouble(width1.getText())/180.*Math.PI,
 				Double.parseDouble(width2.getText())/180.*Math.PI);
 		if (photonBased.isSelected()){
-			sd1.renderDemixingImage(Double.parseDouble(pixelsize.getText()), demixingParams, tag.getText(),0);
+			sd1.renderDemixingImage(Double.parseDouble(pixelsize.getText()), Double.parseDouble(percentile.getText()), demixingParams, tag.getText(),0);
 		}
 		else{
-			sd1.renderDemixingImage(Double.parseDouble(pixelsize.getText()), demixingParams, tag.getText(),1);
+			sd1.renderDemixingImage(Double.parseDouble(pixelsize.getText()), Double.parseDouble(percentile.getText()), demixingParams, tag.getText(),1);
 		}
 		setProgressbarValue(100);
 	}

@@ -15,6 +15,7 @@ import gui.ProcessingStepsPanel;
 public class RenderImage3DGUI extends ProcessingStepsPanel implements Serializable{
 	JTextField pixelsize = new JTextField();
 	JTextField tag = new JTextField();
+	JTextField percentile = new JTextField();
 	private static String name = "Render Image 3D";
 	public RenderImage3DGUI(MainFrame mf) {
 		super(mf);
@@ -34,6 +35,9 @@ public class RenderImage3DGUI extends ProcessingStepsPanel implements Serializab
 		pixelsize.setText("10");
 		verticalBox.add(new JLabel("Tag:"));
 		verticalBox.add(tag);
+		percentile.setText("0.999");
+		verticalBox.add(new JLabel("Percentile:"));
+		verticalBox.add(percentile);
 		retPanel.add(verticalBox);
 		return retPanel;
 	}
@@ -44,13 +48,17 @@ public class RenderImage3DGUI extends ProcessingStepsPanel implements Serializab
 	public String getTag(){
 		return tag.getText();
 	}
+	public double getPercentile(){
+		return Double.valueOf(percentile.getText());
+	}
 	public String[] getSettings(){
-		String[] tempString = {pixelsize.getText(), tag.getText()};
+		String[] tempString = {pixelsize.getText(), tag.getText(), percentile.getText()};
 		return tempString;
 	}
 	public void setSettings(String[] tempString){
 		pixelsize.setText(tempString[0]);
 		tag.setText(tempString[1]);
+		percentile.setText(tempString[2]);
 	}
 	public RenderImage3DGUI getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
 		if (processingStepsPanelObject instanceof RenderImage3DGUI){
@@ -68,7 +76,7 @@ public class RenderImage3DGUI extends ProcessingStepsPanel implements Serializab
 
 	@Override
 	public void process(StormData sd1, StormData sd2) {
-		sd1.renderImage3D(getPixelsize(), getTag());
+		sd1.renderImage3D(getPixelsize(), getTag(),10,getPercentile());
 		setProgressbarValue(100);		
 	}
 }

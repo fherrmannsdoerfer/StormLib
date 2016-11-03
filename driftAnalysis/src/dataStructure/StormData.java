@@ -439,10 +439,10 @@ public class StormData implements Serializable{
 	
 	
 	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, DemixingParameters params){
-		return renderDemixingImage(pixelsize, params, processingLog,0);
+		return renderDemixingImage(pixelsize, 0.999, params, processingLog,0);
 	}
 		
-	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, DemixingParameters params, String tag, int intensityMode){
+	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, double percentile, DemixingParameters params, String tag, int intensityMode){
 		double sigma = 10/pixelsize; //in nm sigma to blur localizations
 		int filterwidth = 3; // must be odd
 		ArrayList<Double> dims = getDimensions();
@@ -466,7 +466,7 @@ public class StormData implements Serializable{
 		OutputClass.writeDemixingHistogram(path, getBasename(), histData, binWidth, tag);
 		ArrayList<StormLocalization> locsCh1 = new ArrayList<StormLocalization>();
 		ArrayList<StormLocalization> locsCh2 = new ArrayList<StormLocalization>();
-		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, params, locsCh1, locsCh2);
+		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, percentile, params, locsCh1, locsCh2);
 		StormData channel1 = new StormData(locsCh1,getPath(),getFname());
 		StormData channel2 = new StormData(locsCh2,getPath(),getFname());
 		
@@ -499,7 +499,7 @@ public class StormData implements Serializable{
 	}
 	
 	ArrayList<float[][]> renderDemixing(ArrayList<float[][]> coloredImage, double sigma, int filterwidth, 
-			double pixelsize, DemixingParameters params,ArrayList<StormLocalization> locsCh1,ArrayList<StormLocalization> locsCh2){
+			double pixelsize,double percentile, DemixingParameters params,ArrayList<StormLocalization> locsCh1,ArrayList<StormLocalization> locsCh2){
 		if (filterwidth %2 == 0) {System.err.println("filterwidth must be odd");}
 		double minAngle1 = params.getAngle1() - params.getWidth1()/2;
 		double maxAngle1 = params.getAngle1() + params.getWidth1()/2;
@@ -545,7 +545,7 @@ public class StormData implements Serializable{
 			pb.updateProgress();
 		}
 		
-		ArrayList<float[][]> normalizedChannels = normalizeChannels(redChannel, greenChannel, blueChannel);
+		ArrayList<float[][]> normalizedChannels = normalizeChannels(redChannel, greenChannel, blueChannel, percentile);
 		coloredImage.clear();
 		coloredImage.add(normalizedChannels.get(0));
 		coloredImage.add(normalizedChannels.get(1));
@@ -558,10 +558,10 @@ public class StormData implements Serializable{
 	}
 	
 	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag){
-		return renderImage3D(pixelsize, tag, 10);
+		return renderImage3D(pixelsize, tag, 10, 0.999);
 	}
 	
-	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag, double sigma){ //render localizations from Stormdata to Image Plus Object
+	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag, double sigma, double percentile){ //render localizations from Stormdata to Image Plus Object
 		//double sigma =  0.; //pixelsize //in nm sigma to blur localizations
 		int filterwidth = 3; // must be odd
 		ArrayList<Double> dims = getDimensions();
@@ -575,7 +575,7 @@ public class StormData implements Serializable{
 			coloredImage.add(ch);
 		}
 		
-		coloredImage = addFilteredPoints(coloredImage, sigma, filterwidth, pixelsize, getLocs());
+		coloredImage = addFilteredPoints(coloredImage, sigma, filterwidth, pixelsize,percentile, getLocs());
 		ArrayList<ImagePlus> colImg =write3dImage(pixelX,pixelY, coloredImage,pixelsize,tag);
 		
 		return colImg;
@@ -665,7 +665,7 @@ public class StormData implements Serializable{
 		return image;
 	}
 	
-	ArrayList<float[][]> addFilteredPoints(ArrayList<float[][]> coloredImage, double sigma, int filterwidth, double pixelsize, ArrayList<StormLocalization> sd){
+	ArrayList<float[][]> addFilteredPoints(ArrayList<float[][]> coloredImage, double sigma, int filterwidth, double pixelsize,double percentile, ArrayList<StormLocalization> sd){
 		if (filterwidth %2 == 0) {System.err.println("filterwidth must be odd");}
 		double factor2 = -0.5/sigma/sigma;
 		ArrayList<Double> dims = getDimensions();
@@ -717,7 +717,7 @@ public class StormData implements Serializable{
 				min = Math.min(blueChannel[i][j],min);
 			}
 		}
-		ArrayList<float[][]> normalizedChannels = normalizeChannels(redChannel, greenChannel, blueChannel);
+		ArrayList<float[][]> normalizedChannels = normalizeChannels(redChannel, greenChannel, blueChannel,percentile);
 		coloredImage.clear();
 		coloredImage.add(normalizedChannels.get(0));
 		coloredImage.add(normalizedChannels.get(1));
@@ -813,7 +813,7 @@ public class StormData implements Serializable{
 		return image;		
 	}
 	
-	ArrayList<float[][]> normalizeChannels(float[][] redChannel, float[][] greenChannel, float[][] blueChannel){
+	ArrayList<float[][]> normalizeChannels(float[][] redChannel, float[][] greenChannel, float[][] blueChannel, double percentile){
 		double max = 0;
 		double min = Double.MAX_VALUE;
 		for (int i = 0; i<redChannel.length;i++){
@@ -843,7 +843,7 @@ public class StormData implements Serializable{
 				//System.out.println(hist[0]+ " "+ (int)redChannel[i][j]+ "nbrEntries "+ nbrEntries);
 			}
 		}
-		double percentile = 0.99;
+		
 		int sum = 0;
 		double counts = nbrEntries - hist[0];//counts is the number of intensities above 0
 		double newMaximum = 0;

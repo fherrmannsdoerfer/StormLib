@@ -314,7 +314,7 @@ public class Main {
 		sd.setFname("driftcorrTest.txt");
 		sd.setPath("C:\\tmp2\\");
 		sd.createLineSample(500, 300, 100, 20000);
-		sd = FeatureBasedDriftCorrection.correctDrift(sd, 2000,20);
+		sd = FeatureBasedDriftCorrection.correctDrift(sd, 2000,20,10);
 	}
 	static void singleColor3dImage(String path, String fname){
 		StormData sd = new StormData(path, fname);
