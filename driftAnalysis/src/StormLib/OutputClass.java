@@ -49,6 +49,25 @@ public class OutputClass {
 		} catch (IOException e) {e.printStackTrace();}
 	}
 	
+	public static void writeTransformation(String path, String basename, double[][] trafo){
+		String subfolder = "\\Statistics\\Texts";
+		new File(path + subfolder).mkdir();
+		String fname = "\\"+basename+"_transformationMatrix.txt";
+		PrintWriter outputStream;
+		try {
+			outputStream = new PrintWriter(new FileWriter(path + subfolder+fname));
+			outputStream.println("Automatically generated file containing the transformation matrix applied to register two color probes");
+			outputStream.println(trafo[0][0]+ " "+trafo[0][1]+" "+trafo[0][2]);
+			outputStream.println(trafo[1][0]+ " "+trafo[1][1]+" "+trafo[1][2]);
+			
+			outputStream.close();
+			System.out.println("Transformation written");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public static void createOutputFolder(String path) throws IOException{
 		new File(path + "\\Statistics").mkdir();
 		new File(path + "\\Statistics\\Texts\\").mkdir();
@@ -176,14 +195,16 @@ public class OutputClass {
 	}
 
 	public static void writeArrayListForVisp(String path, String basename, ArrayList<StormLocalization> locs, String tag) {
-		try {
-			FileWriter writer = new FileWriter(path+"Statistics\\Texts\\"+"forVisp_"+basename+tag+".txt");
-			for (int i = 0; i<locs.size(); i++){
-				writer.append(locs.get(i).toPlainVispString()+"\n");
-			}
-			writer.flush();
-			writer.close();
-		} catch (IOException e) {e.printStackTrace();}
+		if (locs.size()>0){
+			try {
+				FileWriter writer = new FileWriter(path+"Statistics\\Texts\\"+"forVisp_"+basename+tag+".txt");
+				for (int i = 0; i<locs.size(); i++){
+					writer.append(locs.get(i).toPlainVispString()+"\n");
+				}
+				writer.flush();
+				writer.close();
+			} catch (IOException e) {e.printStackTrace();}
+		}
 	}
 
 	public static void writeArrayListForFRC(String path, String basename, ArrayList<StormLocalization> locs, String tag, int mode) {
@@ -224,14 +245,17 @@ public class OutputClass {
 	
 	public static void writeLocs(String path, String basename,
 			ArrayList<StormLocalization> locs, String tag) {
-		try{
-			FileWriter writer = new FileWriter(path+basename+tag+".txt");
-			for (int i = 0; i<locs.size(); i++){
-				writer.append(locs.get(i).toPlainString()+"\n");
-			}
-			writer.flush();
-			writer.close();
-		} catch (IOException e) {e.printStackTrace();}
+		if (locs.size()>0){
+			try{
+				FileWriter writer = new FileWriter(path+"Statistics\\Texts\\"+basename+tag+".txt");
+				writer.append("x in nm; y in nm; z in nm; frame; intensity; angle\n");
+				for (int i = 0; i<locs.size(); i++){
+					writer.append(locs.get(i).toPlainString()+"\n");
+				}
+				writer.flush();
+				writer.close();
+			} catch (IOException e) {e.printStackTrace();}
+		}
 	}
 	
 	public static void writeLocs(String path, String basename, ArrayList<StormLocalization> locs, 
@@ -243,6 +267,8 @@ public class OutputClass {
 		try {
 			FileWriter writer1 = new FileWriter(path+"Statistics\\Texts\\"+"forLocsDemixedCH1_"+basename+tag+".txt");
 			FileWriter writer2 = new FileWriter(path+"Statistics\\Texts\\"+"forLocsDemixedCH2_"+basename+tag+".txt");
+			writer1.append("x in nm; y in nm; z in nm; frame; intensity; angle\n");
+			writer2.append("x in nm; y in nm; z in nm; frame; intensity; angle\n");
 			for (int i = 0; i<locs.size(); i++){
 				StormLocalization sl = locs.get(i);
 				if (((sl.getAngle()> minAngle1 && sl.getAngle()< maxAngle1))|| sl.getAngle() == 0){

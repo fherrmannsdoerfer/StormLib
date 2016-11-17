@@ -49,11 +49,21 @@ public class StormData implements Serializable{
 	private ArrayList<StormLocalization> locs = new ArrayList<StormLocalization>();
 	private String path;
 	private String fname;
+	private String basename = "";
 	private String processingLog = "-";
 	private ArrayList<Object> logs = new ArrayList<Object>();
 	private String outputPath;
 	
 	public StormData(String path, String fname){
+		findBasename(fname);
+		Path fullPath = (Paths.get(path, fname));
+		this.path = fullPath.getParent().toString()+"\\";
+		this.fname = fullPath.getFileName().toString();
+		this.outputPath = this.path;
+		importData(this.path+fname);
+	}
+	
+	public StormData(String path, String fname, String basename){
 		Path fullPath = (Paths.get(path, fname));
 		this.path = fullPath.getParent().toString()+"\\";
 		this.fname = fullPath.getFileName().toString();
@@ -65,6 +75,7 @@ public class StormData implements Serializable{
 		this.locs = sl.getLocs();
 		this.fname = sl.getFname();
 		this.path = sl.getPath();
+		this.basename = sl.basename;
 		this.processingLog = sl.getProcessingLog();
 		this.logs = sl.logs;
 	}
@@ -73,17 +84,28 @@ public class StormData implements Serializable{
 	public StormData(){
 		this.fname = "fname not set yet";
 		this.path = "path not set yet";
+		this.basename = "basename not set yet";
 		
 	}
+	private StormData(ArrayList<StormLocalization> sl, String path, String fname, String basename){
+		this.locs = sl;
+		this.path = path;
+		this.fname = fname;
+		this.basename = basename;
+	}
+	
 	private StormData(ArrayList<StormLocalization> sl, String path, String fname){
 		this.locs = sl;
 		this.path = path;
 		this.fname = fname;
+		this.basename = findBasename(fname);
 	}
+	
 	private StormData(ArrayList<StormLocalization> sl, String path){
 		this.locs = sl;
 		this.path = path;
 	}
+	
 	public StormData(String fullpath){
 		this.fname = "fname not set yet";
 		this.path = "path not set yet";
@@ -101,6 +123,10 @@ public class StormData implements Serializable{
 			line = br.readLine(); //skip header
 			String[] headerComma = line.split(",");
 			String[] headerBlank = line.split(" ");
+			String firstCharHeader = "";
+			if (line.length() > 0){
+				firstCharHeader = line.substring(0, 1);
+			}
 			if (headerBlank.length > headerComma.length){
 				while ((line = br.readLine())!= null){
 					String[] tmpStr = line.split(delimiter);
@@ -115,8 +141,12 @@ public class StormData implements Serializable{
 							StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Double.valueOf(tmpStr[2]), Math.round(Float.valueOf(tmpStr[3])), Double.valueOf(tmpStr[4]));
 							getLocs().add(sl);
 						}
-						else if(tmpStr.length == 6) { //Malk output
+						else if(tmpStr.length == 6 && firstCharHeader.contains("#")) { //Malk output
 							StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Integer.valueOf(tmpStr[3]), Double.valueOf(tmpStr[4]));
+							getLocs().add(sl);
+						}
+						else if(tmpStr.length == 6 && !firstCharHeader.contains("#")){
+							StormLocalization sl = new StormLocalization(Double.valueOf(tmpStr[0]), Double.valueOf(tmpStr[1]), Double.valueOf(tmpStr[2]),Integer.valueOf(tmpStr[3]), Double.valueOf(tmpStr[4]), Double.valueOf(tmpStr[5]));
 							getLocs().add(sl);
 						}
 						else if(tmpStr.length == 7) { //no Malk output
@@ -439,7 +469,7 @@ public class StormData implements Serializable{
 	
 	
 	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, DemixingParameters params){
-		return renderDemixingImage(pixelsize, 0.999, params, processingLog,0);
+		return renderDemixingImage(pixelsize, 1, params, processingLog,0);
 	}
 		
 	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, double percentile, DemixingParameters params, String tag, int intensityMode){
@@ -558,7 +588,7 @@ public class StormData implements Serializable{
 	}
 	
 	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag){
-		return renderImage3D(pixelsize, tag, 10, 0.999);
+		return renderImage3D(pixelsize, tag, 10, 1);
 	}
 	
 	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag, double sigma, double percentile){ //render localizations from Stormdata to Image Plus Object
@@ -1316,8 +1346,22 @@ public class StormData implements Serializable{
 		}
 		
 	}
+	
+	public String findBasename(String fname){
+		return basename =  fname.substring(0, fname.length()-4);
+	}
+	
+	public void setBasename(String basename){
+		this.basename = basename;
+	}
+	
 	public String getBasename(){
-		return fname.substring(0, fname.length()-4);
+		if (this.basename.equals("")){
+			return findBasename(this.fname);
+		}
+		else {
+			return this.basename;		
+		}
 	}
 	
 	public String getMeassurement(){
@@ -1491,6 +1535,7 @@ public class StormData implements Serializable{
 	public void setOutputPath(String outputPath) {
 		this.outputPath = outputPath;
 	}
+	
 	
 	//add value specified in shift to the coordinate of the coordDim th dimension
 	//order is x,y,z,frame,int,angle

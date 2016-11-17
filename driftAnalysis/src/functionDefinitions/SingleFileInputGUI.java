@@ -25,6 +25,7 @@ import dataStructure.StormData;
 public class SingleFileInputGUI extends ProcessingStepsPanel{
 	JTextField path = new JTextField("");
 	JTextField filename = new JTextField("");
+	JTextField basename = new JTextField("");
 	final JFileChooser singleFileChooser = new JFileChooser();
 	JButton loadFileButton;
 	private static String name ="Single File Input";
@@ -54,6 +55,10 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 		verticalBox.add(lab2);
 		filename.setAlignmentX(0);
 		verticalBox.add(filename);
+		verticalBox.add(new JLabel("Basename:"));
+		verticalBox.add(basename);
+		basename.setAlignmentX(0);
+		
 		
 		retPanel.add(verticalBox);
 
@@ -81,13 +86,17 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 	public String getFilename(){
 		return filename.getText();
 	}
+	public String getBasename(){
+		return basename.getText();
+	}
 	public String[] getSettings(){
-		String[] tempString = {path.getText(), filename.getText()};
+		String[] tempString = {path.getText(), filename.getText(), basename.getText()};
 		return tempString;
 	}
 	public void setSettings(String[] tempString){
 		path.setText(tempString[0]);
 		filename.setText(tempString[1]);
+		basename.setText(tempString[2]);
 	}
 	public ProcessingStepsPanel getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
 		if (processingStepsPanelObject instanceof SingleFileInputGUI){
@@ -113,7 +122,9 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 	public void process(StormData sd1, StormData sd2) {
 		sd1.setFname(getFilename());
 		sd1.setPath(getPath());
+		sd1.setBasename(getBasename());
 		sd1.setLocs(sd1.importData(getPath()+getFilename()));
+		//sd1.copyAttributes(new StormData(getPath(), getFilename()));
 		setProgressbarValue(100);
 	}
 }

@@ -43,7 +43,7 @@ public class DriftcorrectionGUI extends ProcessingStepsPanel implements Serializ
 		pixelsize.setText("20");
 		verticalBox.add(new JLabel("Sigma for drift correction:"));
 		verticalBox.add(sigma);
-		pixelsize.setText("10");
+		sigma.setText("10");
 		retPanel.add(verticalBox);
 		return retPanel;
 	}

@@ -29,6 +29,8 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 	JTextField pattern1 = new JTextField();
 	JTextField path2 = new JTextField();
 	JTextField pattern2 = new JTextField();
+	JTextField basename1 = new JTextField();
+	JTextField basename2 = new JTextField();
 	private final JButton loadPath1Button = new JButton("Load File 1");
 	private final JButton loadPath2Button = new JButton("Load File 2");
 	final JFileChooser dualChannel1FileChooser = new JFileChooser();
@@ -59,14 +61,20 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 		path2.setAlignmentX(0);
 		pattern1.setAlignmentX(0);
 		pattern2.setAlignmentX(0);
+		basename1.setAlignmentX(0);
+		basename2.setAlignmentX(0);
 		verticalBox.add(new JLabel("Path 1:"));
 		verticalBox.add(path1);
 		verticalBox.add(new JLabel("Pattern 1:"));
 		verticalBox.add(pattern1);
+		verticalBox.add(new JLabel("Basename 1:"));
+		verticalBox.add(basename1);
 		verticalBox.add(new JLabel("Path 2:"));
 		verticalBox.add(path2);
 		verticalBox.add(new JLabel("Pattern 2:"));
 		verticalBox.add(pattern2);
+		verticalBox.add(new JLabel("Basename 2:"));
+		verticalBox.add(basename2);
 		retPanel.add(verticalBox);
 		Box hb = Box.createHorizontalBox();
 		hb.setAlignmentX(0);
@@ -115,7 +123,7 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 	
 
 	public String[] getSettings(){
-		String[] tempString = {path1.getText(), pattern1.getText(), path2.getText(), pattern2.getText()};
+		String[] tempString = {path1.getText(), pattern1.getText(), path2.getText(), pattern2.getText(), basename1.getText(), basename2.getText()};
 		return tempString;
 	}
 	public void setSettings(String[] tempString){
@@ -123,6 +131,8 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 		pattern1.setText(tempString[1]);
 		path2.setText(tempString[2]);
 		pattern2.setText(tempString[3]);
+		basename1.setText(tempString[4]);
+		basename2.setText(tempString[5]);
 	}
 	public DualColorMultipleFileInputGUI getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
 		if (processingStepsPanelObject instanceof DualColorMultipleFileInputGUI){
@@ -144,6 +154,19 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 		ArrayList<StormData> list = Utilities.openSeries(path1.getText(), pattern1.getText(), path2.getText(), pattern2.getText());
 		sd1.copyStormData(list.get(0));
 		sd2.copyStormData(list.get(1));
+		if (basename1.getText().equals("")){
+			sd1.setBasename(pattern1.getText());
+		}
+		else{
+			sd1.setBasename(basename1.getText());
+		}
+		if (basename1.getText().equals("")){
+			sd2.setBasename(pattern2.getText());
+		}
+		else{
+			sd2.setBasename(basename2.getText());
+		}
+		
 		setProgressbarValue(100);
 	}
 	

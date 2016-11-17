@@ -15,6 +15,7 @@ import org.apache.commons.math3.stat.descriptive.rank.Median;
 
 import dataStructure.StormData;
 import dataStructure.StormLocalization;
+import StormLib.OutputClass;
 import StormLib.Utilities;
 
 public class BeadRegistration {
@@ -39,7 +40,9 @@ public class BeadRegistration {
 
 
 		StormData transformedSd1 = TransformationControl.applyTrafo(trafo, sd1);
-		writeTransformation(sd1.getPath(), sd1.getBasename(), trafo);
+		transformedSd1.writeLocs();
+		transformedSd1.renderImage2D(10);
+		OutputClass.writeTransformation(sd1.getPath(), sd1.getBasename(), trafo);
 		ArrayList<StormData> retList = new ArrayList<StormData>();
 		retList.add(transformedSd1);
 		retList.add(sd2);
@@ -228,23 +231,6 @@ public class BeadRegistration {
 		return retList;
 	}
 	
-	static void writeTransformation(String path, String basename, double[][] trafo){
-		String subfolder = "\\AdditionalInformation";
-		new File(path + subfolder).mkdir();
-		String fname = "\\"+basename+"_transformationMatrix.txt";
-		PrintWriter outputStream;
-		try {
-			outputStream = new PrintWriter(new FileWriter(path + subfolder+fname));
-			outputStream.println("Automatically generated file containing the transformation matrix applied to register two color probes");
-			outputStream.println(trafo[0][0]+ " "+trafo[0][1]+" "+trafo[0][2]);
-			outputStream.println(trafo[1][0]+ " "+trafo[1][1]+" "+trafo[1][2]);
-			
-			outputStream.close();
-			System.out.println("Transformation written");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+	
 	
 }

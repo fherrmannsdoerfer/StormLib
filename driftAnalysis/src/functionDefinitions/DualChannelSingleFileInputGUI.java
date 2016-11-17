@@ -24,6 +24,8 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 	JTextField file1 = new JTextField("");
 	JTextField path2 = new JTextField("");
 	JTextField file2 = new JTextField("");
+	JTextField basename1 = new JTextField("");
+	JTextField basename2 = new JTextField("");
 	private static String name = "Dual-Channel Single File Input";
 	private final Box verticalBox2 = Box.createVerticalBox();
 	private final Box hb = Box.createHorizontalBox();
@@ -55,14 +57,20 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 		file1.setAlignmentX(0);
 		path2.setAlignmentX(0);
 		file2.setAlignmentX(0);
+		basename1.setAlignmentX(0);
+		basename2.setAlignmentX(0);
 		verticalBox.add(new JLabel("Path 1:"));
 		verticalBox.add(path1);
 		verticalBox.add(new JLabel("File 1:"));
 		verticalBox.add(file1);
+		verticalBox.add(new JLabel("Basename 1:"));
+		verticalBox.add(basename1);
 		verticalBox.add(new JLabel("Path 2:"));
 		verticalBox.add(path2);
 		verticalBox.add(new JLabel("File 2:"));
 		verticalBox.add(file2);
+		verticalBox.add(new JLabel("Basename 2:"));
+		verticalBox.add(basename2);
 		hb.setAlignmentX(0);
 		verticalBox2.add(hb);		
 		hb.add(loadFile1Button);
@@ -107,8 +115,14 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 	public String getFile2(){
 		return file2.getText();
 	}
+	public String getBasename1(){
+		return basename1.getText();
+	}
+	public String getBasename2(){
+		return basename2.getText();
+	}
 	public String[] getSettings(){
-		String[] tempString = {path1.getText(), file1.getText(), path2.getText(), file2.getText()};
+		String[] tempString = {path1.getText(), file1.getText(), path2.getText(), file2.getText(), basename1.getText(), basename2.getText()};
 		return tempString;
 	}
 	public void setSettings(String[] tempString){
@@ -116,6 +130,8 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 		file1.setText(tempString[1]);
 		path2.setText(tempString[2]);
 		file2.setText(tempString[3]);
+		basename1.setText(tempString[4]);
+		basename2.setText(tempString[5]);
 	}
 	public DualChannelSingleFileInputGUI getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
 		if (processingStepsPanelObject instanceof DualChannelSingleFileInputGUI){
@@ -136,10 +152,12 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 		sd1.setFname(getFile1());
 		sd1.setPath(getPath1());
 		sd1.setLocs(sd1.importData(getPath1()+getFile1()));
+		sd1.setBasename(basename1.getText());
 		setProgressbarValue(50);
 		sd2.setFname(getFile2());
 		sd2.setPath(getPath2());
 		sd2.setLocs(sd2.importData(getPath2()+getFile2()));
+		sd2.setBasename(basename2.getText());
 		setProgressbarValue(100);
 		
 	}

@@ -15,6 +15,7 @@ import gui.ProcessingStepsPanel;
 public class MultipleFileInputGUI extends ProcessingStepsPanel{
 	JTextField path = new JTextField();
 	JTextField pattern = new JTextField();
+	JTextField basename = new JTextField();
 	private static String name = "Multiple File Input";
 	public MultipleFileInputGUI(MainFrame mf) {
 		super(mf);
@@ -34,6 +35,9 @@ public class MultipleFileInputGUI extends ProcessingStepsPanel{
 		verticalBox.add(path);
 		verticalBox.add(new JLabel("Pattern:"));
 		verticalBox.add(pattern);
+		verticalBox.add(new JLabel("Basename:"));
+		verticalBox.add(basename);
+		basename.setAlignmentX(0);
 		path.setAlignmentX(0);
 		pattern.setAlignmentX(0);
 		retPanel.add(verticalBox);
@@ -47,12 +51,13 @@ public class MultipleFileInputGUI extends ProcessingStepsPanel{
 		return pattern.getText();
 	}
 	public String[] getSettings(){
-		String[] tempString = {path.getText(), pattern.getText()};
+		String[] tempString = {path.getText(), pattern.getText(), basename.getText()};
 		return tempString;
 	}
 	public void setSettings(String[] tempString){
 		path.setText(tempString[0]);
 		pattern.setText(tempString[1]);
+		basename.setText(tempString[2]);
 	}
 	public MultipleFileInputGUI getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
 		if (processingStepsPanelObject instanceof MultipleFileInputGUI){
@@ -72,6 +77,13 @@ public class MultipleFileInputGUI extends ProcessingStepsPanel{
 	public void process(StormData sd1, StormData sd2) {		
 		sd1.setFname(getPattern());
 		sd1.setPath(getPath());		
+		if (basename.getText().equals("")){
+			sd1.setBasename(getPattern());
+		}
+		else {
+			sd1.setBasename(basename.getText());
+		}
+		
 //		sd1.setLocs(sd1.importData(getPath()+getPattern()));		
 //		sd1.setLocs(sd1.importData(getPath()+getFilename()));
 //		PropertyChangeListener pcl = new Controler();

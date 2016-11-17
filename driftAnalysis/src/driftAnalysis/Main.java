@@ -30,9 +30,9 @@ public class Main {
 	}
 	
 	private static void testAutomaticAlignmentBeads() {
-		String path = "X:\\seri\\Registrierungsskripte\\Daten\\Condensed\\";
-		StormData sd1 = new StormData(path+"\\","LocsDCZelle5.txt");
-		StormData sd2 = new StormData(path+"\\","LocsDCZelle5Restain.txt");
+		String path = "W:\\herrmannsdoerfer\\Sonstiges\\LaborTagebuch\\Dateien\\2016_11\\TestRegistrierung\\condensed\\";
+		StormData sd1 = new StormData(path+"\\","Zelle5Stain.txt");
+		StormData sd2 = new StormData(path+"\\","Zelle5ReReStain.txt");
 		BeadRegistration.doRegistration(sd1, sd2);
 		
 	}
