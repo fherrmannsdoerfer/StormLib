@@ -2,6 +2,7 @@ package functionDefinitions;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -48,6 +49,9 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 		path.setAlignmentX(0);
 		JLabel lab1 =new JLabel("Path:");
 		lab1.setAlignmentX(0);
+		Dimension d = new Dimension(350,22);
+		path.setPreferredSize(d);
+		filename.setPreferredSize(d);
 		verticalBox.add(lab1);
 		verticalBox.add(path);
 		JLabel lab2 = new JLabel("Filename:");

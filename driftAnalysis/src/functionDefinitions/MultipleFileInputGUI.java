@@ -1,6 +1,7 @@
 package functionDefinitions;
 
 import java.awt.Color;
+import java.awt.Dimension;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
@@ -31,6 +32,10 @@ public class MultipleFileInputGUI extends ProcessingStepsPanel{
 		JPanel retPanel = new JPanel();
 		retPanel.setSize(300, 500);
 		Box verticalBox = Box.createVerticalBox();
+		Dimension d = new Dimension(350,22);
+		path.setPreferredSize(d);
+		pattern.setPreferredSize(d);
+		basename.setPreferredSize(d);
 		verticalBox.add(new JLabel("Path:"));
 		verticalBox.add(path);
 		verticalBox.add(new JLabel("Pattern:"));

@@ -261,6 +261,9 @@ public class MainFrame extends JFrame implements Serializable{
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		getContentPane().add(horizontalBox);
 		
+		Component horizontalStrut_1 = Box.createHorizontalStrut(20);
+		horizontalBox.add(horizontalStrut_1);
+		
 		Box verticalBox = Box.createVerticalBox();
 		horizontalBox.add(verticalBox);
 		
@@ -268,6 +271,9 @@ public class MainFrame extends JFrame implements Serializable{
 		lblNewLabel_6.setAlignmentX(Component.CENTER_ALIGNMENT);
 		lblNewLabel_6.setFont(new Font("Tahoma", Font.BOLD, 20));
 		verticalBox.add(lblNewLabel_6);
+		
+		Component verticalStrut_3 = Box.createVerticalStrut(20);
+		verticalBox.add(verticalStrut_3);
 		
 		///////////////////////////////////////////////////////////////////
 		
@@ -367,6 +373,9 @@ public class MainFrame extends JFrame implements Serializable{
 		Component horizontalGlue_3 = Box.createHorizontalGlue();
 		horizontalBox_7.add(horizontalGlue_3);
 		
+		Component horizontalStrut = Box.createHorizontalStrut(20);
+		horizontalBox.add(horizontalStrut);
+		
 		Box verticalBox_3 = Box.createVerticalBox();
 		horizontalBox.add(verticalBox_3);
 		
@@ -374,6 +383,9 @@ public class MainFrame extends JFrame implements Serializable{
 		lblNewLabel_5.setAlignmentX(Component.CENTER_ALIGNMENT);
 		lblNewLabel_5.setFont(new Font("Tahoma", Font.BOLD, 20));
 		verticalBox_3.add(lblNewLabel_5);
+		
+		Component verticalStrut_4 = Box.createVerticalStrut(20);
+		verticalBox_3.add(verticalStrut_4);
 		panel = new RootPanel(this);
 		
 		horizontalBox.add(panel);
@@ -391,6 +403,9 @@ public class MainFrame extends JFrame implements Serializable{
 		lblNewLabel_4.setAlignmentX(Component.CENTER_ALIGNMENT);
 		lblNewLabel_4.setFont(new Font("Tahoma", Font.BOLD, 20));
 		verticalBox_4.add(lblNewLabel_4);
+		
+		Component verticalStrut_5 = Box.createVerticalStrut(20);
+		verticalBox_4.add(verticalStrut_5);
 		
 		optionPanel = new JPanel();
 		verticalBox_4.add(optionPanel);
@@ -472,7 +487,7 @@ public class MainFrame extends JFrame implements Serializable{
 				panelToAdd = processingComboBoxOptions.get(thisBox.getSelectedIndex()).getFunction(mf);
 			}
 		
-		if (thisBox == preselectionComboBox&&thisBox.getSelectedIndex()>0){			
+		if (thisBox == preselectionComboBox&&thisBox.getSelectedIndex()>=0){			
 			ArrayList<ProcessingStepsPanel> tempOrderListSettings = new ArrayList<ProcessingStepsPanel>();
 			String settingsPath = folder + "\\"+ optionsPreselectedTasksComboBoxAuto.toArray()[thisBox.getSelectedIndex()];
 			try {

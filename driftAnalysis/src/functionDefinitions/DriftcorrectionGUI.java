@@ -37,13 +37,13 @@ public class DriftcorrectionGUI extends ProcessingStepsPanel implements Serializ
 		Box verticalBox = Box.createVerticalBox();
 		verticalBox.add(new JLabel("Chunk Size:"));
 		verticalBox.add(chunksize);
-		chunksize.setText("5000");
+		chunksize.setText("5000 [frames]");
 		verticalBox.add(new JLabel("Pixelsize for drift correction:"));
 		verticalBox.add(pixelsize);
-		pixelsize.setText("20");
+		pixelsize.setText("20 [nm]");
 		verticalBox.add(new JLabel("Sigma for drift correction:"));
 		verticalBox.add(sigma);
-		sigma.setText("10");
+		sigma.setText("10 [nm]");
 		retPanel.add(verticalBox);
 		return retPanel;
 	}

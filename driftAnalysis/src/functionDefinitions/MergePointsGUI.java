@@ -40,13 +40,13 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 		distz.setAlignmentX(0);
 		distframe.setAlignmentX(0);
 		Box verticalBox = Box.createVerticalBox();
-		verticalBox.add(new JLabel("Maximal Tolerated Distance in X:"));
+		verticalBox.add(new JLabel("Maximal Tolerated Distance in X [nm]:"));
 		distx.setText("100");
 		verticalBox.add(distx);
-		verticalBox.add(new JLabel("Maximal Tolerated Distance in Y:"));
+		verticalBox.add(new JLabel("Maximal Tolerated Distance in Y [nm]:"));
 		disty.setText("100");
 		verticalBox.add(disty);
-		verticalBox.add(new JLabel("Maximal Tolerated Distance in Z:"));
+		verticalBox.add(new JLabel("Maximal Tolerated Distance in Z [nm]:"));
 		distz.setText("200");
 		verticalBox.add(distz);
 		verticalBox.add(new JLabel("Maximal Tolerated Distance in Frames:"));

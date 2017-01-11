@@ -27,7 +27,7 @@ public class CropGUI extends ProcessingStepsPanel{
 	JTextField maxFrame = new JTextField();
 	JCheckBox ch1Chkbox = new JCheckBox();
 	JCheckBox ch2Chkbox = new JCheckBox();
-	String[] listLabelTexts = {"minimal x-value:", "maximal x-value:","minimal y-value:", "maximal y-value:","minimal z-value:", "maximal z-value:","minimal frame:", "maximal frame:", "minimal intensity:", "maximal intensity"};
+	String[] listLabelTexts = {"minimal x-value [nm]:", "maximal x-value [nm]:","minimal y-value [nm]:", "maximal y-value [nm]:","minimal z-value [nm]:", "maximal z-value [nm]:","minimal frame:", "maximal frame:", "minimal intensity:", "maximal intensity"};
 	JTextField[] listTextFields = {minX, maxX,minY,maxY,minZ,maxZ,minFrame,maxFrame,minInt, maxInt};
 	String[] listTextFieldTexts = {"xmin", "xmax", "ymin", "ymax", "zmin", "zmax", "framemin", "framemax", "intmin", "intmax"};
 	private static String name = "Crop";

@@ -43,7 +43,7 @@ public class DemixingGUI extends ProcessingStepsPanel implements Serializable{
 		retPanel.setSize(300, 500);
 		Box verticalBox = Box.createVerticalBox();
 		Box verticalBox3 = Box.createVerticalBox();
-		verticalBox3.add(new JLabel("Chunksize:"));
+		verticalBox3.add(new JLabel("Chunksize [frames]:"));
 		chunkSize.setMaximumSize(new Dimension(100,20));
 		verticalBox3.add(chunkSize);
 		verticalBox.add(verticalBox3);
@@ -52,14 +52,14 @@ public class DemixingGUI extends ProcessingStepsPanel implements Serializable{
 		Box hb = Box.createHorizontalBox();
 		Box vb = Box.createVerticalBox();
 		Component hs = Box.createHorizontalStrut(20);
-		vb.add(new JLabel("maximal Distance:"));
+		vb.add(new JLabel("maximal Distance [nm]:"));
 		vb.add(dist);
 		vb.add(new JLabel("number of Iterations"));
 		vb.add(nbrIter);
 		Box vb2 = Box.createVerticalBox();
 		vb2.add(new JLabel("minimal Intensity:"));
 		vb2.add(minInt);
-		vb2.add(new JLabel("tolerated Error:"));
+		vb2.add(new JLabel("tolerated Error [nm]:"));
 		vb2.add(toleratedError);
 		hb.add(vb);
 		hb.add(hs);

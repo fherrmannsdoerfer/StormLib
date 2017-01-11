@@ -53,6 +53,11 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 		retPanel.add(verticalBox2);
 		Box verticalBox = Box.createVerticalBox();
 		verticalBox2.add(verticalBox);
+		Dimension d = new Dimension(350,22);
+		path1.setPreferredSize(d);
+		file1.setPreferredSize(d);
+		path2.setPreferredSize(d);
+		file2.setPreferredSize(d);
 		path1.setAlignmentX(0);
 		file1.setAlignmentX(0);
 		path2.setAlignmentX(0);

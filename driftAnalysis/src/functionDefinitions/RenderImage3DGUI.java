@@ -30,7 +30,7 @@ public class RenderImage3DGUI extends ProcessingStepsPanel implements Serializab
 		JPanel retPanel = new JPanel();
 		retPanel.setSize(300, 500);
 		Box verticalBox = Box.createVerticalBox();
-		verticalBox.add(new JLabel("Pixelsize:"));
+		verticalBox.add(new JLabel("Pixelsize [nm]:"));
 		verticalBox.add(pixelsize);
 		pixelsize.setText("10");
 		verticalBox.add(new JLabel("Tag:"));

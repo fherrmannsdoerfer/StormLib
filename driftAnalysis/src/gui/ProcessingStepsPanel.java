@@ -72,9 +72,9 @@ public abstract class ProcessingStepsPanel extends JPanel implements PropertyCha
 				
 		removeButton = new JButton();
 		
-		ImageIcon icon = createImageIcon("/Resources/removeButtonNormal.png","lol");
+		ImageIcon icon = createImageIcon("/Resources/removeButtonNormalAlternativ2.png","lol");
 		removeButton.setIcon(icon);
-		ImageIcon iconPressed = createImageIcon("/Resources/removeButtonPressed.png","lol");
+		ImageIcon iconPressed = createImageIcon("/Resources/removeButtonPressedAlternativ2.png","lol");
 		removeButton.setPressedIcon(iconPressed);
 		removeButton.setBorder(null);
 		removeButton.setBackground(null);

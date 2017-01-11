@@ -43,7 +43,7 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 		JPanel retPanel = new JPanel();
 		retPanel.setSize(300, 500);
 		Box verticalBox = Box.createVerticalBox();
-		JLabel pixelsizeLabel = new JLabel("Pixelsize:");
+		JLabel pixelsizeLabel = new JLabel("Pixelsize [nm]:");
 		pixelsizeLabel.setAlignmentX(0);
 		verticalBox.add(pixelsizeLabel);
 		pixelsize.setText("10");

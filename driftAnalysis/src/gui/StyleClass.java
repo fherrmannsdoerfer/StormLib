@@ -5,16 +5,16 @@ import java.awt.Dimension;
 import java.io.Serializable;
 
 public class StyleClass implements Serializable{
-	private Color colorInput = new Color(0,0,158);
-	private Color colorProcessing = new Color(0,238,118);
-	private Color colorOutput = new Color(255,185,15);
+	private Color colorInput = new Color(171,65,152);
+	private Color colorProcessing = new Color(101,194,148);
+	private Color colorOutput = new Color(88,197,199);
 	private int widthProcessingStepsPanel = 350;
 	private int heightProcessingStepsPanel = 75;
 	private int leftIndent = 15;
 	private int rightIndent = 15;
 	private int upperIndent = 5;
 	private int lowerIndent = 5;
-	private Color removeButtonColor = new Color(176,23,31);
+	private Color removeButtonColor = new Color(62,18,22);
 	private Dimension pathFields = new Dimension(400,22);
 	private Dimension optionPaneWidth = new Dimension(450,999);
 	
