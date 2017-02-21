@@ -35,7 +35,7 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 	private final JButton loadPath2Button = new JButton("Load File 2");
 	final JFileChooser dualChannel1FileChooser = new JFileChooser();
 	final JFileChooser dualChannel2FileChooser = new JFileChooser();
-	private static String name = "Dual-Color Multiple File Input";
+	private static String name = "Dual-Channel Multiple File Input";
 	
 	public DualColorMultipleFileInputGUI(MainFrame mf) {
 		super(mf);

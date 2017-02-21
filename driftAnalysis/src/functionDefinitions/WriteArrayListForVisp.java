@@ -34,7 +34,7 @@ public class WriteArrayListForVisp extends ProcessingStepsPanel implements Seria
 	JCheckBox vispChkbox = new JCheckBox("Visp Output");
 	JCheckBox frcChkbox = new JCheckBox("FRC Output");
 	JTextField[] listTextFields = {tag,width1,width2,middle2,middle2};
-	private static String name = "Write Special output (Visp, FRC)";
+	private static String name = "Write Special Output (Visp, FRC)";
 
 	
 	public WriteArrayListForVisp(MainFrame mf) {

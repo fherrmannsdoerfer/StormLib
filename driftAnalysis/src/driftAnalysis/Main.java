@@ -21,12 +21,18 @@ import StormLib.HelperClasses.BasicProcessingInformation;
 public class Main {
 //
 	public static void main(String[] args) {
-
+		testResolution();
 		//settingsMaja();
 		//settingsFrank();
 		//splitMeasurements();
 		//testConsecutivelySplittedSingleFile();
-		testAutomaticAlignmentBeads();
+		//testAutomaticAlignmentBeads();
+	}
+	
+	private static void testResolution(){
+		StormData sd = new StormData("C:\\Users\\herrmannsdoerfer\\Downloads\\","LeftChannel141107MicrotubuliAlexa647Cos3dMessung2.txt");
+		sd.estimateLocalizationPrecision(150, 1000);
+		
 	}
 	
 	private static void testAutomaticAlignmentBeads() {

@@ -19,7 +19,7 @@ import javax.swing.JTextField;
 import dataStructure.StormData;
 
 public class DemixingGUI extends ProcessingStepsPanel implements Serializable{
-	private static String name = "Demixing";
+	private static String name = "Spectral Demixing";
 	JCheckBox savePairedOutput = new JCheckBox("Save Paired Output");
 	JTextField tag = new JTextField();
 	JTextField dist = new JTextField("50");
@@ -43,30 +43,34 @@ public class DemixingGUI extends ProcessingStepsPanel implements Serializable{
 		retPanel.setSize(300, 500);
 		Box verticalBox = Box.createVerticalBox();
 		Box verticalBox3 = Box.createVerticalBox();
-		verticalBox3.add(new JLabel("Chunksize [frames]:"));
+		verticalBox3.add(new JLabel("Chunk Size [frames]:"));
 		chunkSize.setMaximumSize(new Dimension(100,20));
 		verticalBox3.add(chunkSize);
-		verticalBox.add(verticalBox3);
-		verticalBox.add(new JLabel("tag:"));
-		verticalBox.add(tag);
+		Box horizontalBox2 = Box.createHorizontalBox();
+		horizontalBox2.add(verticalBox3);
+		horizontalBox2.add(Box.createHorizontalGlue());
+		horizontalBox2.add(savePairedOutput);
+		verticalBox.add(horizontalBox2);
+//		verticalBox.add(new JLabel("tag:"));
+//		verticalBox.add(tag);
 		Box hb = Box.createHorizontalBox();
 		Box vb = Box.createVerticalBox();
 		Component hs = Box.createHorizontalStrut(20);
-		vb.add(new JLabel("maximal Distance [nm]:"));
-		vb.add(dist);
-		vb.add(new JLabel("number of Iterations"));
+		
+		vb.add(new JLabel("Number of Iterations"));
 		vb.add(nbrIter);
+		vb.add(new JLabel("Maximal Distance [nm]:"));
+		vb.add(dist);
 		Box vb2 = Box.createVerticalBox();
-		vb2.add(new JLabel("minimal Intensity:"));
+		vb2.add(new JLabel("Minimal Intensity:"));
 		vb2.add(minInt);
-		vb2.add(new JLabel("tolerated Error [nm]:"));
+		vb2.add(new JLabel("Tolerated Error [nm]:"));
 		vb2.add(toleratedError);
 		hb.add(vb);
 		hb.add(hs);
 		hb.add(vb2);
 		verticalBox.add(hb);
 		
-		verticalBox.add(savePairedOutput);
 		retPanel.add(verticalBox);
 		
 		return retPanel;
@@ -131,8 +135,8 @@ public class DemixingGUI extends ProcessingStepsPanel implements Serializable{
 		Demixing.addPropertyChangeListener(this);
 		ArrayList<StormData> unmixedChannels = new ArrayList<StormData>();
 		for (int j = 0; j < numberChunks; j++){
-			unmixedChannels.add(Demixing.spectralUnmixing(chunksChannel1.get(j), chunksChannel2.get(j),false,tag.getText(),Double.parseDouble(dist.getText())
-					,Double.parseDouble(minInt.getText()),Integer.parseInt(nbrIter.getText()),Double.parseDouble(toleratedError.getText()),false));
+			unmixedChannels.add(Demixing.spectralUnmixing(chunksChannel1.get(j), chunksChannel2.get(j),false,"",Double.parseDouble(dist.getText())
+					,Double.parseDouble(minInt.getText()),Integer.parseInt(nbrIter.getText()),Double.parseDouble(toleratedError.getText()),savePairedOutput.isSelected()));
 			setProgressbarValue((int)(j*100./numberChunks));
 		}
 		StormData unmixedFromParts = new StormData();

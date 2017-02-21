@@ -20,6 +20,7 @@ import gui.ProcessingStepsPanel;
 
 public class RenderDemixingImage extends ProcessingStepsPanel implements Serializable{
 	JTextField pixelsize = new JTextField();
+	JTextField sigma = new JTextField();
 	JTextField tag = new JTextField();
 	JTextField percentile = new JTextField();
 	JTextField width1 = new JTextField();
@@ -28,7 +29,7 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 	JTextField middle2 = new JTextField();
 	JRadioButton photonBased = new JRadioButton("Photon based intensities");
 	JRadioButton locBased = new JRadioButton("Localization count based intensities");
-	JTextField[] listTextFields = {pixelsize,tag,percentile,width1,width2,middle1,middle2};
+	JTextField[] listTextFields = {pixelsize,tag,percentile,width1,width2,middle1,middle2,sigma};
 	private static String name = "Render Demixing Image";
 	public RenderDemixingImage(MainFrame mf) {
 		super(mf);
@@ -48,6 +49,9 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 		verticalBox.add(pixelsizeLabel);
 		pixelsize.setText("10");
 		verticalBox.add(pixelsize);
+		verticalBox.add(new JLabel("Sigma for Gaussian Rendering [nm]:"));
+		verticalBox.add(sigma);
+		sigma.setText("10");
 		verticalBox.add(new JLabel("Tag:"));
 		verticalBox.add(tag);
 		verticalBox.add(new JLabel("Percentile:"));
@@ -71,6 +75,8 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 		width2.setText("20");
 		
 		Box hb2 = Box.createHorizontalBox();
+		hb2.setAlignmentX(0);
+		hb1.setAlignmentX(0);
 		ButtonGroup group = new ButtonGroup();
 		group.add(photonBased);
 		group.add(locBased);
@@ -133,10 +139,10 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 				(Double.parseDouble(middle2.getText()))/180.*Math.PI, Double.parseDouble(width1.getText())/180.*Math.PI,
 				Double.parseDouble(width2.getText())/180.*Math.PI);
 		if (photonBased.isSelected()){
-			sd1.renderDemixingImage(Double.parseDouble(pixelsize.getText()), Double.parseDouble(percentile.getText()), demixingParams, tag.getText(),0);
+			sd1.renderDemixingImage(Double.parseDouble(pixelsize.getText()), Double.parseDouble(percentile.getText()), demixingParams, tag.getText(),0, Double.parseDouble(sigma.getText()));
 		}
 		else{
-			sd1.renderDemixingImage(Double.parseDouble(pixelsize.getText()), Double.parseDouble(percentile.getText()), demixingParams, tag.getText(),1);
+			sd1.renderDemixingImage(Double.parseDouble(pixelsize.getText()), Double.parseDouble(percentile.getText()), demixingParams, tag.getText(),1, Double.parseDouble(sigma.getText()));
 		}
 		setProgressbarValue(100);
 	}

@@ -372,6 +372,9 @@ public class StormData implements Serializable{
 	public ImagePlus renderImage2D(double pixelsize, String tag, int intensityMode,float percentile){
 		return renderImage2D(pixelsize,true, tag, 0,-1,10,intensityMode,percentile);
 	}
+	public ImagePlus renderImage2D(double pixelsize, String tag, int intensityMode,float percentile,double sigma){
+		return renderImage2D(pixelsize,true, tag, 0,-1,sigma,intensityMode,percentile);
+	}
 	
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage){
 		return renderImage2D(pixelsize, saveImage, "",0,-1,10,0,1);
@@ -469,11 +472,11 @@ public class StormData implements Serializable{
 	
 	
 	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, DemixingParameters params){
-		return renderDemixingImage(pixelsize, 1, params, processingLog,0);
+		return renderDemixingImage(pixelsize, 1, params, processingLog,0,10);
 	}
 		
-	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, double percentile, DemixingParameters params, String tag, int intensityMode){
-		double sigma = 10/pixelsize; //in nm sigma to blur localizations
+	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, double percentile, DemixingParameters params, String tag, int intensityMode, double sigma){
+		sigma = sigma/pixelsize; //in nm sigma to blur localizations
 		int filterwidth = 3; // must be odd
 		ArrayList<Double> dims = getDimensions();
 		int pixelX = (int) Math.ceil(dims.get(1) / pixelsize);
@@ -1165,7 +1168,7 @@ public class StormData implements Serializable{
 	}
 	
 	public void estimateLocalizationPrecision(ArrayList<StormLocalization> localizations, double dxy, double dz,String tag){
-		ArrayList<ArrayList<StormLocalization>> traces = Utilities.findTraces(localizations, dxy, dxy, dz, 2);
+		ArrayList<ArrayList<StormLocalization>> traces = Utilities.findTraces(localizations, dxy, dxy, dz, 1);
 		ArrayList<ArrayList<Double>> distances = Utilities.getDistancesWithinTraces(traces);
 		double binwidth = 1;
 		ArrayList<ArrayList<Double>> histZ = Utilities.getHistogram(distances.get(1),binwidth);

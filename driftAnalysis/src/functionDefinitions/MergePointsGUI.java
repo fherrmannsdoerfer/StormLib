@@ -1,6 +1,7 @@
 package functionDefinitions;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -22,7 +23,7 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 	JTextField disty = new JTextField();
 	JTextField distz = new JTextField();
 	JTextField distframe = new JTextField();
-	private static String name = "Merge Points";
+	private static String name = "Connect Points";
 	public MergePointsGUI(MainFrame mf) {
 		super(mf);
 		distx.setPreferredSize(mf.style.getDimensionPathFields());
@@ -40,6 +41,11 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 		distz.setAlignmentX(0);
 		distframe.setAlignmentX(0);
 		Box verticalBox = Box.createVerticalBox();
+		Dimension d = new Dimension(350,22);
+		distx.setPreferredSize(d);
+		disty.setPreferredSize(d);
+		distz.setPreferredSize(d);
+		distframe.setPreferredSize(d);
 		verticalBox.add(new JLabel("Maximal Tolerated Distance in X [nm]:"));
 		distx.setText("100");
 		verticalBox.add(distx);
@@ -67,7 +73,7 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 	}
 	public int getDistY(){
 		try{
-			return Integer.valueOf(distx.getText());
+			return Integer.valueOf(disty.getText());
 		}
 		catch(Exception e){
 			return Integer.valueOf("100");
@@ -75,7 +81,7 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 	}
 	public int getDistZ(){
 		try{
-			return Integer.valueOf(distx.getText());
+			return Integer.valueOf(distz.getText());
 		}
 		catch(Exception e){
 			return Integer.valueOf("200");
@@ -83,7 +89,7 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 	}
 	public int getDistFrames(){
 		try{
-			return Integer.valueOf(distx.getText());
+			return Integer.valueOf(distframe.getText());
 		}
 		catch(Exception e){
 			return Integer.valueOf("3");
