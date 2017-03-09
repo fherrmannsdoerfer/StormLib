@@ -883,8 +883,9 @@ public class StormData implements Serializable{
 		for (int i=1;i<65536;i++){
 			//System.out.println("sum: "+sum+" counts: "+ counts+"nbrEntries "+nbrEntries+"hist[0] "+hist[0]);
 			sum = sum +hist[i];
+			newMaximum = i;
 			if (sum>percentile * counts){
-				newMaximum = i;
+				
 				break;
 			}
 		}
@@ -1568,6 +1569,57 @@ public class StormData implements Serializable{
 			}
 		}
 	}
+
+	public void create3DStack(double voxelSizeXY, double voxelSizeZ,
+			double sigmaZXY, double sigmaZZ,String tag) {
+		int filterwidthXY = 5;
+		int filterwidthZ = 11;
+		ArrayList<Double> limits = getDimensions();
+		int pixelsX = (int)Math.ceil((limits.get(1) - limits.get(0)+5*sigmaZXY)/voxelSizeXY);
+		int pixelsY = (int)Math.ceil((limits.get(3) - limits.get(2)+5*sigmaZXY)/voxelSizeXY);
+		int pixelsZ = (int)Math.ceil((limits.get(5) - limits.get(4)+5*sigmaZZ)/voxelSizeZ);
+		//ArrayList<ImagePlus> stack = new ArrayList<ImagePlus>();
+		float[][][] stack = new float[pixelsZ][pixelsX][pixelsY];
+		
+		
+		for (int i = 1; i<getSize(); i++){
+			StormLocalization sl = this.locs.get(i);
+			double fac1 = 1/sigmaZXY;
+			double fac2 = 1/sigmaZZ;
+			double factor = 1e-6;
+			double posX = sl.getX()/voxelSizeXY; //position of current localization
+			double posY = sl.getY()/voxelSizeXY;
+			double posZ = sl.getZ()/voxelSizeZ;
+			int pixelXStart = (int)Math.floor(posX) - (filterwidthXY-1)/2;
+			int pixelYStart = (int)Math.floor(posY) - (filterwidthXY-1)/2;
+			int pixelZStart = (int)Math.floor(posZ) - (filterwidthZ- 1)/2;
+			for (int m = pixelZStart; m<pixelZStart+filterwidthZ;m++){
+				for (int k = pixelXStart; k<pixelXStart+ filterwidthXY;k++){
+					for(int l= pixelYStart; l<pixelYStart+ filterwidthXY;l++){
+						double kk = 1;
+						try{
+							double weight = factor * Math.exp(fac1*(Math.pow((k-posX),2)+Math.pow((l-posY),2))+fac2*Math.pow((k-posX),2));
+							if (true){
+								stack[m][k][l] = (float) (stack[m][k][l] + weight);
+								
+							}
+						} catch(Exception e){
+							//System.out.println(e.toString());
+						}
+					}
+				}
+			}
+		}
+		ArrayList<ImagePlus> stackImgP = new ArrayList<ImagePlus>();
+		for (int i=0;i<pixelsZ;i++){
+			ImageProcessor tmp = new FloatProcessor(pixelsX, pixelsY);
+			tmp.setFloatArray(stack[i]);
+			ImagePlus imgPtmp = new ImagePlus("",tmp);
+			stackImgP.add(imgPtmp);
+		}
+		OutputClass.save3Dstack(path, getBasename(), "", stackImgP);
+	}
+		
 }
 	
 class processColumn implements Runnable{

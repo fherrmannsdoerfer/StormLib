@@ -60,9 +60,9 @@ public class ScalingGUI extends ProcessingStepsPanel{
 		hb2.add(vb4);
 		verticalBox.add(hb2);
 		
-		ch1Chkbox.setText("Crop Channel 1");
+		ch1Chkbox.setText("Scale Channel 1");
 		ch1Chkbox.setSelected(true);
-		ch2Chkbox.setText("Crop Channel 2");
+		ch2Chkbox.setText("Scale Channel 2");
 		ch2Chkbox.setSelected(false);
 		Box hb = Box.createHorizontalBox();
 		hb.add(ch1Chkbox);

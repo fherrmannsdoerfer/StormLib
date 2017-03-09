@@ -62,25 +62,25 @@ class PanelDropTargetListener implements DropTargetListener {
         if (transferableObj == null) {
             return;
         }
-        ProcessingStepsPanel droppedPanel = (ProcessingStepsPanel)transferableObj;
+        ProcessingStepsPanel panelToDrop = (ProcessingStepsPanel)transferableObj;
         final int dropYLoc = dtde.getLocation().y;
-        Map<Integer, ProcessingStepsPanel> yLocMapForPanels = new HashMap<Integer, ProcessingStepsPanel>();
-        yLocMapForPanels.put(dropYLoc, droppedPanel);
+        Map<Integer, ProcessingStepsPanel> mapOfLocY = new HashMap<Integer, ProcessingStepsPanel>();
+        mapOfLocY.put(dropYLoc, panelToDrop);
 
         for (ProcessingStepsPanel nextPanel : rootPanel.getMainFrame().getListProcessingStepPanels()) {
             int y = nextPanel.getY();
-            if (!nextPanel.equals(droppedPanel)) {
-                yLocMapForPanels.put(y, nextPanel);
+            if (!nextPanel.equals(panelToDrop)) {
+                mapOfLocY.put(y, nextPanel);
             }
         }
 
         ArrayList<Integer> sortableYValues = new ArrayList<Integer>();
-        sortableYValues.addAll(yLocMapForPanels.keySet());
+        sortableYValues.addAll(mapOfLocY.keySet());
         Collections.sort(sortableYValues);
 
         ArrayList<ProcessingStepsPanel> orderedPanels = new ArrayList<ProcessingStepsPanel>();
         for (Integer i : sortableYValues) {
-            orderedPanels.add(yLocMapForPanels.get(i));
+            orderedPanels.add(mapOfLocY.get(i));
         }
         
         ArrayList<ProcessingStepsPanel> inMemoryPanelList = this.rootPanel.getMainFrame().getListProcessingStepPanels();

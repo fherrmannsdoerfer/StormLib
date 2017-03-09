@@ -169,6 +169,22 @@ public class OutputClass {
 		return fullFilename;
 	}
 	
+	public static String save3Dstack(String path, String basename, String tag,
+			ArrayList<ImagePlus> colImg){
+		String picBaseName = basename+"_3Dreconstruction_"+tag;
+		String fullFilename = path+"Statistics\\Pictures\\"+picBaseName+"STACK.tif";
+		
+		ImageStack is = new ImageStack(colImg.get(0).getWidth(),colImg.get(0).getHeight());
+		for (int i =0; i<colImg.size(); i++){
+			is.addSlice(colImg.get(i).getProcessor());
+		}
+		ImagePlus coloredImage = new ImagePlus("", is);
+		coloredImage.setDimensions(3, 1, 1);
+		ij.IJ.save(coloredImage, fullFilename);
+		return fullFilename;
+	}
+	
+	
 	public static void writeArrayListForVisp(String path, String basename, ArrayList<StormLocalization> locs, 
 			String tag,DemixingParameters demixingParams) {
 		double minAngle1 = demixingParams.getAngle1() - demixingParams.getWidth1()/2;

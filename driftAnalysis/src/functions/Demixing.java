@@ -376,12 +376,12 @@ class UnmixFrame implements Runnable{
 							double int0 = thisLoc.getIntensity();
 							double int1 = currLoc.getIntensity();
 							double sumInt = int0+int1;
-							coloredSet.addElement(new StormLocalization((thisLoc.getX()),
-																		(thisLoc.getY()),
-																		(thisLoc.getZ()), 
-																		currFrame,
-																		(thisLoc.getIntensity()+currLoc.getIntensity())/2, 
-																		atan));}
+							coloredSet.addElement(new StormLocalization((int0*thisLoc.getX()+int1*currLoc.getX())/sumInt,
+									(int0*thisLoc.getY()+int1*currLoc.getY())/sumInt,
+									(int0*thisLoc.getZ()+int1*currLoc.getZ())/sumInt, 
+									currFrame,
+									(thisLoc.getIntensity()+currLoc.getIntensity())/2, 
+									atan));}
 						synchronized(demixingData){
 						demixingData.addElements(currLoc, thisLoc, currFrameUntransformedCh1.getElement(i));}
 						//matchingCounter = matchingCounter + 1;

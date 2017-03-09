@@ -56,7 +56,7 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 		distz.setText("200");
 		verticalBox.add(distz);
 		verticalBox.add(new JLabel("Maximal Tolerated Distance in Frames:"));
-		distframe.setText("3");
+		distframe.setText("1");
 		verticalBox.add(distframe);
 		
 		retPanel.add(verticalBox);
@@ -92,7 +92,7 @@ public class MergePointsGUI extends ProcessingStepsPanel{
 			return Integer.valueOf(distframe.getText());
 		}
 		catch(Exception e){
-			return Integer.valueOf("3");
+			return Integer.valueOf("1");
 		}
 		
 	}

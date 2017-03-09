@@ -540,7 +540,7 @@ public class MainFrame extends JFrame implements Serializable{
 			for (ProcessingStepsPanel p:listProcessingStepPanels){
 				p.removeButton.setBorder(null);
 			}
-			setupPreselectedTasks();
+			//setupPreselectedTasks();
 			System.out.println("saved");	
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block

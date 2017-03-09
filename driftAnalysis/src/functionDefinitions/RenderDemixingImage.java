@@ -55,7 +55,7 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 		verticalBox.add(new JLabel("Tag:"));
 		verticalBox.add(tag);
 		verticalBox.add(new JLabel("Percentile:"));
-		percentile.setText("0.999");
+		percentile.setText("0.99");
 		verticalBox.add(percentile);
 		
 		Box hb1 = Box.createHorizontalBox();
