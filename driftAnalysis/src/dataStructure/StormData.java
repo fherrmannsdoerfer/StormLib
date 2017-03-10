@@ -1619,12 +1619,10 @@ public class StormData implements Serializable{
 		double factor = 0;
 		for (int m = (int)-Math.ceil(filterwidthZ/2); m<(int)-Math.ceil(filterwidthZ/2)+filterwidthZ;m++){
 			for (int k = (int)-Math.ceil(filterwidthXY/2); k<(int)-Math.ceil(filterwidthXY/2)+filterwidthXY;k++){
-				for(int l = (int)-Math.ceil(filterwidthXY/2); l<(int)-Math.ceil(filterwidthXY/2)+filterwidthXY;l++){
-					
+				for(int l = (int)-Math.ceil(filterwidthXY/2); l<(int)-Math.ceil(filterwidthXY/2)+filterwidthXY;l++){	
 					try{
 						double weight =  Math.exp(fac1*(Math.pow((k-0),2)+Math.pow((l-0),2))+fac2*Math.pow((m-0),2));
 						factor = (float) (factor + weight);
-					
 					} catch(Exception e){
 						//System.out.println(e.toString());
 					}
@@ -1670,7 +1668,21 @@ public class StormData implements Serializable{
 		double maxAngle2 = params.getAngle2() + params.getWidth2()/2;
 		double fac1 = -0.5/(sigmaZXY/voxelSizeXY)/(sigmaZXY/voxelSizeXY);
 		double fac2 = -0.5/(sigmaZZ/voxelSizeZ)/(sigmaZZ/voxelSizeZ);
-		double factor = 1/(Math.pow(2*3.14,1.5)*Math.sqrt(sigmaZXY)*sigmaZXY*sigmaZZ*sigmaZZ);
+		//double factor = 1/(Math.pow(2*3.14,1.5)*Math.sqrt(sigmaZXY)*sigmaZXY*sigmaZZ*sigmaZZ);
+		double factor = 0;
+		for (int m = (int)-Math.ceil(filterwidthZ/2); m<(int)-Math.ceil(filterwidthZ/2)+filterwidthZ;m++){
+			for (int k = (int)-Math.ceil(filterwidthXY/2); k<(int)-Math.ceil(filterwidthXY/2)+filterwidthXY;k++){
+				for(int l = (int)-Math.ceil(filterwidthXY/2); l<(int)-Math.ceil(filterwidthXY/2)+filterwidthXY;l++){	
+					try{
+						double weight =  Math.exp(fac1*(Math.pow((k-0),2)+Math.pow((l-0),2))+fac2*Math.pow((m-0),2));
+						factor = (float) (factor + weight);
+					} catch(Exception e){
+						//System.out.println(e.toString());
+					}
+				}
+			}
+		}
+		factor = 1/factor; //determine sum of gaussian
 		ArrayList<Double> limits = getDimensions();
 		int pixelsX = (int)Math.ceil((limits.get(1) - limits.get(0)+5*sigmaZXY)/voxelSizeXY);
 		int pixelsY = (int)Math.ceil((limits.get(3) - limits.get(2)+5*sigmaZXY)/voxelSizeXY);
