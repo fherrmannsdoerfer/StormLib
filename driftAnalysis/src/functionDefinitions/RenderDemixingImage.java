@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -29,6 +30,11 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 	JTextField middle2 = new JTextField();
 	JRadioButton photonBased = new JRadioButton("Photon based intensities");
 	JRadioButton locBased = new JRadioButton("Localization count based intensities");
+	JCheckBox saveStack = new JCheckBox("Save Stack");
+	JTextField voxelsizeXY = new JTextField("10");
+	JTextField voxelsizeZ = new JTextField("20");
+	JTextField sigmaZXY = new JTextField("10");
+	JTextField sigmaZZ = new JTextField("30");
 	JTextField[] listTextFields = {pixelsize,tag,percentile,width1,width2,middle1,middle2,sigma};
 	private static String name = "Render Demixing Image";
 	public RenderDemixingImage(MainFrame mf) {
@@ -89,6 +95,16 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 		hb1.add(vb2);
 		verticalBox.add(hb1);
 		verticalBox.add(hb2);
+		
+		verticalBox.add(saveStack);
+		verticalBox.add(new JLabel("Voxel Size XY [nm]:"));
+		verticalBox.add(voxelsizeXY);
+		verticalBox.add(new JLabel("Voxel Size Z[nm]:"));
+		verticalBox.add(voxelsizeZ);
+		verticalBox.add(new JLabel("SigmaZ XY [nm]:"));
+		verticalBox.add(sigmaZXY);
+		verticalBox.add(new JLabel("SigmaZ Z [nm]:"));
+		verticalBox.add(sigmaZZ);;
 		retPanel.add(verticalBox);
 		return retPanel;
 	}
@@ -139,11 +155,18 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 				(Double.parseDouble(middle2.getText()))/180.*Math.PI, Double.parseDouble(width1.getText())/180.*Math.PI,
 				Double.parseDouble(width2.getText())/180.*Math.PI);
 		if (photonBased.isSelected()){
-			sd1.renderDemixingImage(Double.parseDouble(pixelsize.getText()), Double.parseDouble(percentile.getText()), demixingParams, tag.getText(),0, Double.parseDouble(sigma.getText()));
-		}
+			sd1.renderDemixingImage(Double.parseDouble(pixelsize.getText()), Double.parseDouble(percentile.getText()), demixingParams, 
+					tag.getText(),0, Double.parseDouble(sigma.getText()),saveStack.isSelected(),
+					Double.parseDouble(voxelsizeXY.getText()),Double.parseDouble(voxelsizeZ.getText()),Double.parseDouble(sigmaZXY.getText()),
+					Double.parseDouble(sigmaZZ.getText()));
+		}		
 		else{
-			sd1.renderDemixingImage(Double.parseDouble(pixelsize.getText()), Double.parseDouble(percentile.getText()), demixingParams, tag.getText(),1, Double.parseDouble(sigma.getText()));
+			sd1.renderDemixingImage(Double.parseDouble(pixelsize.getText()), Double.parseDouble(percentile.getText()), demixingParams, 
+					tag.getText(),1, Double.parseDouble(sigma.getText()),saveStack.isSelected(),
+					Double.parseDouble(voxelsizeXY.getText()),Double.parseDouble(voxelsizeZ.getText()),Double.parseDouble(sigmaZXY.getText()),
+					Double.parseDouble(sigmaZZ.getText()));
 		}
+		
 		setProgressbarValue(100);
 	}
 }

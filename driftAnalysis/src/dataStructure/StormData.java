@@ -472,10 +472,12 @@ public class StormData implements Serializable{
 	
 	
 	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, DemixingParameters params){
-		return renderDemixingImage(pixelsize, 1, params, processingLog,0,10);
+		return renderDemixingImage(pixelsize, 1, params, processingLog,0,10,false,0,0,0,0);
 	}
 		
-	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, double percentile, DemixingParameters params, String tag, int intensityMode, double sigma){
+	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, double percentile, 
+			DemixingParameters params, String tag, int intensityMode, double sigma,boolean renderStack,
+			double voxelSizeXY, double voxelSizeZ, double sigmaZXY, double sigmaZZ){
 		sigma = sigma/pixelsize; //in nm sigma to blur localizations
 		int filterwidth = 3; // must be odd
 		ArrayList<Double> dims = getDimensions();
@@ -527,12 +529,20 @@ public class StormData implements Serializable{
 		SaveDemixingImageLog sl = new SaveDemixingImageLog(path, getBasename(), processingLog, colImg, params, pixelsize);
 		logs.add(sl);
 		OutputClass.saveDemixingImage(path, getBasename(), processingLog, colImg);
+		if (renderStack){
+			renderDemixingStack(params, tag, 
+			voxelSizeXY, voxelSizeZ, sigmaZXY, sigmaZZ);
+		}
+		
 		
 		return colImg;
 	}
 	
+	
+
 	ArrayList<float[][]> renderDemixing(ArrayList<float[][]> coloredImage, double sigma, int filterwidth, 
-			double pixelsize,double percentile, DemixingParameters params,ArrayList<StormLocalization> locsCh1,ArrayList<StormLocalization> locsCh2){
+			double pixelsize,double percentile, DemixingParameters params,ArrayList<StormLocalization> locsCh1,
+			ArrayList<StormLocalization> locsCh2){
 		if (filterwidth %2 == 0) {System.err.println("filterwidth must be odd");}
 		double minAngle1 = params.getAngle1() - params.getWidth1()/2;
 		double maxAngle1 = params.getAngle1() + params.getWidth1()/2;
@@ -541,8 +551,8 @@ public class StormData implements Serializable{
 		double factor = 10000*1/(2*Math.PI*sigma*sigma);
 		double factor2 = -0.5/sigma/sigma;
 		ArrayList<Double> dims = getDimensions();
-		double zMin = 400 ; //dims.get(4);
-		double zMax = 800; //dims.get(5);
+		double zMin = dims.get(4);
+		double zMax = dims.get(5);
 		if (verbose){
 			System.out.println("zMax: "+zMax);
 		}
@@ -595,8 +605,9 @@ public class StormData implements Serializable{
 	}
 	
 	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag, double sigma, double percentile){ //render localizations from Stormdata to Image Plus Object
+		sigma = sigma/pixelsize;
 		//double sigma =  0.; //pixelsize //in nm sigma to blur localizations
-		int filterwidth = 3; // must be odd
+		int filterwidth = 7; // must be odd
 		ArrayList<Double> dims = getDimensions();
 		int pixelX = (int) Math.pow(2, Math.ceil(Math.log(dims.get(1) / pixelsize)/Math.log(2)));
 		//int pixelX = (int) Math.ceil(dims.get(1) / pixelsize);
@@ -1569,27 +1580,45 @@ public class StormData implements Serializable{
 			}
 		}
 	}
-
+	
 	public void create3DStack(double voxelSizeXY, double voxelSizeZ,
 			double sigmaZXY, double sigmaZZ,String tag) {
-		int filterwidthXY = 5;
+		save3DStack(getDimensions(),voxelSizeXY, voxelSizeZ, sigmaZXY, sigmaZZ, tag);
+	}
+	
+	
+	public void save3DStack(ArrayList<Double> limits, double voxelSizeXY, double voxelSizeZ,
+			double sigmaZXY, double sigmaZZ,String tag) {
+		int filterwidthXY = 11;
 		int filterwidthZ = 11;
-		ArrayList<Double> limits = getDimensions();
 		int pixelsX = (int)Math.ceil((limits.get(1) - limits.get(0)+5*sigmaZXY)/voxelSizeXY);
 		int pixelsY = (int)Math.ceil((limits.get(3) - limits.get(2)+5*sigmaZXY)/voxelSizeXY);
 		int pixelsZ = (int)Math.ceil((limits.get(5) - limits.get(4)+5*sigmaZZ)/voxelSizeZ);
 		//ArrayList<ImagePlus> stack = new ArrayList<ImagePlus>();
 		float[][][] stack = new float[pixelsZ][pixelsX][pixelsY];
+		renderStack(stack, voxelSizeXY, voxelSizeZ,sigmaZXY, sigmaZZ,filterwidthXY, filterwidthZ,limits.get(4));
 		
 		
+		ArrayList<ImagePlus> stackImgP = new ArrayList<ImagePlus>();
+		for (int i=0;i<pixelsZ;i++){
+			ImageProcessor tmp = new FloatProcessor(pixelsX, pixelsY);
+			tmp.setFloatArray(stack[i]);
+			ImagePlus imgPtmp = new ImagePlus("",tmp);
+			stackImgP.add(imgPtmp);
+		}
+		OutputClass.save3Dstack(path, getBasename(), tag, stackImgP);
+	}
+
+	public void renderStack(float[][][] stack, double voxelSizeXY, double voxelSizeZ, double sigmaZXY, double sigmaZZ,
+			int filterwidthXY, int filterwidthZ, double shiftZ){
+		double fac1 = -0.5/(sigmaZXY/voxelSizeXY)/(sigmaZXY/voxelSizeXY);
+		double fac2 = -0.5/(sigmaZZ/voxelSizeZ)/(sigmaZZ/voxelSizeZ);
+		double factor = 1e-6;
 		for (int i = 1; i<getSize(); i++){
 			StormLocalization sl = this.locs.get(i);
-			double fac1 = 1/sigmaZXY;
-			double fac2 = 1/sigmaZZ;
-			double factor = 1e-6;
 			double posX = sl.getX()/voxelSizeXY; //position of current localization
 			double posY = sl.getY()/voxelSizeXY;
-			double posZ = sl.getZ()/voxelSizeZ;
+			double posZ = (sl.getZ()-shiftZ)/voxelSizeZ;
 			int pixelXStart = (int)Math.floor(posX) - (filterwidthXY-1)/2;
 			int pixelYStart = (int)Math.floor(posY) - (filterwidthXY-1)/2;
 			int pixelZStart = (int)Math.floor(posZ) - (filterwidthZ- 1)/2;
@@ -1598,11 +1627,9 @@ public class StormData implements Serializable{
 					for(int l= pixelYStart; l<pixelYStart+ filterwidthXY;l++){
 						double kk = 1;
 						try{
-							double weight = factor * Math.exp(fac1*(Math.pow((k-posX),2)+Math.pow((l-posY),2))+fac2*Math.pow((k-posX),2));
-							if (true){
-								stack[m][k][l] = (float) (stack[m][k][l] + weight);
-								
-							}
+							double weight = factor * Math.exp(fac1*(Math.pow((k-posX),2)+Math.pow((l-posY),2))+fac2*Math.pow((m-posZ),2));
+							stack[m][k][l] = (float) (stack[m][k][l] + weight);
+						
 						} catch(Exception e){
 							//System.out.println(e.toString());
 						}
@@ -1610,15 +1637,77 @@ public class StormData implements Serializable{
 				}
 			}
 		}
-		ArrayList<ImagePlus> stackImgP = new ArrayList<ImagePlus>();
-		for (int i=0;i<pixelsZ;i++){
-			ImageProcessor tmp = new FloatProcessor(pixelsX, pixelsY);
-			tmp.setFloatArray(stack[i]);
-			ImagePlus imgPtmp = new ImagePlus("",tmp);
-			stackImgP.add(imgPtmp);
-		}
-		OutputClass.save3Dstack(path, getBasename(), "", stackImgP);
 	}
+	
+	
+	
+	private void renderDemixingStack(DemixingParameters params, String tag,
+			double voxelSizeXY, double voxelSizeZ, double sigmaZXY,
+			double sigmaZZ) {
+		int filterwidthXY = 11;
+		int filterwidthZ = 11;
+		double minAngle1 = params.getAngle1() - params.getWidth1()/2;
+		double maxAngle1 = params.getAngle1() + params.getWidth1()/2;
+		double minAngle2 = params.getAngle2() - params.getWidth2()/2;
+		double maxAngle2 = params.getAngle2() + params.getWidth2()/2;
+		double fac1 = -0.5/(sigmaZXY/voxelSizeXY)/(sigmaZXY/voxelSizeXY);
+		double fac2 = -0.5/(sigmaZZ/voxelSizeZ)/(sigmaZZ/voxelSizeZ);
+		double factor = 1e-6;
+		ArrayList<Double> limits = getDimensions();
+		int pixelsX = (int)Math.ceil((limits.get(1) - limits.get(0)+5*sigmaZXY)/voxelSizeXY);
+		int pixelsY = (int)Math.ceil((limits.get(3) - limits.get(2)+5*sigmaZXY)/voxelSizeXY);
+		int pixelsZ = (int)Math.ceil((limits.get(5) - limits.get(4)+5*sigmaZZ)/voxelSizeZ);
+		//ArrayList<ImagePlus> stack = new ArrayList<ImagePlus>();
+		float[][][] stack1 = new float[pixelsZ][pixelsX][pixelsY];
+		float[][][] stack2 = new float[pixelsZ][pixelsX][pixelsY];
+		if (verbose){
+			System.out.println("zMax: "+zMax);
+		}
+
+		for (int i = 1; i<getSize(); i++){
+			StormLocalization sl = this.locs.get(i);
+			double posX = sl.getX()/voxelSizeXY; //position of current localization
+			double posY = sl.getY()/voxelSizeXY;
+			double posZ = (sl.getZ()-limits.get(4))/voxelSizeZ;
+			int pixelXStart = (int)Math.floor(posX) - (filterwidthXY-1)/2;
+			int pixelYStart = (int)Math.floor(posY) - (filterwidthXY-1)/2;
+			int pixelZStart = (int)Math.floor(posZ) - (filterwidthZ- 1)/2;
+		
+			for (int m = pixelZStart; m<pixelZStart+filterwidthZ; m++){
+				for (int k = pixelXStart; k<pixelXStart+ filterwidthXY;k++){
+					for(int l= pixelYStart; l<pixelYStart+ filterwidthXY;l++){
+						try{
+							if (((sl.getAngle()> minAngle1 && sl.getAngle()< maxAngle1))|| sl.getAngle() == 0){
+								double weight = factor * Math.exp(fac1*(Math.pow((k-posX),2)+Math.pow((l-posY),2))+fac2*Math.pow((m-posZ),2));
+								stack1[m][k][l] = (float) (stack1[m][k][l] + weight);
+							}
+							else if ((sl.getAngle()> minAngle2 && sl.getAngle()< maxAngle2) || sl.getAngle() == Math.PI/2){
+								double weight = factor * Math.exp(fac1*(Math.pow((k-posX),2)+Math.pow((l-posY),2))+fac2*Math.pow((m-posZ),2));
+								stack2[m][k][l] = (float) (stack2[m][k][l] + weight);
+							}
+						} catch(IndexOutOfBoundsException e){e.toString();}
+					}
+				}
+			}
+		}
+		
+		ArrayList<ImagePlus> stackImgP1 = new ArrayList<ImagePlus>();
+		ArrayList<ImagePlus> stackImgP2 = new ArrayList<ImagePlus>();
+		for (int i=0;i<pixelsZ;i++){
+			ImageProcessor tmp1 = new FloatProcessor(pixelsX, pixelsY);
+			tmp1.setFloatArray(stack1[i]);
+			ImagePlus imgPtmp1 = new ImagePlus("",tmp1);
+			stackImgP1.add(imgPtmp1);
+			ImageProcessor tmp2 = new FloatProcessor(pixelsX, pixelsY);
+			tmp2.setFloatArray(stack2[i]);
+			ImagePlus imgPtmp2 = new ImagePlus("",tmp2);
+			stackImgP2.add(imgPtmp2);
+		}
+		OutputClass.save3Dstack(path, getBasename(), tag+"channel1", stackImgP1);
+		OutputClass.save3Dstack(path, getBasename(), tag+"channel2", stackImgP2);
+		
+	}
+
 		
 }
 	
