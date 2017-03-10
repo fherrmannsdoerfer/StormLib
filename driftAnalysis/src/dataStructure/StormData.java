@@ -479,7 +479,7 @@ public class StormData implements Serializable{
 			DemixingParameters params, String tag, int intensityMode, double sigma,boolean renderStack,
 			double voxelSizeXY, double voxelSizeZ, double sigmaZXY, double sigmaZZ){
 		sigma = sigma/pixelsize; //in nm sigma to blur localizations
-		int filterwidth = 3; // must be odd
+		int filterwidth = 7; // must be odd
 		ArrayList<Double> dims = getDimensions();
 		int pixelX = (int) Math.ceil(dims.get(1) / pixelsize);
 		int pixelY = (int) Math.ceil(dims.get(3) / pixelsize);
@@ -1611,9 +1611,27 @@ public class StormData implements Serializable{
 
 	public void renderStack(float[][][] stack, double voxelSizeXY, double voxelSizeZ, double sigmaZXY, double sigmaZZ,
 			int filterwidthXY, int filterwidthZ, double shiftZ){
-		double fac1 = -0.5/(sigmaZXY/voxelSizeXY)/(sigmaZXY/voxelSizeXY);
-		double fac2 = -0.5/(sigmaZZ/voxelSizeZ)/(sigmaZZ/voxelSizeZ);
-		double factor = 1e-6;
+		sigmaZXY =sigmaZXY/voxelSizeXY;
+		sigmaZZ = sigmaZZ/voxelSizeZ;
+		double fac1 = -0.5/(sigmaZXY)/(sigmaZXY);
+		double fac2 = -0.5/(sigmaZZ)/(sigmaZZ);
+		//double factor = 1/(Math.pow(2*3.14,1.5)*Math.sqrt(sigmaZXY)*sigmaZXY*sigmaZZ*sigmaZZ);
+		double factor = 0;
+		for (int m = (int)-Math.ceil(filterwidthZ/2); m<(int)-Math.ceil(filterwidthZ/2)+filterwidthZ;m++){
+			for (int k = (int)-Math.ceil(filterwidthXY/2); k<(int)-Math.ceil(filterwidthXY/2)+filterwidthXY;k++){
+				for(int l = (int)-Math.ceil(filterwidthXY/2); l<(int)-Math.ceil(filterwidthXY/2)+filterwidthXY;l++){
+					
+					try{
+						double weight =  Math.exp(fac1*(Math.pow((k-0),2)+Math.pow((l-0),2))+fac2*Math.pow((m-0),2));
+						factor = (float) (factor + weight);
+					
+					} catch(Exception e){
+						//System.out.println(e.toString());
+					}
+				}
+			}
+		}
+		factor = 1/factor; //determine sum of gaussian
 		for (int i = 1; i<getSize(); i++){
 			StormLocalization sl = this.locs.get(i);
 			double posX = sl.getX()/voxelSizeXY; //position of current localization
