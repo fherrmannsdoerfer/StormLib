@@ -1652,7 +1652,7 @@ public class StormData implements Serializable{
 		double maxAngle2 = params.getAngle2() + params.getWidth2()/2;
 		double fac1 = -0.5/(sigmaZXY/voxelSizeXY)/(sigmaZXY/voxelSizeXY);
 		double fac2 = -0.5/(sigmaZZ/voxelSizeZ)/(sigmaZZ/voxelSizeZ);
-		double factor = 1e-6;
+		double factor = 1/(Math.pow(2*3.14,1.5)*Math.sqrt(sigmaZXY)*sigmaZXY*sigmaZZ*sigmaZZ);
 		ArrayList<Double> limits = getDimensions();
 		int pixelsX = (int)Math.ceil((limits.get(1) - limits.get(0)+5*sigmaZXY)/voxelSizeXY);
 		int pixelsY = (int)Math.ceil((limits.get(3) - limits.get(2)+5*sigmaZXY)/voxelSizeXY);
@@ -1660,10 +1660,7 @@ public class StormData implements Serializable{
 		//ArrayList<ImagePlus> stack = new ArrayList<ImagePlus>();
 		float[][][] stack1 = new float[pixelsZ][pixelsX][pixelsY];
 		float[][][] stack2 = new float[pixelsZ][pixelsX][pixelsY];
-		if (verbose){
-			System.out.println("zMax: "+zMax);
-		}
-
+	
 		for (int i = 1; i<getSize(); i++){
 			StormLocalization sl = this.locs.get(i);
 			double posX = sl.getX()/voxelSizeXY; //position of current localization

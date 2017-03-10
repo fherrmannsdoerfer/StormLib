@@ -35,7 +35,7 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 	JTextField voxelsizeZ = new JTextField("20");
 	JTextField sigmaZXY = new JTextField("10");
 	JTextField sigmaZZ = new JTextField("30");
-	JTextField[] listTextFields = {pixelsize,tag,percentile,width1,width2,middle1,middle2,sigma};
+	JTextField[] listTextFields = {pixelsize,tag,percentile,width1,width2,middle1,middle2,sigma,voxelsizeXY,voxelsizeZ,sigmaZXY,sigmaZZ};
 	private static String name = "Render Demixing Image";
 	public RenderDemixingImage(MainFrame mf) {
 		super(mf);
@@ -116,13 +116,19 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 		return tag.getText();
 	}
 	public String[] getSettings(){
-		String[] tempString = new String[listTextFields.length+1];
+		String[] tempString = new String[listTextFields.length+2];
 		getTextFieldTexts(listTextFields, 0, tempString);
 		if (photonBased.isSelected()){
 			tempString[listTextFields.length] = "photons";
 		}
 		else{
 			tempString[listTextFields.length] = "locs";
+		}
+		if (saveStack.isSelected()){
+			tempString[listTextFields.length+1] = "checked";
+		}
+		else{
+			tempString[listTextFields.length+1] = "unchecked";
 		}
 		return tempString;
 	}
@@ -133,6 +139,9 @@ public class RenderDemixingImage extends ProcessingStepsPanel implements Seriali
 		}
 		else{
 			locBased.setSelected(true);
+		}
+		if (tempString[listTextFields.length+1].equals("checked")){
+			saveStack.setSelected(true);
 		}
 	}
 	public RenderDemixingImage getProcessingStepsPanelObject(ProcessingStepsPanel processingStepsPanelObject, MainFrame mf){
