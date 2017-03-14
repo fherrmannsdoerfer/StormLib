@@ -17,10 +17,11 @@ import javax.swing.JTextField;
 
 import StormLib.Utilities;
 import dataStructure.StormData;
+import gui.ImportModules;
 import gui.MainFrame;
 import gui.ProcessingStepsPanel;
 
-public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
+public class DualColorMultipleFileInputGUI extends ImportModules{
 	/**
 	 * 
 	 */
@@ -120,6 +121,12 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 	public String getPattern2(){
 		return pattern2.getText();
 	}
+	public void setPath1(String text){
+		path1.setText(text);
+	}
+	public void setPath2(String text){
+		path2.setText(text);
+	}
 	
 
 	public String[] getSettings(){
@@ -170,4 +177,8 @@ public class DualColorMultipleFileInputGUI extends ProcessingStepsPanel{
 		setProgressbarValue(100);
 	}
 	
+	public void setPath(String path){
+		setPath1(path);
+		setPath2(path);
+	}
 }

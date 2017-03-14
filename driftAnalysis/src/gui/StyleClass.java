@@ -8,6 +8,7 @@ public class StyleClass implements Serializable{
 	private Color colorInput = new Color(171,65,152);
 	private Color colorProcessing = new Color(101,194,148);
 	private Color colorOutput = new Color(88,197,199);
+	private Color batchProcessing = new Color(180,180,180);
 	private int widthProcessingStepsPanel = 350;
 	private int heightProcessingStepsPanel = 75;
 	private int leftIndent = 15;
@@ -35,6 +36,9 @@ public class StyleClass implements Serializable{
 	}
 	public void setColorOutput(Color colorOutput) {
 		this.colorOutput = colorOutput;
+	}
+	public Color getBatchProcessingColor() {
+		return batchProcessing;
 	}
 	public int getWidthProcessingStepsPanel() {
 		return widthProcessingStepsPanel;
@@ -87,4 +91,5 @@ public class StyleClass implements Serializable{
 	public Dimension getDimensionOptionPane() {
 		return optionPaneWidth;
 	}
+	
 }

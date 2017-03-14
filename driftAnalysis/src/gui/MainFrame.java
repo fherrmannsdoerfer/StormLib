@@ -31,6 +31,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import functionDefinitions.BatchProcessingGUI;
 import functionDefinitions.CreateLogFileGUI;
 import functionDefinitions.CropGUI;
 import functionDefinitions.DemixingGUI;
@@ -110,6 +111,7 @@ public class MainFrame extends JFrame implements Serializable{
 		outputComboBoxOptions.add(new WriteLocalizationsToFile());
 		outputComboBoxOptions.add(new CreateLogFileGUI());
 		
+		inputComboBoxOptions.add(new BatchProcessingGUI());
 		inputComboBoxOptions.add(new SingleFileInputGUI());
 		inputComboBoxOptions.add(new DualChannelSingleFileInputGUI());
 		inputComboBoxOptions.add(new MultipleFileInputGUI());

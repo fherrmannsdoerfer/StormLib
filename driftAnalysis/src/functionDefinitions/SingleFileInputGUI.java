@@ -16,6 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import gui.ImportModules;
 import gui.MainFrame;
 import gui.ProcessingStepsPanel;
 
@@ -23,7 +24,7 @@ import javax.swing.JButton;
 
 import dataStructure.StormData;
 
-public class SingleFileInputGUI extends ProcessingStepsPanel{
+public class SingleFileInputGUI extends ImportModules{
 	JTextField path = new JTextField("");
 	JTextField filename = new JTextField("");
 	JTextField basename = new JTextField("");
@@ -122,7 +123,6 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 		return name;
 	}
 
-	@Override
 	public void process(StormData sd1, StormData sd2) {
 		sd1.setFname(getFilename());
 		sd1.setPath(getPath());
@@ -130,5 +130,10 @@ public class SingleFileInputGUI extends ProcessingStepsPanel{
 		sd1.setLocs(sd1.importData(getPath()+getFilename()));
 		//sd1.copyAttributes(new StormData(getPath(), getFilename()));
 		setProgressbarValue(100);
+	}
+
+	@Override
+	public void setPath(String importPath) {
+		path.setText(importPath);
 	}
 }

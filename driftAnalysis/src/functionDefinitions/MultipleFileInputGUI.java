@@ -10,10 +10,11 @@ import javax.swing.JTextField;
 
 import StormLib.Utilities;
 import dataStructure.StormData;
+import gui.ImportModules;
 import gui.MainFrame;
 import gui.ProcessingStepsPanel;
 
-public class MultipleFileInputGUI extends ProcessingStepsPanel{
+public class MultipleFileInputGUI extends ImportModules{
 	JTextField path = new JTextField();
 	JTextField pattern = new JTextField();
 	JTextField basename = new JTextField();
@@ -51,6 +52,9 @@ public class MultipleFileInputGUI extends ProcessingStepsPanel{
 	
 	public String getPath(){
 		return path.getText();
+	}
+	public void setPath(String importPath){
+		path.setText(importPath);
 	}
 	public String getPattern(){
 		return pattern.getText();

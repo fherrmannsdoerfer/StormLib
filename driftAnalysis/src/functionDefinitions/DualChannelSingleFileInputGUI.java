@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import gui.ImportModules;
 import gui.MainFrame;
 import gui.ProcessingStepsPanel;
 
@@ -19,7 +20,7 @@ import javax.swing.JButton;
 
 import dataStructure.StormData;
 
-public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
+public class DualChannelSingleFileInputGUI extends ImportModules{
 	JTextField path1 = new JTextField("");
 	JTextField file1 = new JTextField("");
 	JTextField path2 = new JTextField("");
@@ -111,11 +112,17 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 	public String getPath1(){
 		return path1.getText();
 	}
+	public void setPath1(String path){
+		path1.setText(path);
+	}
 	public String getFile1(){
 		return file1.getText();
 	}
 	public String getPath2(){
 		return path2.getText();
+	}
+	public void setPath2(String path){
+		path2.setText(path);
 	}
 	public String getFile2(){
 		return file2.getText();
@@ -165,5 +172,10 @@ public class DualChannelSingleFileInputGUI extends ProcessingStepsPanel{
 		sd2.setBasename(basename2.getText());
 		setProgressbarValue(100);
 		
+	}
+
+	public void setPath(String path) {
+		setPath1(path);
+		setPath2(path);
 	}
 }

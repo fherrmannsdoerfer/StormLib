@@ -7,10 +7,14 @@ import java.beans.PropertyChangeSupport;
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.stream.Stream;
 
 import comperators.StormLocalizationFrameComperator;
 import dataStructure.StormData;
@@ -1002,6 +1006,28 @@ public class Utilities {
 			}
 				
 
+		}
+//Function that finds and returns a ArrayList of all paths in the given parent folder (path) that contain the folder name specified
+		public static ArrayList<String> findPaths(String path, String folderName) {
+			ArrayList<String> retPaths = new ArrayList<String>();
+			File parentFolder = new File(path);
+			if (!parentFolder.isDirectory()){
+				System.out.println("no directory specified as parent directory!");
+				return new ArrayList<String>();
+			}
+			try(Stream<Path> paths = Files.walk(Paths.get(path))){
+				paths.forEach(filePath -> {
+					if (filePath.endsWith(Paths.get(folderName))){
+						retPaths.add(filePath.toString());
+						System.out.println(filePath.toString());
+					}
+				});
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return retPaths;
+			
 		}
 		
 }
