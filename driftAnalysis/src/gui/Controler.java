@@ -27,14 +27,14 @@ public class Controler implements Serializable{
 	}
 	public void startProcessing(
 			ArrayList<ProcessingStepsPanel> functions) {
-		for (ProcessingStepsPanel psp: functions){
-			if (psp instanceof BatchProcessingGUI){
-				batchprocessingWorkflow(functions);
-			}
-			else{
-				normalWorkflow(functions);
-			}
+
+		if (functions.get(0) instanceof BatchProcessingGUI){
+			batchprocessingWorkflow(functions);
 		}
+		else{
+			normalWorkflow(functions);
+		}
+		
 		System.out.println("Program finished");
 	}
 
