@@ -123,7 +123,7 @@ public class RenderImage3DGUI extends ProcessingStepsPanel implements Serializab
 
 	@Override
 	public void process(StormData sd1, StormData sd2) {
-		sd1.renderImage3D(getPixelsize(), getTag(),getSigma(),getPercentile());
+		sd1.renderImage3D(getPixelsize(), getTag(),getSigma(),getPercentile(),0);
 		if (saveStack.isSelected()){
 			sd1.create3DStack(getVoxelSizeXY(),getVoxelSizeZ(),getSigmaZXY(),getSigmaZZ(),getTag());
 		}

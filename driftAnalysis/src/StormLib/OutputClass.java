@@ -145,14 +145,23 @@ public class OutputClass {
 //		ij.IJ.saveAs(coloredImage, "png", fullFilename);
 		return fullFilename;
 	}
-	
 	public static String save3DImage(String path, String basename, String tag,
 			ArrayList<ImagePlus> colImg){
+		//mode 0: 3 individual channels + png + Tiffstack
+		//mode 1: png + tiffStack
+		//mode 2: png
+		return save3DImage(path, basename, tag, colImg, 0);
+	}
+	
+	public static String save3DImage(String path, String basename, String tag,
+			ArrayList<ImagePlus> colImg, int mode){
 		String picBaseName = basename+"_3Dreconstruction_"+tag;
 		String fullFilename = path+"Statistics\\Pictures\\"+picBaseName+"All.tif";
-		ij.IJ.save(colImg.get(0),path+"Statistics\\Pictures\\"+picBaseName+"_red.tif");
-		ij.IJ.save(colImg.get(1),path+"Statistics\\Pictures\\"+picBaseName+"_green.tif");
-		ij.IJ.save(colImg.get(2),path+"Statistics\\Pictures\\"+picBaseName+"_blue.tif");
+		if (mode <1){
+			ij.IJ.save(colImg.get(0),path+"Statistics\\Pictures\\"+picBaseName+"_red.tif");
+			ij.IJ.save(colImg.get(1),path+"Statistics\\Pictures\\"+picBaseName+"_green.tif");
+			ij.IJ.save(colImg.get(2),path+"Statistics\\Pictures\\"+picBaseName+"_blue.tif");
+		}
 		ImageStack is = new ImageStack(colImg.get(0).getWidth(),colImg.get(0).getHeight());
 		is.addSlice(colImg.get(0).getProcessor());
 		is.addSlice(colImg.get(1).getProcessor());
@@ -165,7 +174,9 @@ public class OutputClass {
 		ij.IJ.saveAs(imgRGB, "png", fullFilename);
 		ImagePlus coloredImage = new ImagePlus("", is);
 		coloredImage.setDimensions(3, 1, 1);
-		ij.IJ.save(coloredImage, fullFilename);
+		if (mode < 2){
+			ij.IJ.save(coloredImage, fullFilename);
+		}
 		return fullFilename;
 	}
 	

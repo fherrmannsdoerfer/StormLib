@@ -601,10 +601,10 @@ public class StormData implements Serializable{
 	}
 	
 	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag){
-		return renderImage3D(pixelsize, tag, 10, 1);
+		return renderImage3D(pixelsize, tag, 10, 1,0);
 	}
 	
-	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag, double sigma, double percentile){ //render localizations from Stormdata to Image Plus Object
+	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag, double sigma, double percentile, int mode){ //render localizations from Stormdata to Image Plus Object
 		sigma = sigma/pixelsize;
 		//double sigma =  0.; //pixelsize //in nm sigma to blur localizations
 		int filterwidth = 7; // must be odd
@@ -620,12 +620,12 @@ public class StormData implements Serializable{
 		}
 		
 		coloredImage = addFilteredPoints(coloredImage, sigma, filterwidth, pixelsize,percentile, getLocs());
-		ArrayList<ImagePlus> colImg =write3dImage(pixelX,pixelY, coloredImage,pixelsize,tag);
+		ArrayList<ImagePlus> colImg =write3dImage(pixelX,pixelY, coloredImage,pixelsize,tag,mode);
 		
 		return colImg;
 	}
 	
-	public ArrayList<ImagePlus> write3dImage(int pixelX, int pixelY, ArrayList<float[][]> coloredImage, double pixelsize,String tag){
+	public ArrayList<ImagePlus> write3dImage(int pixelX, int pixelY, ArrayList<float[][]> coloredImage, double pixelsize,String tag, int mode){
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipBlue = new FloatProcessor(pixelX,pixelY);
@@ -642,7 +642,7 @@ public class StormData implements Serializable{
 		colImg.add(imgPRed);
 		colImg.add(imgPGreen);
 		colImg.add(imgPBlue);
-		Save3DImage si = new Save3DImage(path, getBasename(), tag, colImg, pixelsize);
+		Save3DImage si = new Save3DImage(path, getBasename(), tag, colImg, pixelsize, mode);
 		//only necessary if no Save3DImage object is created since the image is saved there anyways
 		//OutputClass.save3DImage(path, getBasename(), tag, colImg);
 		return colImg;
@@ -654,7 +654,7 @@ public class StormData implements Serializable{
 		//double factor = 100*1/(2*Math.PI*sigma*sigma);
 		double factor2 = -0.5/sigma/sigma;
 		//System.out.println(sd.getSize());
-		for (int i = 1; i<getSize(); i++){
+		for (int i = 0; i<getSize(); i++){
 			StormLocalization sl = sd.get(i);
 			double factor = 0;
 			switch (intensityMode){
@@ -724,7 +724,7 @@ public class StormData implements Serializable{
 		float[][] blueChannel = coloredImage.get(2);
 		for (int i = 1; i<getSize(); i++){
 			StormLocalization sl = sd.get(i);
-			double factor = sl.getIntensity()*1/(2*Math.PI*sigma*sigma);
+			double factor = 0.033*sl.getIntensity()*1/(2*Math.PI*sigma*sigma);
 			double posX = sl.getX()/pixelsize; //position of current localization
 			double posY = sl.getY()/pixelsize;
 			double posZ = sl.getZ() - zMin;
@@ -736,9 +736,9 @@ public class StormData implements Serializable{
 					try{
 						double weight = factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2)));
 						if (true){
-							redChannel[k][l] = (float) (redChannel[k][l] + getColor(posZ,zMax,0) * weight);
-							greenChannel[k][l] = (float) (greenChannel[k][l] +getColor(posZ,zMax,1) * weight);
-							blueChannel[k][l] = (float) (blueChannel[k][l] +getColor(posZ,zMax,2) * weight);
+							redChannel[k][l] = (float) (redChannel[k][l] + getColorRedToBlack(posZ,zMax,0) * weight);
+							greenChannel[k][l] = (float) (greenChannel[k][l] +getColorRedToBlack(posZ,zMax,1) * weight);
+							blueChannel[k][l] = (float) (blueChannel[k][l] +getColorRedToBlack(posZ,zMax,2) * weight);
 							if (redChannel[k][l]<0||greenChannel[k][l]<0||blueChannel[k][l]<0){
 								System.out.println(k+" "+l);
 							}
@@ -766,7 +766,55 @@ public class StormData implements Serializable{
 		coloredImage.add(normalizedChannels.get(0));
 		coloredImage.add(normalizedChannels.get(1));
 		coloredImage.add(normalizedChannels.get(2));
+//		coloredImage.clear();
+//		coloredImage.add(redChannel);
+//		coloredImage.add(greenChannel);
+//		coloredImage.add(blueChannel);
 		return coloredImage;
+	}
+	
+private static float getColorRedToBlack(double posZ, double zMax, int color) {
+		
+		if (posZ < 0.2* zMax&&posZ>=0){
+			//blue rises from 0 to 1
+			if (color == 2){
+				return (float) (5*posZ / zMax);
+			}
+		}
+		else if (posZ < 0.4* zMax&&posZ>0){
+			//green rises from 0 to 1 blue stays one
+			if (color == 1){
+				return (float)(5*posZ/zMax - 1);
+			}
+			if (color == 2){
+				return (float) 1;//(2 - 4*posZ/zMax)	;
+			}
+		}
+		else if (posZ < 0.6* zMax&&posZ>0){
+			//green stays one, blue goes to zero again
+			if (color == 1){
+				return (float) 1;//(4*posZ/zMax - 2);
+			}
+			if (color == 2){
+				return (float) (3 - 5*posZ/zMax);
+			}
+		}
+		else if (posZ<0.8*zMax&&posZ>0) {
+			//green goes to zero red rises
+			if (color == 0){
+				return (float) (5*posZ/zMax - 3);
+			}
+			if (color == 1){
+				return (float) (4-5*posZ/zMax);
+			}
+		}
+		else if (posZ<=zMax&&posZ>0){
+			//red goes from 1 to 0.5
+			if (color == 0){
+				return (float) (3-2.5*posZ/zMax);
+			}
+		}
+		return 0;
 	}
 	
 	private static float getColor(double posZ, double zMax, int color) {

@@ -21,7 +21,9 @@ import StormLib.HelperClasses.BasicProcessingInformation;
 public class Main {
 //
 	public static void main(String[] args) {
-		testResolution();
+		//testResolution();
+		createMovie();
+		//createProjections();
 		//settingsMaja();
 		//settingsFrank();
 		//splitMeasurements();
@@ -29,6 +31,36 @@ public class Main {
 		//testAutomaticAlignmentBeads();
 	}
 	
+	private static void createProjections() {
+		StormData sd = new StormData("B:\\Thesis\\tiffstack\\","thankyouTiffstack.txt");
+		ArrayList<Double> dims = sd.getDimensions();
+		sd.cropCoords(dims.get(0), dims.get(1), dims.get(2), dims.get(3), 27000, 28000);
+		sd.renderImage3D(10, "sigma10", 10, 1, 0);
+		sd.renderImage3D(10, "sigma20", 20, 1, 0);
+		sd.renderImage3D(10, "sigma40", 40, 1, 0);
+	}
+
+	private static void createMovie() {
+	StormData sd = new StormData("B:\\Thesis\\tiffstack\\","thankyouTiffstack.txt");
+	for (int i = 0; i<1000; i=i+25){
+		System.out.println(i);
+		StormData subset = sd.findSubset(0, i);
+		subset.renderImage3D(20, String.format("%06d", i), 20, 0.95, 2);
+	}
+	for (int i = 1000; i<5000; i=i+50){
+		System.out.println(i);
+		StormData subset = sd.findSubset(0, i);
+		subset.renderImage3D(20, String.format("%06d", i), 20, 0.95, 2);
+	}
+	for (int i = 5000; i<10000; i=i+100){
+		System.out.println(i);
+		StormData subset = sd.findSubset(0, i);
+		subset.renderImage3D(20, String.format("%06d", i), 20, 0.95, 2);
+	}
+	
+	
+}
+
 	private static void testResolution(){
 		StormData sd = new StormData("C:\\Users\\herrmannsdoerfer\\Downloads\\","LeftChannel141107MicrotubuliAlexa647Cos3dMessung2.txt");
 		sd.estimateLocalizationPrecision(150, 1000);
