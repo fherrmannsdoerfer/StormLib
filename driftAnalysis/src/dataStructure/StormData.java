@@ -511,9 +511,9 @@ public class StormData implements Serializable{
 			channel1.renderImage3D(pixelsize, tag+"ColorCodedChannel1");
 			channel2.renderImage3D(pixelsize, tag+"ColorCodedChannel2");
 		}		
-		//no idea what this is good for
-		//channel1.renderImage2D(pixelsize, true, tag+"ColorCodedChannel1_2D",0,-1,10,intensityMode,1);
-		//channel2.renderImage2D(pixelsize, true, tag+"ColorCodedChannel2_2D",0,-1,10,intensityMode,1);
+		
+		channel1.renderImage2D(pixelsize, true, tag+"ColorCodedChannel1_2D",0,-1,10,intensityMode,1);
+		channel2.renderImage2D(pixelsize, true, tag+"ColorCodedChannel2_2D",0,-1,10,intensityMode,1);
 		
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);
@@ -533,7 +533,7 @@ public class StormData implements Serializable{
 		colImg.add(imgPBlue);
 		SaveDemixingImageLog sl = new SaveDemixingImageLog(path, getBasename(), processingLog, colImg, params, pixelsize);
 		logs.add(sl);
-		OutputClass.saveDemixingImage(path, getBasename(), processingLog, colImg);
+		//OutputClass.saveDemixingImage(path, getBasename(), processingLog, colImg);
 		if (renderStack){
 			renderDemixingStack(params, tag, 
 			voxelSizeXY, voxelSizeZ, sigmaZXY, sigmaZZ);

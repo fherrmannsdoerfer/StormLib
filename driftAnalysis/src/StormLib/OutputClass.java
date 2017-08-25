@@ -511,6 +511,7 @@ public class OutputClass {
 			String datalabel, String xlabel, String ylabel, String title,String kindOfHistogram){
 		String picname = basename+"_Histogram_"+kindOfHistogram+tag+".png";
 		String fullFilename = path+"Statistics\\Pictures\\"+picname;
+		new File(path + "Statistics\\Pictures").mkdir();
 		CreateScatterPlot.createScatterPlotSingle(histData.get(0), histData.get(1),datalabel, xlabel,  ylabel,  title, fullFilename);
 		return fullFilename;
 	}
