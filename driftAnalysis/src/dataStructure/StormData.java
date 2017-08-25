@@ -531,15 +531,15 @@ public class StormData implements Serializable{
 		colImg.add(imgPRed);
 		colImg.add(imgPGreen);
 		colImg.add(imgPBlue);
-		SaveDemixingImageLog sl = new SaveDemixingImageLog(path, getBasename(), processingLog, colImg, params, pixelsize);
-		logs.add(sl);
-		//OutputClass.saveDemixingImage(path, getBasename(), processingLog, colImg);
+		//SaveDemixingImageLog sl = new SaveDemixingImageLog(path, getBasename(), processingLog, colImg, params, pixelsize);
+		//logs.add(sl);
+		if (individualChannels){
+			OutputClass.saveDemixingImage(path, getBasename(), tag, colImg);
+		}
 		if (renderStack){
 			renderDemixingStack(params, tag, 
 			voxelSizeXY, voxelSizeZ, sigmaZXY, sigmaZZ);
 		}
-		
-		
 		return colImg;
 	}
 	

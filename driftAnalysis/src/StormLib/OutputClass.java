@@ -174,7 +174,7 @@ public class OutputClass {
 		ij.IJ.saveAs(imgRGB, "png", fullFilename);
 		ImagePlus coloredImage = new ImagePlus("", is);
 		coloredImage.setDimensions(3, 1, 1);
-		if (mode < 2){
+		if (mode < 0){
 			ij.IJ.save(coloredImage, fullFilename);
 		}
 		return fullFilename;
