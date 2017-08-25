@@ -21,8 +21,9 @@ import StormLib.HelperClasses.BasicProcessingInformation;
 public class Main {
 //
 	public static void main(String[] args) {
+		twoColorRegistrationMultipleFiles("Y:\\Users_shared\\Frank\\Example_for_Registration\\","561","Y:\\Users_shared\\Frank\\Example_for_Registration\\","661");
 		//testResolution();
-		createMovie();
+		//createMovie();
 		//createProjections();
 		//settingsMaja();
 		//settingsFrank();
@@ -309,18 +310,18 @@ public class Main {
 		sd1.renderImage2D(10);
 		sd1.connectPoints(40, 40, 100, 3);
 		sd1.correctDrift((int)Math.ceil((double)sd1.getDimensions().get(7)/5));
-		sd1.renderImage2D(10);
-		sd1.getLocsPerFrame();
+		sd1.renderImage2D(10,"afterDC");
+		//sd1.getLocsPerFrame();
 		
 		sd2.renderImage2D(10);
 		sd2.connectPoints(40, 40, 100, 3);
 		sd2.correctDrift((int)Math.ceil((double)sd2.getDimensions().get(7)/5));
-		sd2.renderImage2D(10);
-		sd2.getLocsPerFrame();
+		sd2.renderImage2D(10,"afterDC");
+		//sd2.getLocsPerFrame();
 		
 		ArrayList<StormData> channels = BeadRegistration.doRegistration(sd1,sd2);
-		channels.get(0).renderImage2D(10,"alignedCH1");
-		channels.get(1).renderImage2D(10,"alignedCH1");
+		channels.get(0).renderImage2D(10,"alignedToCH1");
+		channels.get(1).renderImage2D(10,"alignedToCH1");
 	}
 	
 	static void twoColorRegistration(String path1, String fname1, String path2, String fname2){

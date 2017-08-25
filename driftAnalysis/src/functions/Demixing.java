@@ -38,24 +38,32 @@ public class Demixing {
     
     public static StormData spectralUnmixing(StormData ch1, StormData ch2, boolean useAll,
 			String tag){
-		return spectralUnmixing(ch1, ch2, useAll,"",60,500, 1500, 50,false);
+		return spectralUnmixing(ch1, ch2, useAll,"",60,500, 1500, 50,true,false);
 	}
 	
 	public static StormData spectralUnmixing(StormData ch1, StormData ch2, boolean useAll,
 			double dist,double minInt, int nbrIter, double toleratedError){
-		return spectralUnmixing(ch1, ch2, useAll,"",dist,minInt, nbrIter, toleratedError,false);
+		return spectralUnmixing(ch1, ch2, useAll,"",dist,minInt, nbrIter, toleratedError,true,false);
 	}
 	
 	public static StormData spectralUnmixing(StormData ch1, StormData ch2,double dist, double minInt,
 			int nbrIter, double toleratedError,boolean savePairedPoints){
-		return spectralUnmixing(ch1, ch2, false,"",dist, minInt, nbrIter, toleratedError, savePairedPoints);
+		return spectralUnmixing(ch1, ch2, false,"",dist, minInt, nbrIter, toleratedError,true, savePairedPoints);
 	}
 	
 	public static StormData spectralUnmixing(StormData ch1, StormData ch2, boolean useAll, String tag,
-			double dist, double minInt, int nbrIter, double toleratedError,boolean savePairedPoints){
+			double dist, double minInt, int nbrIter, double toleratedError,boolean useShiftOnly,boolean savePairedPoints){
 		executor = Executors.newFixedThreadPool(12);
 		executor2 = Executors.newFixedThreadPool(12);
-		double[][] trafo = findGlobalTransformationMultithreaded(ch1, ch2,nbrIter, toleratedError);
+		double[][] trafo;
+		if (useShiftOnly){
+			trafo = findGlobalTransformationShiftOnly(ch1,ch2, nbrIter,toleratedError);	
+		}
+		else {
+			trafo = findGlobalTransformationMultithreaded(ch1, ch2,nbrIter, toleratedError);
+		}
+		
+		//double[][] trafo = findGlobalTransformationMultithreaded(ch1, ch2,nbrIter, toleratedError);
 		//double[][] trafo = {{0.9989659705798773, -0.00152716543305873, 100.09632875943628},{-4.850730075698712E-4, 0.9986236679388222, -51.39384826518874}};
 		
 		
@@ -67,6 +75,68 @@ public class Demixing {
 		return combinedSet;
 	}
 	
+	//function to determin the shift between the two input channels
+	//no ratation is assumed. Pairs of localizations are searched based on their proximity
+	//if more than 1 point is within the search radius these points are not used.
+	//from all candidates the mean coordinates are calculated and the shift is calculated by
+	//comparing both mean coordinates.
+	private static double[][] findGlobalTransformationShiftOnly(StormData ch1,
+			StormData ch2, int nbrIter, double toleratedError) {
+		double renderPixelsize = 10;
+		double distThreshold = 1000;
+		ArrayList<Integer> frames = new ArrayList<Integer>();
+		ArrayList<Double> dims = ch1.getDimensions();
+		for (int i = 1; i<10;i++){
+			frames.add((int)Math.floor((dims.get(7)+dims.get(6))/2)+i);
+		}
+		ArrayList<StormLocalization> candidatesCh1 = new ArrayList<StormLocalization>();
+		ArrayList<StormLocalization> candidatesCh2 = new ArrayList<StormLocalization>();
+		for (int i = 0; i<frames.size(); i++){
+			int currFrame = frames.get(i);
+			StormData currentSetCh1 = ch1.findSubset(currFrame, currFrame);
+			StormData currentSetCh2 = ch2.findSubset(currFrame, currFrame);
+			for (int j=0; j<currentSetCh1.getSize(); j++){
+				int counterClosePoints = 0; //counter that keeps track of the number of close points
+				StormLocalization currentLocCh1 = currentSetCh1.getElement(j);
+				StormLocalization currentCandidateCh2 = new StormLocalization(0,0,0,0,0);
+				for (int k=0; k<currentSetCh2.getSize();k++){
+					if (Math.pow(currentLocCh1.getX()- currentSetCh2.getElement(k).getX(),2)+Math.pow(currentLocCh1.getY()- currentSetCh2.getElement(k).getY(),2)<Math.pow(distThreshold,2))
+					{
+						currentCandidateCh2 = currentSetCh2.getElement(k);
+						counterClosePoints++;
+						if (counterClosePoints>1){
+							break;
+						}
+					}
+				}
+				if (counterClosePoints == 1){
+					candidatesCh1.add(currentLocCh1);
+					candidatesCh2.add(currentCandidateCh2);
+				}
+			}
+		}
+		double meanXCh1 = 0;
+		double meanYCh1 = 0;
+		double meanXCh2 = 0;
+		double meanYCh2 = 0;
+		for (int i = 0; i<candidatesCh1.size(); i++){
+			meanXCh1 += candidatesCh1.get(i).getX();
+			meanYCh1 += candidatesCh1.get(i).getY();
+			meanXCh2 += candidatesCh2.get(i).getX();
+			meanYCh2 += candidatesCh2.get(i).getY();
+		}
+		meanXCh1 /= candidatesCh1.size();
+		meanYCh1 /= candidatesCh1.size();
+		meanXCh2 /= candidatesCh1.size();
+		meanYCh2 /= candidatesCh1.size();
+		
+		//ArrayList<Double> displacement = FeatureBasedDriftCorrection.findDisplacementBetweenFrames(ch1.renderImage2D(renderPixelsize,false).getProcessor(),
+		//		ch2.renderImage2D(renderPixelsize,false).getProcessor(), 90);
+		System.out.println("disp x: "+-(meanXCh1 - meanXCh2)+" disp y:"+-(meanYCh1 - meanYCh2));
+		double[][] trafo = {{1, 0, -meanXCh1 + meanXCh2},{0, 1, -meanYCh1 + meanYCh2}};
+		return trafo;
+	}
+
 	static StormData doUnmixingMultiThreaded(StormData untransformedCh1, StormData ch2, double[][] trafo, 
 			boolean useAll,String tag, double dist, double minInt, boolean savePairedPoints){
 		StormData ch1 = TransformationControl.applyTrafo(trafo, untransformedCh1);

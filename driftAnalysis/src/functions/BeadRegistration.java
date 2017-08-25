@@ -160,8 +160,8 @@ public class BeadRegistration {
 			StormData sd1, StormData sd2) {
 
 		int pixelsize = 10;
-		ArrayList<ArrayList<double[]>> beadEstimates2 = findBeadCandidatesImageBased(sd1,sd2,pixelsize);
-		ArrayList<ArrayList<double[]>> beadEstimates = findBeadCandidatesTraceBased(sd1,sd2,10000);
+		ArrayList<ArrayList<double[]>> beadEstimates = findBeadCandidatesImageBased(sd1,sd2,pixelsize);
+		ArrayList<ArrayList<double[]>> beadEstimates2 = findBeadCandidatesTraceBased(sd1,sd2,10000);
 
 		
 		ArrayList<ArrayList<StormLocalization>> listOfBeadsCh1 = new ArrayList<ArrayList<StormLocalization>>(); //an Arraylist for each potential bead

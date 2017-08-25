@@ -90,6 +90,7 @@ public class Utilities {
 			Arrays.sort(files);
 			sd1.setPath(path1);
 			sd1.setFname(pattern1+"mergedFile"+".txt");
+			sd1.setBasename(pattern1+"mergedFile"+".txt");
 			for (int i = 0; i<files.length; i++ ){
 				if(isValidInputFile(files[i], pattern1)){
 					StormData tmp = new StormData(files[i].getParent(),files[i].getName());
@@ -104,11 +105,11 @@ public class Utilities {
 			Arrays.sort(files2);
 			sd2.setPath(path2);
 			sd2.setFname(pattern2+"mergedFile"+".txt");
-	
+			sd2.setBasename(pattern2+"mergedFile"+".txt");
 			
 			for (int i = 0; i<files2.length; i++ ){
 				if(isValidInputFile(files2[i], pattern2)){
-					StormData tmp = new StormData(files2[i].getAbsolutePath());
+					StormData tmp = new StormData(files2[i].getParent(),files2[i].getName());
 					sd2.addStormData(tmp);
 					setProgress("MultipleInput",(int)(100.*i/(files.length+files2.length)+100*files.length/(files.length+files2.length)));
 				}

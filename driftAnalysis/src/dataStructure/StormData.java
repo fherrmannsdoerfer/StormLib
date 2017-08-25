@@ -392,7 +392,7 @@ public class StormData implements Serializable{
 		//render localizations from Stormdata to Image Plus Object
 		//mode specifies which projection is rendered 0:xy plane, 1: xz, 2:yz
 		sigma = sigma/pixelsize; //in nm sigma to blur localizations
-		int filterwidth = (int) ( 2*Math.floor(2*(int)sigma)+1); // must be odd
+		int filterwidth = (int) ( 2*Math.floor(2*(int)sigma)+1)+2; // must be odd
 		ArrayList<Double> dims = getDimensions();
 		int pixelX = 0;
 		int pixelY = 0;
@@ -472,12 +472,12 @@ public class StormData implements Serializable{
 	
 	
 	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, DemixingParameters params){
-		return renderDemixingImage(pixelsize, 1, params, processingLog,0,10,false,0,0,0,0);
+		return renderDemixingImage(pixelsize, 1, params, processingLog,0,10,false,0,0,0,0,true);
 	}
 		
 	public ArrayList<ImagePlus> renderDemixingImage(double pixelsize, double percentile, 
 			DemixingParameters params, String tag, int intensityMode, double sigma,boolean renderStack,
-			double voxelSizeXY, double voxelSizeZ, double sigmaZXY, double sigmaZZ){
+			double voxelSizeXY, double voxelSizeZ, double sigmaZXY, double sigmaZZ, boolean individualChannels){
 		sigma = sigma/pixelsize; //in nm sigma to blur localizations
 		int filterwidth = 7; // must be odd
 		ArrayList<Double> dims = getDimensions();
@@ -505,10 +505,15 @@ public class StormData implements Serializable{
 		StormData channel1 = new StormData(locsCh1,getPath(),getFname());
 		StormData channel2 = new StormData(locsCh2,getPath(),getFname());
 		
-		channel1.renderImage3D(pixelsize, tag+"ColorCodedChannel1");
-		channel2.renderImage3D(pixelsize, tag+"ColorCodedChannel2");
-		channel1.renderImage2D(pixelsize, true, tag+"ColorCodedChannel1_2D",0,-1,10,intensityMode,1);
-		channel2.renderImage2D(pixelsize, true, tag+"ColorCodedChannel2_2D",0,-1,10,intensityMode,1);
+		
+		if (individualChannels){
+			//color coded z projection for both channels individually
+			channel1.renderImage3D(pixelsize, tag+"ColorCodedChannel1");
+			channel2.renderImage3D(pixelsize, tag+"ColorCodedChannel2");
+		}		
+		//no idea what this is good for
+		//channel1.renderImage2D(pixelsize, true, tag+"ColorCodedChannel1_2D",0,-1,10,intensityMode,1);
+		//channel2.renderImage2D(pixelsize, true, tag+"ColorCodedChannel2_2D",0,-1,10,intensityMode,1);
 		
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);

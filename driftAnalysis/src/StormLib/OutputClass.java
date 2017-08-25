@@ -121,7 +121,7 @@ public class OutputClass {
 			ArrayList<ImagePlus> colImg) {
 		String picBaseName = basename+"_3Ddemixing_"+tag;
 		String fullFilename = path+"Statistics\\Pictures\\"+picBaseName+"All.png";
-		String fullFilenameTif = path+"Statistics\\Pictures\\"+picBaseName+"All.tif";
+		//String fullFilenameTif = path+"Statistics\\Pictures\\"+picBaseName+"All.tif";
 		ij.IJ.save(colImg.get(0),path+"Statistics\\Pictures\\"+picBaseName+"_red.tif");
 		ij.IJ.save(colImg.get(1),path+"Statistics\\Pictures\\"+picBaseName+"_green.tif");
 		ij.IJ.save(colImg.get(2),path+"Statistics\\Pictures\\"+picBaseName+"_blue.tif");
@@ -140,7 +140,7 @@ public class OutputClass {
 		
 		ImagePlus coloredImage = new ImagePlus("", is);
 		coloredImage.setDimensions(3, 1, 1);
-		ij.IJ.save(coloredImage, fullFilenameTif);
+		//ij.IJ.save(coloredImage, fullFilenameTif);
 //		coloredImage.getProcessor().convertToRGB();
 //		ij.IJ.saveAs(coloredImage, "png", fullFilename);
 		return fullFilename;
