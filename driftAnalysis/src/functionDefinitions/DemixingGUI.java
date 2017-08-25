@@ -8,6 +8,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -40,7 +42,10 @@ public class DemixingGUI extends ProcessingStepsPanel implements Serializable{
 	public DemixingGUI(){}
 	
 	private JPanel createOptionPanel(){
+		useShiftOnly.addActionListener(new Listener());
 		useShiftOnly.setSelected(true);
+		nbrIter.setEnabled(false);
+		toleratedError.setEnabled(false);
 		JPanel retPanel = new JPanel();
 		retPanel.setSize(300, 500);
 		Box verticalBox = Box.createVerticalBox();
@@ -160,6 +165,23 @@ public class DemixingGUI extends ProcessingStepsPanel implements Serializable{
 		}
 		sd1.copyStormData(unmixedFromParts);
 		setProgressbarValue(100);
+		
+	}
+	
+	class Listener implements ActionListener
+	{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (useShiftOnly.isSelected()){
+				nbrIter.setEnabled(false);
+				toleratedError.setEnabled(false);
+			}
+			else{
+				nbrIter.setEnabled(true);
+				toleratedError.setEnabled(true);
+			}
+		}
 		
 	}
 }
