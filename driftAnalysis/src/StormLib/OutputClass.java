@@ -102,11 +102,11 @@ public class OutputClass {
 		String picnameTif = basename+"_2Dreconstruction_"+tag+".tif";
 		String fullFilename = path+"Statistics\\Pictures\\"+picname;
 		String fullFilenameTif = path+"Statistics\\Pictures\\"+picnameTif;
-		save2DImage(fullFilename,imgP);
+		//save2DImage(fullFilename,imgP);
 		//ij.IJ.save(new ImagePlus("",imgP.getProcessor().convertToByte(false)), fullFilename);
 		save2DImage(fullFilenameTif,imgP);
 		//ij.IJ.save(imgP, fullFilenameTif);
-		writeImageSaveStatistics(path, basename, pixelsize, imgP, picname);
+		//writeImageSaveStatistics(path, basename, pixelsize, imgP, picname);
 		return fullFilename;
 	}
 	

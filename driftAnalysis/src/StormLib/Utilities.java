@@ -948,7 +948,7 @@ public class Utilities {
 				
 				new File(subset.getPath()).mkdir();
 				subset.writeLocsForBaumgart();
-				ij.IJ.save(subset.renderImage2D(10, false, "", 0, -1, 3, 1, 1),subset.getPath()+"\\"+subset.getBasename()+".tiff");
+				ij.IJ.save(subset.renderImage2D(10, false, "", 0, -1, 3, 1, 1,true),subset.getPath()+"\\"+subset.getBasename()+".tiff");
 				i = i + chunksize;
 				counter = counter +1;
 			}
@@ -968,7 +968,7 @@ public class Utilities {
 				subset.setFname("partTracedPerc0_"+percentages.get(i)+".txt");
 				new File(subset.getPath()).mkdir();
 				subset.writeLocsForBaumgart();
-				ij.IJ.save(subset.renderImage2D(10, false, "", 0, -1, 3, 1, 1),subset.getPath()+"\\"+subset.getBasename()+".tiff");
+				ij.IJ.save(subset.renderImage2D(10, false, "", 0, -1, 3, 1, 1,true),subset.getPath()+"\\"+subset.getBasename()+".tiff");
 			}
 				
 
@@ -990,7 +990,7 @@ public class Utilities {
 					subset.setFname("partTracedPerc0_"+percentages.get(i)+"Randomly.txt");
 					new File(subset.getPath()).mkdir();
 					subset.writeLocsForBaumgart();
-					ij.IJ.save(subset.renderImage2D(10, false, "", 0, -1, 3, 1, 1),subset.getPath()+"\\"+subset.getBasename()+".tiff");
+					ij.IJ.save(subset.renderImage2D(10, false, "", 0, -1, 3, 1, 1,true),subset.getPath()+"\\"+subset.getBasename()+".tiff");
 				}
 			}
 			else{
@@ -1002,7 +1002,7 @@ public class Utilities {
 					subset.setFname("partTracedPerc0_"+percentages.get(i)+"Randomly.txt");
 					new File(subset.getPath()).mkdir();
 					subset.writeLocsForBaumgart();
-					ij.IJ.save(subset.renderImage2D(10, false, "", 0, -1, 3, 1, 1),subset.getPath()+"\\"+subset.getBasename()+".tiff");
+					ij.IJ.save(subset.renderImage2D(10, false, "", 0, -1, 3, 1, 1,true),subset.getPath()+"\\"+subset.getBasename()+".tiff");
 				}
 			}
 				
@@ -1018,7 +1018,8 @@ public class Utilities {
 			}
 			try(Stream<Path> paths = Files.walk(Paths.get(path))){
 				paths.forEach(filePath -> {
-					if (filePath.endsWith(Paths.get(folderName))){
+					Path lastFolder = filePath.getFileName();//gets Last Folder
+					if (lastFolder.toString().contains(Paths.get(folderName).toString())){//now only has to be contained
 						retPaths.add(filePath.toString());
 						System.out.println(filePath.toString());
 					}

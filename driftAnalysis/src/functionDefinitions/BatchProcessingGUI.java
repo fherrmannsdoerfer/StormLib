@@ -41,7 +41,7 @@ public class BatchProcessingGUI extends ProcessingStepsPanel{
 		foldername.setPreferredSize(d);
 		verticalBox.add(new JLabel("Path of Parent Directory:"));
 		verticalBox.add(path);
-		verticalBox.add(new JLabel("Foldername:"));
+		verticalBox.add(new JLabel("Pattern:"));
 		verticalBox.add(foldername);
 		foldername.setAlignmentX(0);
 		path.setAlignmentX(0);

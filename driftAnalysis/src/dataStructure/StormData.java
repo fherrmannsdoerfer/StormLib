@@ -360,35 +360,35 @@ public class StormData implements Serializable{
 		return ret;
 	}
 	public ImagePlus renderImage2D(double pixelsize){
-		return renderImage2D(pixelsize, true, processingLog,0,-1,10,0,1); // function is also used to create images for the fourier transformation for the drift correction
+		return renderImage2D(pixelsize, true, processingLog,0,-1,10,0,1,true); // function is also used to create images for the fourier transformation for the drift correction
 	}
 	public ImagePlus renderImage2D(double pixelsize, String tag) {
-		return renderImage2D(pixelsize, true, tag,0,-1,10,0,1);
+		return renderImage2D(pixelsize, true, tag,0,-1,10,0,1,true);
 	}
 	public ImagePlus renderImage2D(double pixelsize, String tag, int intensityMode){
-		return renderImage2D(pixelsize,true, tag, 0,-1,10,intensityMode,1);
+		return renderImage2D(pixelsize,true, tag, 0,-1,10,intensityMode,1,true);
 	}
 	
 	public ImagePlus renderImage2D(double pixelsize, String tag, int intensityMode,float percentile){
-		return renderImage2D(pixelsize,true, tag, 0,-1,10,intensityMode,percentile);
+		return renderImage2D(pixelsize,true, tag, 0,-1,10,intensityMode,percentile,true);
 	}
-	public ImagePlus renderImage2D(double pixelsize, String tag, int intensityMode,float percentile,double sigma){
-		return renderImage2D(pixelsize,true, tag, 0,-1,sigma,intensityMode,percentile);
+	public ImagePlus renderImage2D(double pixelsize, String tag, int intensityMode,float percentile,double sigma, boolean doNormalization){
+		return renderImage2D(pixelsize,true, tag, 0,-1,sigma,intensityMode,percentile, doNormalization);
 	}
 	
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage){
-		return renderImage2D(pixelsize, saveImage, "",0,-1,10,0,1);
+		return renderImage2D(pixelsize, saveImage, "",0,-1,10,0,1,true);
 	}
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag){
-		return renderImage2D(pixelsize, saveImage,tag,0,-1,10,0,1);
+		return renderImage2D(pixelsize, saveImage,tag,0,-1,10,0,1,true);
 	}
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize){
-		return renderImage2D(pixelsize,saveImage,tag,mode,maxPixelsize,10,0,1);
+		return renderImage2D(pixelsize,saveImage,tag,mode,maxPixelsize,10,0,1,true);
 	}
 	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize, double sigma){
-		return renderImage2D(pixelsize,saveImage,tag,mode,maxPixelsize,sigma,0,1);
+		return renderImage2D(pixelsize,saveImage,tag,mode,maxPixelsize,sigma,0,1,true);
 	}
-	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize, double sigma, int intensityMode,float percentile){ 
+	public ImagePlus renderImage2D(double pixelsize, boolean saveImage, String tag,int mode, int maxPixelsize, double sigma, int intensityMode,float percentile, boolean doNormalization){ 
 		//render localizations from Stormdata to Image Plus Object
 		//mode specifies which projection is rendered 0:xy plane, 1: xz, 2:yz
 		sigma = sigma/pixelsize; //in nm sigma to blur localizations
@@ -450,7 +450,7 @@ public class StormData implements Serializable{
 			}
 		}
 		System.out.println("Summe : " + summe);
-		if (intensityMode == 0){
+		if (intensityMode == 0 && doNormalization){
 			image = normalizeChannel(image,percentile);
 		}
 		ImageProcessor ip = new FloatProcessor(pixelX,pixelY);
@@ -508,12 +508,12 @@ public class StormData implements Serializable{
 		
 		if (individualChannels){
 			//color coded z projection for both channels individually
-			channel1.renderImage3D(pixelsize, tag+"ColorCodedChannel1");
-			channel2.renderImage3D(pixelsize, tag+"ColorCodedChannel2");
+			channel1.renderImage3D(pixelsize, tag);
+			channel2.renderImage3D(pixelsize, tag);
 		}		
 		
-		channel1.renderImage2D(pixelsize, true, tag+"ColorCodedChannel1_2D",0,-1,10,intensityMode,1);
-		channel2.renderImage2D(pixelsize, true, tag+"ColorCodedChannel2_2D",0,-1,10,intensityMode,1);
+		channel1.renderImage2D(pixelsize, true, tag,0,-1,10,intensityMode,1,true);
+		channel2.renderImage2D(pixelsize, true, tag,0,-1,10,intensityMode,1,true);
 		
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);
@@ -609,7 +609,8 @@ public class StormData implements Serializable{
 		return renderImage3D(pixelsize, tag, 10, 1,0);
 	}
 	
-	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag, double sigma, double percentile, int mode){ //render localizations from Stormdata to Image Plus Object
+	//render localizations from Stormdata to Image Plus Object
+	public ArrayList<ImagePlus> renderImage3D(double pixelsize, String tag, double sigma, double percentile, int mode){ 
 		sigma = sigma/pixelsize;
 		//double sigma =  0.; //pixelsize //in nm sigma to blur localizations
 		int filterwidth = 7; // must be odd
@@ -688,8 +689,8 @@ public class StormData implements Serializable{
 					break;
 			}
 			
-			int pixelXStart = (int)Math.floor(posX) - (filterwidth-1)/2;
-			int pixelYStart = (int)Math.floor(posY) - (filterwidth-1)/2;
+			int pixelXStart = (int)Math.round(posX) - (filterwidth+1)/2;
+			int pixelYStart = (int)Math.round(posY) - (filterwidth+1)/2;
 			float corrFactor = 1; //factor to compensate the cutoff due to discrete Gaussian
 			if (intensityMode == 1){
 				for (int k = pixelXStart; k<pixelXStart+ filterwidth;k++){
@@ -1783,8 +1784,8 @@ private static float getColorRedToBlack(double posZ, double zMax, int color) {
 			ImagePlus imgPtmp2 = new ImagePlus("",tmp2);
 			stackImgP2.add(imgPtmp2);
 		}
-		OutputClass.save3Dstack(path, getBasename(), tag+"channel1", stackImgP1);
-		OutputClass.save3Dstack(path, getBasename(), tag+"channel2", stackImgP2);
+		OutputClass.save3Dstack(path, getBasename(), tag+"Ch1", stackImgP1);
+		OutputClass.save3Dstack(path, getBasename(), tag+"Ch2", stackImgP2);
 		
 	}
 
