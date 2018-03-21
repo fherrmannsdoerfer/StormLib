@@ -75,8 +75,8 @@ public class Demixing {
 		return combinedSet;
 	}
 	
-	//function to determin the shift between the two input channels
-	//no ratation is assumed. Pairs of localizations are searched based on their proximity
+	//function to determine the shift between the two input channels
+	//no rotation is assumed. Pairs of localizations are searched based on their proximity
 	//if more than 1 point is within the search radius these points are not used.
 	//from all candidates the mean coordinates are calculated and the shift is calculated by
 	//comparing both mean coordinates.
