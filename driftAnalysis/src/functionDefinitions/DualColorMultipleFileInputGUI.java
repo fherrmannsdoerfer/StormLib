@@ -37,9 +37,11 @@ public class DualColorMultipleFileInputGUI extends ImportModules{
 	final JFileChooser dualChannel1FileChooser = new JFileChooser();
 	final JFileChooser dualChannel2FileChooser = new JFileChooser();
 	private static String name = "Dual-Channel Multiple File Input";
+	transient MainFrame mf;
 	
 	public DualColorMultipleFileInputGUI(MainFrame mf) {
 		super(mf);
+		this.mf = mf;
 		this.setParameterButtonsName(name);
 		this.setColor(mf.style.getColorInput());
 		this.setOptionPanel(createOptionPanel());
@@ -161,19 +163,21 @@ public class DualColorMultipleFileInputGUI extends ImportModules{
 		ArrayList<StormData> list = Utilities.openSeries(path1.getText(), pattern1.getText(), path2.getText(), pattern2.getText());
 		sd1.copyStormData(list.get(0));
 		sd2.copyStormData(list.get(1));
-		if (basename1.getText().equals("")){
-			sd1.setBasename(pattern1.getText());
+		if (mf.isBatchprocessingUsed()){
+			sd1.setBasename(sd1.getMeassurement());
+			basename1.setText(sd1.getMeassurement());
 		}
 		else{
 			sd1.setBasename(basename1.getText());
 		}
-		if (basename1.getText().equals("")){
-			sd2.setBasename(pattern2.getText());
+		if (mf.isBatchprocessingUsed()){
+			sd2.setBasename(sd2.getMeassurement());
+			basename2.setText(sd2.getMeassurement());
 		}
 		else{
 			sd2.setBasename(basename2.getText());
 		}
-		
+
 		setProgressbarValue(100);
 	}
 	

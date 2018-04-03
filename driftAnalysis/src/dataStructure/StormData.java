@@ -503,17 +503,18 @@ public class StormData implements Serializable{
 		ArrayList<StormLocalization> locsCh2 = new ArrayList<StormLocalization>();
 		coloredImage = renderDemixing(coloredImage, sigma, filterwidth, pixelsize, percentile, params, locsCh1, locsCh2);
 		StormData channel1 = new StormData(locsCh1,getPath(),getFname());
+		channel1.setBasename(getBasename());
 		StormData channel2 = new StormData(locsCh2,getPath(),getFname());
-		
+		channel2.setBasename(getBasename());
 		
 		if (individualChannels){
 			//color coded z projection for both channels individually
-			channel1.renderImage3D(pixelsize, tag);
-			channel2.renderImage3D(pixelsize, tag);
+			channel1.renderImage3D(pixelsize, tag+"Ch1");
+			channel2.renderImage3D(pixelsize, tag+"Ch2");
 		}		
 		
-		channel1.renderImage2D(pixelsize, true, tag,0,-1,10,intensityMode,1,true);
-		channel2.renderImage2D(pixelsize, true, tag,0,-1,10,intensityMode,1,true);
+		channel1.renderImage2D(pixelsize, true, tag+"Ch1",0,-1,10,intensityMode,1,true);
+		channel2.renderImage2D(pixelsize, true, tag+"Ch2",0,-1,10,intensityMode,1,true);
 		
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);
@@ -1416,6 +1417,7 @@ private static float getColorRedToBlack(double posZ, double zMax, int color) {
 		
 	}
 	
+
 	public String findBasename(String fname){
 		return basename =  fname.substring(0, fname.length()-4);
 	}
@@ -1433,6 +1435,7 @@ private static float getColorRedToBlack(double posZ, double zMax, int color) {
 		}
 	}
 	
+	//get name of parent folder
 	public String getMeassurement(){
 		String[] parts = path.split("\\\\");
 		return parts[parts.length-3];

@@ -98,8 +98,8 @@ public class OutputClass {
 	}
 
 	public static String save2DImage(String path, String basename, String tag, ImagePlus imgP, double pixelsize) {
-		String picname = basename+"_2Dreconstruction_"+tag+".png";
-		String picnameTif = basename+"_2Dreconstruction_"+tag+".tif";
+		String picname = basename+"_2D_"+tag+".png";
+		String picnameTif = basename+"_2D_"+tag+".tif";
 		String fullFilename = path+"Statistics\\Pictures\\"+picname;
 		String fullFilenameTif = path+"Statistics\\Pictures\\"+picnameTif;
 		//save2DImage(fullFilename,imgP);
@@ -155,7 +155,7 @@ public class OutputClass {
 	
 	public static String save3DImage(String path, String basename, String tag,
 			ArrayList<ImagePlus> colImg, int mode){
-		String picBaseName = basename+"_3Dreconstruction_"+tag;
+		String picBaseName = basename+"_3D_"+tag;
 		String fullFilename = path+"Statistics\\Pictures\\"+picBaseName+"All.tif";
 		if (mode <1){
 			ij.IJ.save(colImg.get(0),path+"Statistics\\Pictures\\"+picBaseName+"_red.tif");
@@ -182,7 +182,7 @@ public class OutputClass {
 	
 	public static String save3Dstack(String path, String basename, String tag,
 			ArrayList<ImagePlus> colImg){
-		String picBaseName = basename+"_3Dreconstruction_"+tag;
+		String picBaseName = basename+"_3D_"+tag;
 		String fullFilename = path+"Statistics\\Pictures\\"+picBaseName+"STACK.tif";
 		
 		ImageStack is = new ImageStack(colImg.get(0).getWidth(),colImg.get(0).getHeight());
@@ -476,7 +476,7 @@ public class OutputClass {
 			ArrayList<StormLocalization> ch2 ,ArrayList<StormLocalization> utch1, String tag){
 		try {
 			PrintWriter outputStream = new PrintWriter(new FileWriter(
-					path+"Statistics\\Texts\\"+basename+"DemixingStatistic"+tag+".txt"));
+					path+"Statistics\\Texts\\"+basename+"DemixingStat"+tag+".txt"));
 			outputStream.print("Automatically generated log file for the pairwise occuring points.  ");
 			outputStream.println("Structure: channel 1 channel2 untransformed channel 1");
 			for (int j = 0;j<ch1.size();j++){

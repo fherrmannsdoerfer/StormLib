@@ -80,7 +80,9 @@ public class MainFrame extends JFrame implements Serializable{
 	private final ArrayList<String> optionsPreselectedTasksComboBoxAuto = new ArrayList<String>();
 	public StyleClass style = new StyleClass();
 	ButtonGroup bg = new ButtonGroup();
-		
+	
+	boolean usesBatchProcessing = false;
+	
 	File folder = new File(System.getProperty("user.home")+"//PostProcessingSoftware"); //Folder of savedPresettings
 	private final ArrayList<ProcessingStepsPanel> outputComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
 	private final ArrayList<ProcessingStepsPanel> inputComboBoxOptions = new ArrayList<ProcessingStepsPanel>();
@@ -109,11 +111,11 @@ public class MainFrame extends JFrame implements Serializable{
 		outputComboBoxOptions.add(new RenderDemixingImage());
 		outputComboBoxOptions.add(new WriteArrayListForVisp());
 		outputComboBoxOptions.add(new WriteLocalizationsToFile());
-		outputComboBoxOptions.add(new CreateLogFileGUI());
+		//outputComboBoxOptions.add(new CreateLogFileGUI());
 		
 		inputComboBoxOptions.add(new BatchProcessingGUI());
-		inputComboBoxOptions.add(new SingleFileInputGUI());
-		inputComboBoxOptions.add(new DualChannelSingleFileInputGUI());
+		//inputComboBoxOptions.add(new SingleFileInputGUI());
+		//inputComboBoxOptions.add(new DualChannelSingleFileInputGUI());
 		inputComboBoxOptions.add(new MultipleFileInputGUI());
 		inputComboBoxOptions.add(new DualColorMultipleFileInputGUI());
 		
@@ -410,6 +412,9 @@ public class MainFrame extends JFrame implements Serializable{
 		verticalBox_4.add(verticalStrut_5);
 		
 		optionPanel = new JPanel();
+		optionPanel.setBackground(style.getColorPanel());
+		panel.setBackground(style.getColorPanel());
+		getContentPane().setBackground(style.getColorBackground());
 		verticalBox_4.add(optionPanel);
 		optionPanel.setMinimumSize(mf.style.getDimensionOptionPane());
 		
@@ -602,7 +607,14 @@ public class MainFrame extends JFrame implements Serializable{
 		}
 	}
 	
-	
+	public boolean isBatchprocessingUsed() {
+		for (ProcessingStepsPanel psp:listProcessingStepPanels) {
+			if (psp instanceof BatchProcessingGUI){
+				return true;
+			}
+		}
+		return false;
+	}
 	
 }
 

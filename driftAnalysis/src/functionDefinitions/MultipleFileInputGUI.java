@@ -19,8 +19,10 @@ public class MultipleFileInputGUI extends ImportModules{
 	JTextField pattern = new JTextField();
 	JTextField basename = new JTextField();
 	private static String name = "Multiple File Input";
+	transient MainFrame mf;
 	public MultipleFileInputGUI(MainFrame mf) {
 		super(mf);
+		this.mf = mf;
 		this.setParameterButtonsName(name);
 		this.setColor(mf.style.getColorInput());
 		path.setPreferredSize(mf.style.getDimensionPathFields());
@@ -86,8 +88,9 @@ public class MultipleFileInputGUI extends ImportModules{
 	public void process(StormData sd1, StormData sd2) {		
 		sd1.setFname(getPattern());
 		sd1.setPath(getPath());		
-		if (basename.getText().equals("")){
-			sd1.setBasename(getPattern());
+		if (mf.isBatchprocessingUsed()){
+			sd1.setBasename(sd1.getMeassurement());
+			basename.setText(sd1.getMeassurement());
 		}
 		else {
 			sd1.setBasename(basename.getText());

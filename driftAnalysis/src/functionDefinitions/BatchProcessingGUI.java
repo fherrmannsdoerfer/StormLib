@@ -21,8 +21,10 @@ public class BatchProcessingGUI extends ProcessingStepsPanel{
 	ArrayList<String> paths = new ArrayList<String>();
 	int counter = 0;
 	private static String name = "Batch Processing";
+	transient MainFrame mf;
 	public BatchProcessingGUI(MainFrame mf) {
 		super(mf);
+		this.mf = mf;
 		this.setParameterButtonsName(name);
 		this.setColor(mf.style.getBatchProcessingColor());
 		path.setPreferredSize(mf.style.getDimensionPathFields());

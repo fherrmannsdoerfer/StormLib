@@ -20,7 +20,7 @@ public class ScalingGUI extends ProcessingStepsPanel{
 	 */
 	private static final long serialVersionUID = 1L;
 	JTextField scaleX = new JTextField("1");
-	JTextField scaleY = new JTextField("0.925");
+	JTextField scaleY = new JTextField("0.938");
 	JTextField scaleZ = new JTextField("1");
 	JCheckBox ch1Chkbox = new JCheckBox();
 	JCheckBox ch2Chkbox = new JCheckBox();
