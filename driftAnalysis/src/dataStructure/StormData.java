@@ -513,8 +513,8 @@ public class StormData implements Serializable{
 			channel2.renderImage3D(pixelsize, tag+"Ch2");
 		}		
 		
-		channel1.renderImage2D(pixelsize, true, tag+"Ch1",0,-1,10,intensityMode,1,true);
-		channel2.renderImage2D(pixelsize, true, tag+"Ch2",0,-1,10,intensityMode,1,true);
+		channel1.renderImage2D(pixelsize, true, tag+"Ch1",0,-1,sigma*pixelsize,intensityMode,1,true);
+		channel2.renderImage2D(pixelsize, true, tag+"Ch2",0,-1,sigma*pixelsize,intensityMode,1,true);
 		
 		ImageProcessor ipRed = new FloatProcessor(pixelX,pixelY);
 		ImageProcessor ipGreen = new FloatProcessor(pixelX,pixelY);
@@ -657,6 +657,7 @@ public class StormData implements Serializable{
 	
 	float[][] addFilteredPoints(float[][] image, double sigma, int filterwidth, 
 			double pixelsize, ArrayList<StormLocalization> sd, int mode, int intensityMode){
+		filterwidth = filterwidth +4;
 		if (filterwidth %2 == 0) {System.err.println("filterwidth must be odd");}
 		//double factor = 100*1/(2*Math.PI*sigma*sigma);
 		double factor2 = -0.5/sigma/sigma;
@@ -690,12 +691,12 @@ public class StormData implements Serializable{
 					break;
 			}
 			
-			int pixelXStart = (int)Math.round(posX) - (filterwidth+1)/2;
-			int pixelYStart = (int)Math.round(posY) - (filterwidth+1)/2;
+			int pixelXStart = (int)Math.round(posX - (filterwidth-1)/2);
+			int pixelYStart = (int)Math.round(posY - (filterwidth-1)/2);
 			float corrFactor = 1; //factor to compensate the cutoff due to discrete Gaussian
 			if (intensityMode == 1){
-				for (int k = pixelXStart; k<pixelXStart+ filterwidth;k++){
-					for(int l= pixelYStart; l<pixelYStart+ filterwidth;l++){
+				for (int k = pixelXStart; k<=pixelXStart+ filterwidth;k++){
+					for(int l= pixelYStart; l<=pixelYStart+ filterwidth;l++){
 						try{
 							corrFactor += (float)(factor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
 							//System.out.println("factor: "+factor+" k: "+k+" l: "+l+"posX: "+posX+"posY: "+posY+" image[k][l]" +image[k][l]+" res: "+(float)(factor * Math.exp(-0.5/sigma/sigma*(Math.pow((k-posX),2)+Math.pow((l-posY),2)))));
@@ -704,8 +705,8 @@ public class StormData implements Serializable{
 				}
 				corrFactor -=1;
 			}
-			for (int k = pixelXStart; k<pixelXStart+ filterwidth;k++){
-				for(int l= pixelYStart; l<pixelYStart+ filterwidth;l++){
+			for (int k = pixelXStart; k<=pixelXStart+ filterwidth;k++){
+				for(int l= pixelYStart; l<=pixelYStart+ filterwidth;l++){
 					try{
 						image[k][l] = image[k][l] + (float)(factor/corrFactor * Math.exp(factor2*(Math.pow((k-posX),2)+Math.pow((l-posY),2))));
 						//System.out.println("factor: "+factor+" k: "+k+" l: "+l+"posX: "+posX+"posY: "+posY+" image[k][l]" +image[k][l]+" res: "+(float)(factor * Math.exp(-0.5/sigma/sigma*(Math.pow((k-posX),2)+Math.pow((l-posY),2)))));
