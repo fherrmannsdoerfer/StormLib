@@ -446,11 +446,15 @@ class UnmixFrame implements Runnable{
 							double int0 = thisLoc.getIntensity();
 							double int1 = currLoc.getIntensity();
 							double sumInt = int0+int1;
-							coloredSet.addElement(new StormLocalization((int0*thisLoc.getX()+int1*currLoc.getX())/sumInt,
-									(int0*thisLoc.getY()+int1*currLoc.getY())/sumInt,
-									(int0*thisLoc.getZ()+int1*currLoc.getZ())/sumInt, 
+							//statt (int0*thisLoc.getX()+int1*currLoc.getX())/sumInt
+							// thisLoc.getX() für rechten Kanal und currLoc.getX() für linken Kanal
+							// ähnlich auch getY() und getZ() ersetzen
+							// auch Zeile 457 mtIntensitäten eraetzens
+							coloredSet.addElement(new StormLocalization(thisLoc.getX(),
+									thisLoc.getY(),
+									thisLoc.getZ(),
 									currFrame,
-									(thisLoc.getIntensity()+currLoc.getIntensity())/2, 
+									thisLoc.getIntensity(), //für rechten Kanal diese Zeile durch thisLoc.getIntensity() ersetzen, für linken Kanal currLoc.getIntensity
 									atan));}
 						synchronized(demixingData){
 						demixingData.addElements(currLoc, thisLoc, currFrameUntransformedCh1.getElement(i));}

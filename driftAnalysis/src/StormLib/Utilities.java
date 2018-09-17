@@ -200,13 +200,13 @@ public class Utilities {
 				int currFrame = currLoc.getFrame();
 				int evaluatedFrame = currFrame + 1;
 				//System.out.println(i+" "+j);
-				while (currFrame + maxdistBetweenLocalizations >= evaluatedFrame && evaluatedFrame < framemax){//runs as long as there are consecutive localizations within a maximum distance of maxdistBetweenLoc...
+				while (currFrame + maxdistBetweenLocalizations >= evaluatedFrame && evaluatedFrame <= framemax){//runs as long as there are consecutive localizations within a maximum distance of maxdistBetweenLoc...
 					for (int k = 0; k<frames.get(evaluatedFrame).size(); k++){//runs through all locs of the currently evaluated frame
 						StormLocalization compLoc = frames.get(evaluatedFrame).get(k);
 						if (Math.abs(currLoc.getY()-compLoc.getY())<dy && Math.abs(currLoc.getX()-compLoc.getX())<dx && Math.abs(currLoc.getZ()-compLoc.getZ())<dz) {
 							frames.get(evaluatedFrame).remove(k); // remove found localization to avoid duplication
 							currFrame = evaluatedFrame; //currFrame describes the frame of the current localization so it is changed to the frame of the matching loc which becomes the new current loc
-							evaluatedFrame = currFrame +1;
+							evaluatedFrame = currFrame;
 							currTrace.add(compLoc);
 							currLoc = compLoc;
 							break;
@@ -339,25 +339,24 @@ public class Utilities {
 		int counter = 0;
 		Progressbar pb = new Progressbar(0,traces.size(), 0,"Connecting traces ...");
 		for (int i = 0; i< traces.size(); i++) {
-			if (traces.get(i).size() < 10){ //beads are not connected
-				if (traces.get(i).size()>1){
-					counter = counter + 1;
-				}
-				double x = 0, y = 0, z = 0, intensity =0,angle = 0;
-				int frame = traces.get(i).get(0).getFrame();
-				for (int j = 0; j<traces.get(i).size(); j++) {
-					x = x + traces.get(i).get(j).getX();
-					y = y + traces.get(i).get(j).getY();
-					z = z + traces.get(i).get(j).getZ();
-					intensity = intensity + traces.get(i).get(j).getIntensity();
-					angle = angle +traces.get(i).get(j).getAngle();
-				}
-				x = x / traces.get(i).size();
-				y = y / traces.get(i).size();
-				z = z / traces.get(i).size();
-				angle =angle / traces.get(i).size();
-				connectedLoc.add(new StormLocalization(x,y,z,frame,intensity,angle));	
+			if (traces.get(i).size()>1){
+				counter = counter + 1;
 			}
+			double x = 0, y = 0, z = 0, intensity =0,angle = 0;
+			int frame = traces.get(i).get(0).getFrame();
+			for (int j = 0; j<traces.get(i).size(); j++) {
+				x = x + traces.get(i).get(j).getX();
+				y = y + traces.get(i).get(j).getY();
+				z = z + traces.get(i).get(j).getZ();
+				intensity = intensity + traces.get(i).get(j).getIntensity();
+				angle = angle +traces.get(i).get(j).getAngle();
+			}
+			x = x / traces.get(i).size();
+			y = y / traces.get(i).size();
+			z = z / traces.get(i).size();
+			angle =angle / traces.get(i).size();
+			connectedLoc.add(new StormLocalization(x,y,z,frame,intensity,angle));	
+	
 			pb.updateProgress(i);
 		}
 		return connectedLoc;
